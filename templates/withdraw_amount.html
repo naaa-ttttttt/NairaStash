@@ -1,0 +1,260 @@
+{% extends "base.html" %}
+
+{% block title %}Withdrawal amount · NairaStash{% endblock %}
+
+{% block body_class %}pb-32{% endblock %}
+
+{% block nav %}{% endblock %}
+
+{% block content %}
+<header class="sticky top-0 z-30 flex items-center justify-between gap-2 px-5 h-16 bg-forest-900/50 backdrop-blur-xl">
+  <button type="button" onclick="history.back()" aria-label="Go back"
+    class="size-11 -ml-2 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 active:scale-95 transition-all">
+    <span class="material-symbols-outlined text-[22px]">arrow_back</span>
+  </button>
+  <div class="flex flex-col items-center min-w-0">
+    <span class="text-[10px] font-semibold uppercase tracking-widest text-lime">Withdraw</span>
+    <h1 class="text-base font-semibold tracking-tight text-white truncate">Amount</h1>
+  </div>
+  <a href="/" aria-label="Close"
+    class="size-11 -mr-2 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 active:scale-95 transition-all">
+    <span class="material-symbols-outlined text-[22px]">close</span>
+  </a>
+</header>
+
+<main class="flex-1 flex flex-col gap-4 px-5 pt-2">
+
+  <!-- fragment: withdraw-stepper -->
+  <div class="glass rounded-2xl p-3">
+    <div class="flex items-center">
+      <div class="flex flex-col items-center gap-1">
+        <div class="size-7 rounded-full bg-lime text-lime-ink flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">check</span></div>
+        <span class="text-[10px] font-semibold uppercase tracking-wider text-lime">Plan</span>
+      </div>
+      <div class="flex-1 h-0.5 mx-1.5 -mt-4 rounded-full bg-lime"></div>
+      <div class="flex flex-col items-center gap-1">
+        <div class="size-7 rounded-full bg-azure text-white ring-2 ring-white/30 flex items-center justify-center text-xs font-semibold">2</div>
+        <span class="text-[10px] font-semibold uppercase tracking-wider text-white">Amount</span>
+      </div>
+      <div class="flex-1 h-0.5 mx-1.5 -mt-4 rounded-full bg-white/10"></div>
+      <div class="flex flex-col items-center gap-1">
+        <div class="size-7 rounded-full bg-white/10 text-white/50 flex items-center justify-center text-xs font-semibold">3</div>
+        <span class="text-[10px] uppercase tracking-wider text-white/50">Account</span>
+      </div>
+      <div class="flex-1 h-0.5 mx-1.5 -mt-4 rounded-full bg-white/10"></div>
+      <div class="flex flex-col items-center gap-1">
+        <div class="size-7 rounded-full bg-white/10 text-white/50 flex items-center justify-center text-xs font-semibold">4</div>
+        <span class="text-[10px] uppercase tracking-wider text-white/50">Review</span>
+      </div>
+    </div>
+  </div>
+  <!-- /fragment: withdraw-stepper -->
+
+  <!-- fragment: withdraw-amount-plan -->
+  <section class="glass rounded-3xl p-4 flex flex-col gap-3">
+    <div class="flex items-start justify-between gap-2">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="size-9 rounded-xl bg-white/10 text-lime flex items-center justify-center shrink-0">
+          <span id="v-icon" class="material-symbols-outlined fill-1 text-[20px]">security</span>
+        </div>
+        <div class="min-w-0">
+          <span class="text-[10px] uppercase tracking-wider text-white/50">Withdrawing from</span>
+          <h2 id="v-name" class="text-sm font-semibold text-white truncate"></h2>
+        </div>
+      </div>
+      <span id="v-note" class="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold"></span>
+    </div>
+    <div class="grid grid-cols-2 gap-2">
+      <div class="rounded-2xl bg-white/5 p-2.5">
+        <span class="text-[10px] uppercase text-white/50 block mb-0.5">Available balance</span>
+        <span id="v-avail" class="text-sm font-semibold text-white"></span>
+      </div>
+      <div class="rounded-2xl bg-white/5 p-2.5">
+        <span class="text-[10px] uppercase text-white/50 block mb-0.5">Auto-save target</span>
+        <span id="v-daily" class="text-sm font-semibold text-lime"></span>
+      </div>
+    </div>
+  </section>
+  <!-- /fragment: withdraw-amount-plan -->
+
+  <!-- fragment: withdraw-amount-input -->
+  <section class="glass rounded-3xl p-5 flex flex-col items-center">
+    <div class="flex items-center justify-between w-full mb-3">
+      <span class="text-[10px] font-semibold uppercase tracking-wider text-white/50">Withdrawal amount</span>
+      <span class="rounded-full bg-white/10 px-2 py-0.5 text-[10px] text-white/70">NGN (₦)</span>
+    </div>
+    <div class="flex items-baseline justify-center w-full">
+      <span class="text-3xl font-light text-white/40 mr-1">₦</span>
+      <input id="amt" type="text" inputmode="decimal" value="120,000.00" aria-label="Withdrawal amount"
+        class="w-full max-w-[240px] bg-transparent text-center text-4xl font-semibold tracking-tight text-white focus:outline-none">
+    </div>
+    <p id="amt-err" class="hidden mt-2 text-xs font-semibold text-red-300">Amount is more than your available balance.</p>
+    <p id="amt-hint" class="mt-2 mb-4 text-xs text-white/50 text-center">No withdrawal fees apply to this plan.</p>
+    <div class="grid grid-cols-4 gap-2 w-full">
+      <button type="button" data-val="25000" class="chip rounded-xl bg-white/10 py-2 text-xs font-semibold text-white active:scale-95 transition-all">₦25,000</button>
+      <button type="button" data-val="50000" class="chip rounded-xl bg-white/10 py-2 text-xs font-semibold text-white active:scale-95 transition-all">₦50,000</button>
+      <button type="button" data-val="120000" class="chip rounded-xl bg-white/10 py-2 text-xs font-semibold text-white active:scale-95 transition-all">₦120,000</button>
+      <button type="button" data-val="max" class="chip rounded-xl bg-white/10 py-2 text-xs font-semibold text-lime active:scale-95 transition-all">Max</button>
+    </div>
+  </section>
+  <!-- /fragment: withdraw-amount-input -->
+
+  <!-- fragment: withdraw-amount-impact -->
+  <section class="glass rounded-3xl p-4 flex flex-col gap-3">
+    <div class="flex items-center gap-3">
+      <span class="material-symbols-outlined fill-1 text-lime text-[20px]">insights</span>
+      <div>
+        <h3 class="text-sm font-semibold text-white">Balance impact</h3>
+        <span class="text-[10px] font-semibold uppercase tracking-wider text-lime">Calculated live</span>
+      </div>
+    </div>
+    <div class="flex items-center justify-between rounded-2xl bg-white/5 px-3 py-2.5">
+      <span class="text-xs text-white">Scheduled auto-debits</span>
+      <span id="impact-pill" class="rounded-full px-2 py-0.5 text-[10px] font-semibold"></span>
+    </div>
+    <div class="grid grid-cols-2 gap-2">
+      <div class="rounded-2xl bg-white/5 p-3">
+        <span class="text-[10px] uppercase text-white/50 block mb-1">Current balance</span>
+        <span id="cur-bal" class="text-sm font-semibold text-white block"></span>
+      </div>
+      <div class="rounded-2xl bg-white/5 p-3">
+        <div class="flex items-center justify-between mb-1">
+          <span class="text-[10px] uppercase text-white/50">After</span>
+          <span id="delta" class="text-[10px] font-semibold text-red-300"></span>
+        </div>
+        <span id="post-bal" class="text-sm font-semibold text-lime block"></span>
+      </div>
+    </div>
+    <div class="flex items-start gap-2">
+      <span class="material-symbols-outlined fill-1 text-lime text-[16px] mt-0.5">check_circle</span>
+      <p class="text-xs text-white/60"><strong class="text-white">Daily saving:</strong> your <span id="note-daily"></span> auto-save keeps running as normal.</p>
+    </div>
+  </section>
+  <!-- /fragment: withdraw-amount-impact -->
+
+  <!-- fragment: withdraw-amount-tip -->
+  <div class="rounded-3xl bg-warn/10 border border-warn/20 p-4 flex items-start gap-3">
+    <div class="size-8 rounded-xl bg-warn/20 text-warn flex items-center justify-center shrink-0">
+      <span class="material-symbols-outlined text-[18px]">verified</span>
+    </div>
+    <div>
+      <span class="text-[10px] font-semibold uppercase tracking-wider text-warn block">Streak protection</span>
+      <p class="text-xs text-white/70 mt-0.5">Keep at least ₦50,000 in the plan to protect your streak bonus.</p>
+    </div>
+  </div>
+  <!-- /fragment: withdraw-amount-tip -->
+
+</main>
+
+<!-- fragment: withdraw-amount-dock -->
+<div class="fixed bottom-0 left-0 right-0 z-40 max-w-md mx-auto px-5 pb-5">
+  <div class="glass-dark rounded-3xl p-3">
+    <a id="go" href="/withdraw/destination"
+      class="h-12 rounded-full bg-lime text-lime-ink text-sm font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition">
+      <span>Continue to account</span>
+      <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+    </a>
+  </div>
+</div>
+<!-- /fragment: withdraw-amount-dock -->
+
+<script>
+(function () {
+  var plans = {
+    'emergency': { name: 'Emergency Liquidity Vault', icon: 'security', daily: 5000, avail: 1420000, tone: 'ahead', note: '5 days ahead' },
+    'real-estate': { name: 'Real Estate Buffer', icon: 'domain', daily: 7500, avail: 845000, tone: 'ok', note: 'Up to date' },
+    'family-health': { name: 'Family Health Reserve', icon: 'favorite', daily: 2000, avail: 220000, tone: 'behind', note: '1 day behind' },
+    'tech-hardware': { name: 'Tech Hardware Refresh', icon: 'devices', daily: 1500, avail: 165000, tone: 'ahead', note: '3 days ahead' }
+  };
+  var tones = {
+    ahead: 'bg-lime/15 text-lime',
+    ok: 'bg-azure/15 text-azure',
+    behind: 'bg-warn/15 text-warn'
+  };
+  var MIN_KEEP = 50000;
+
+  var q = new URLSearchParams(location.search);
+  var planId = plans[q.get('plan')] ? q.get('plan') : 'emergency';
+  var p = plans[planId];
+
+  function money(n) {
+    return '₦' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  function el(id) { return document.getElementById(id); }
+
+  el('v-icon').textContent = p.icon;
+  el('v-name').textContent = p.name;
+  el('v-note').textContent = p.note;
+  el('v-note').className = 'shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ' + tones[p.tone];
+  el('v-avail').textContent = money(p.avail);
+  el('v-daily').textContent = '₦' + p.daily.toLocaleString('en-US') + ' / day';
+  el('cur-bal').textContent = money(p.avail);
+  el('note-daily').textContent = '₦' + p.daily.toLocaleString('en-US') + '/day';
+
+  var input = el('amt');
+  var chips = document.querySelectorAll('.chip');
+
+  function parse() {
+    var n = parseFloat(input.value.replace(/[^0-9.]/g, ''));
+    return isNaN(n) ? 0 : n;
+  }
+
+  function update() {
+    var n = parse();
+    var over = n > p.avail;
+    var remaining = Math.max(0, p.avail - n);
+    var ok = n > 0 && !over;
+
+    el('post-bal').textContent = money(remaining);
+    el('delta').textContent = '-' + money(Math.min(n, p.avail));
+    el('amt-err').classList.toggle('hidden', !over);
+    el('amt-hint').classList.toggle('hidden', over);
+
+    var pill = el('impact-pill');
+    if (over) {
+      pill.textContent = 'Not enough balance';
+      pill.className = 'rounded-full px-2 py-0.5 text-[10px] font-semibold bg-red-400/15 text-red-300';
+    } else if (remaining < MIN_KEEP) {
+      pill.textContent = 'Low balance left';
+      pill.className = 'rounded-full px-2 py-0.5 text-[10px] font-semibold bg-warn/15 text-warn';
+    } else {
+      pill.textContent = 'Uninterrupted';
+      pill.className = 'rounded-full px-2 py-0.5 text-[10px] font-semibold bg-lime/15 text-lime';
+    }
+
+    chips.forEach(function (c) {
+      var v = c.getAttribute('data-val');
+      var val = v === 'max' ? p.avail : parseFloat(v);
+      var on = val === n;
+      c.classList.toggle('bg-lime/20', on);
+      c.classList.toggle('ring-1', on);
+      c.classList.toggle('ring-lime/60', on);
+      c.classList.toggle('bg-white/10', !on);
+    });
+
+    var go = el('go');
+    go.setAttribute('href', '/withdraw/destination?plan=' + planId + '&amount=' + n);
+    go.classList.toggle('opacity-50', !ok);
+    go.classList.toggle('pointer-events-none', !ok);
+  }
+
+  chips.forEach(function (c) {
+    c.addEventListener('click', function () {
+      var v = c.getAttribute('data-val');
+      var val = v === 'max' ? p.avail : parseFloat(v);
+      input.value = val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      update();
+    });
+  });
+
+  input.addEventListener('input', update);
+  input.addEventListener('blur', function () {
+    var n = parse();
+    input.value = n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    update();
+  });
+
+  update();
+})();
+</script>
+{% endblock %}

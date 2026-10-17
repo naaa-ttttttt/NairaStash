@@ -61,6 +61,36 @@ struct ProfileTemplate {
     active: &'static str,
 }
 
+#[derive(Template)]
+#[template(path = "notifications.html")]
+struct NotificationsTemplate {
+    active: &'static str,
+}
+
+#[derive(Template)]
+#[template(path = "withdraw_plan.html")]
+struct WithdrawPlanTemplate {
+    active: &'static str,
+}
+
+#[derive(Template)]
+#[template(path = "withdraw_amount.html")]
+struct WithdrawAmountTemplate {
+    active: &'static str,
+}
+
+#[derive(Template)]
+#[template(path = "withdraw_destination.html")]
+struct WithdrawDestinationTemplate {
+    active: &'static str,
+}
+
+#[derive(Template)]
+#[template(path = "withdraw_review.html")]
+struct WithdrawReviewTemplate {
+    active: &'static str,
+}
+
 async fn dashboard_handler() -> Html<String> {
     let t = DashboardTemplate {
         active: "home",
@@ -123,6 +153,28 @@ async fn profile_handler() -> Html<String> {
     Html(ProfileTemplate { active: "profile" }.render().unwrap())
 }
 
+async fn notifications_handler() -> Html<String> {
+    Html(NotificationsTemplate { active: "profile" }.render().unwrap())
+}
+
+// Withdrawal flow: plan -> amount -> destination -> review.
+// Choices travel in the query string until we have real data from SQLx.
+async fn withdraw_plan_handler() -> Html<String> {
+    Html(WithdrawPlanTemplate { active: "home" }.render().unwrap())
+}
+
+async fn withdraw_amount_handler() -> Html<String> {
+    Html(WithdrawAmountTemplate { active: "home" }.render().unwrap())
+}
+
+async fn withdraw_destination_handler() -> Html<String> {
+    Html(WithdrawDestinationTemplate { active: "home" }.render().unwrap())
+}
+
+async fn withdraw_review_handler() -> Html<String> {
+    Html(WithdrawReviewTemplate { active: "home" }.render().unwrap())
+}
+
 #[tokio::main]
 async fn main() {
     let app = Router::new()
@@ -138,7 +190,12 @@ async fn main() {
         // axum 0.8 wants "/groups/{id}" instead
         .route("/groups/:id", get(group_detail_handler))
         .route("/deposit", get(deposit_handler))
-        .route("/profile", get(profile_handler));
+        .route("/withdraw", get(withdraw_plan_handler))
+        .route("/withdraw/amount", get(withdraw_amount_handler))
+        .route("/withdraw/destination", get(withdraw_destination_handler))
+        .route("/withdraw/review", get(withdraw_review_handler))
+        .route("/profile", get(profile_handler))
+        .route("/notifications", get(notifications_handler));
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:3000").await.unwrap();
     println!("Server running at http://127.0.0.1:3000");

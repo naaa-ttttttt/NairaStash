@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block title %}Review withdrawal · NairaStash{% endblock %}
+
+{% block body_class %}pb-32{% endblock %}
+
+{% block nav %}{% endblock %}
+
+{% block content %}
+<header class="sticky top-0 z-30 flex items-center justify-between gap-2 px-5 h-16 bg-forest-900/50 backdrop-blur-xl">
+  <button type="button" onclick="history.back()" aria-label="Go back"
+    class="size-11 -ml-2 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 active:scale-95 transition-all">
+    <span class="material-symbols-outlined text-[22px]">arrow_back</span>
+  </button>
+  <div class="flex flex-col items-center min-w-0">
+    <span class="text-[10px] font-semibold uppercase tracking-widest text-lime">Withdraw</span>
+    <h1 class="text-base font-semibold tracking-tight text-white truncate">Review</h1>
+  </div>
+  <a href="/" aria-label="Close"
+    class="size-11 -mr-2 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 active:scale-95 transition-all">
+    <span class="material-symbols-outlined text-[22px]">close</span>
+  </a>
+</header>
+
+<main class="flex-1 flex flex-col gap-4 px-5 pt-2">
+
+  <!-- fragment: withdraw-review-form -->
+  <div id="review" class="flex flex-col gap-4">
+
+    <div class="glass rounded-2xl p-3">
+      <div class="flex items-center">
+        <div class="flex flex-col items-center gap-1">
+          <div class="size-7 rounded-full bg-lime text-lime-ink flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">check</span></div>
+          <span class="text-[10px] font-semibold uppercase tracking-wider text-lime">Plan</span>
+        </div>
+        <div class="flex-1 h-0.5 mx-1.5 -mt-4 rounded-full bg-lime"></div>
+        <div class="flex flex-col items-center gap-1">
+          <div class="size-7 rounded-full bg-lime text-lime-ink flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">check</span></div>
+          <span class="text-[10px] font-semibold uppercase tracking-wider text-lime">Amount</span>
+        </div>
+        <div class="flex-1 h-0.5 mx-1.5 -mt-4 rounded-full bg-lime"></div>
+        <div class="flex flex-col items-center gap-1">
+          <div class="size-7 rounded-full bg-lime text-lime-ink flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">check</span></div>
+          <span class="text-[10px] font-semibold uppercase tracking-wider text-lime">Account</span>
+        </div>
+        <div class="flex-1 h-0.5 mx-1.5 -mt-4 rounded-full bg-lime"></div>
+        <div class="flex flex-col items-center gap-1">
+          <div class="size-7 rounded-full bg-azure text-white ring-2 ring-white/30 flex items-center justify-center text-xs font-semibold">4</div>
+          <span class="text-[10px] font-semibold uppercase tracking-wider text-white">Review</span>
+        </div>
+      </div>
+    </div>
+
+    <section class="glass rounded-3xl p-5 text-center">
+      <span class="text-[10px] font-semibold uppercase tracking-wider text-white/50">You are withdrawing</span>
+      <p id="r-amount" class="mt-1 text-4xl font-semibold tracking-tight text-white"></p>
+      <p class="mt-1 text-xs text-white/50">NGN • Zero fees</p>
+    </section>
+
+    <section class="glass rounded-3xl divide-y divide-white/10 overflow-hidden">
+      <div class="flex items-center justify-between gap-3 px-4 py-3.5">
+        <div class="min-w-0">
+          <p class="text-[10px] uppercase tracking-wider text-white/50">From plan</p>
+          <p id="r-plan" class="text-sm font-semibold text-white truncate"></p>
+        </div>
+        <a id="e-plan" href="/withdraw" class="text-xs font-semibold text-lime shrink-0">Edit</a>
+      </div>
+      <div class="flex items-center justify-between gap-3 px-4 py-3.5">
+        <div class="min-w-0">
+          <p class="text-[10px] uppercase tracking-wider text-white/50">Amount</p>
+          <p id="r-amount-2" class="text-sm font-semibold text-white"></p>
+        </div>
+        <a id="e-amount" href="/withdraw/amount" class="text-xs font-semibold text-lime shrink-0">Edit</a>
+      </div>
+      <div class="flex items-center justify-between gap-3 px-4 py-3.5">
+        <div class="min-w-0">
+          <p class="text-[10px] uppercase tracking-wider text-white/50">To account</p>
+          <p id="r-dest" class="text-sm font-semibold text-white truncate"></p>
+          <p id="r-dest-sub" class="text-xs text-white/60"></p>
+        </div>
+        <a id="e-dest" href="/withdraw/destination" class="text-xs font-semibold text-lime shrink-0">Edit</a>
+      </div>
+      <div class="flex items-center justify-between gap-3 px-4 py-3.5">
+        <p class="text-xs text-white/60">Processing fee</p>
+        <p class="text-sm font-semibold text-lime">₦0.00</p>
+      </div>
+      <div class="flex items-center justify-between gap-3 px-4 py-3.5 bg-white/5">
+        <p class="text-xs font-semibold text-white">You receive</p>
+        <p id="r-total" class="text-sm font-semibold text-white"></p>
+      </div>
+    </section>
+
+    <div class="flex items-start gap-2 px-1">
+      <span class="material-symbols-outlined text-white/50 text-[16px] mt-0.5">lock</span>
+      <p class="text-xs text-white/50">Protected by 256-bit encryption. Withdrawals cannot be undone once sent.</p>
+    </div>
+  </div>
+  <!-- /fragment: withdraw-review-form -->
+
+  <!-- fragment: withdraw-review-success -->
+  <section id="success" class="hidden flex-1 flex-col items-center justify-center text-center gap-4 py-16">
+    <div class="size-20 rounded-full bg-lime text-lime-ink flex items-center justify-center">
+      <span class="material-symbols-outlined fill-1 text-[44px]">check_circle</span>
+    </div>
+    <div>
+      <h2 class="text-2xl font-semibold tracking-tight text-white">Withdrawal submitted</h2>
+      <p id="s-text" class="text-sm text-white/60 mt-1"></p>
+      <p class="text-xs text-white/40 mt-2">Reference: #WTH-9022</p>
+    </div>
+    <a href="/" class="mt-2 h-12 px-8 rounded-full bg-lime text-lime-ink text-sm font-semibold flex items-center justify-center active:scale-[0.98] transition">Back to home</a>
+  </section>
+  <!-- /fragment: withdraw-review-success -->
+
+</main>
+
+<!-- fragment: withdraw-review-dock -->
+<div id="dock" class="fixed bottom-0 left-0 right-0 z-40 max-w-md mx-auto px-5 pb-5">
+  <div class="glass-dark rounded-3xl p-3">
+    <button id="confirm" type="button"
+      class="w-full h-12 rounded-full bg-lime text-lime-ink text-sm font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition">
+      <span class="material-symbols-outlined text-[20px]">lock</span>
+      <span>Confirm withdrawal</span>
+    </button>
+  </div>
+</div>
+<!-- /fragment: withdraw-review-dock -->
+
+<script>
+(function () {
+  var plans = {
+    'emergency': 'Emergency Liquidity Vault',
+    'real-estate': 'Real Estate Buffer',
+    'family-health': 'Family Health Reserve',
+    'tech-hardware': 'Tech Hardware Refresh'
+  };
+  var dests = {
+    'gtbank': { name: 'GTBank Savings', sub: '•••• 4920 • Instant transfer (NIP)', short: 'GTBank' },
+    'access': { name: 'Access Bank Current', sub: '•••• 8104 • Within 1 business day', short: 'Access Bank' },
+    'card': { name: 'Verve debit card', sub: '•••• 3319 • Instant push to card', short: 'your Verve card' }
+  };
+
+  var q = new URLSearchParams(location.search);
+  var planId = plans[q.get('plan')] ? q.get('plan') : 'emergency';
+  var destId = dests[q.get('dest')] ? q.get('dest') : 'gtbank';
+  var amount = parseFloat(q.get('amount'));
+  if (isNaN(amount) || amount <= 0) amount = 120000;
+
+  var money = '₦' + amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  function el(id) { return document.getElementById(id); }
+
+  el('r-amount').textContent = money;
+  el('r-amount-2').textContent = money;
+  el('r-total').textContent = money;
+  el('r-plan').textContent = plans[planId];
+  el('r-dest').textContent = dests[destId].name;
+  el('r-dest-sub').textContent = dests[destId].sub;
+
+  el('e-plan').setAttribute('href', '/withdraw');
+  el('e-amount').setAttribute('href', '/withdraw/amount?plan=' + planId);
+  el('e-dest').setAttribute('href', '/withdraw/destination?plan=' + planId + '&amount=' + amount);
+
+  el('confirm').addEventListener('click', function () {
+    el('review').classList.add('hidden');
+    el('dock').classList.add('hidden');
+    var s = el('success');
+    s.classList.remove('hidden');
+    s.classList.add('flex');
+    el('s-text').textContent = money + ' is on its way to ' + dests[destId].short + '.';
+    window.scrollTo(0, 0);
+  });
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+
+{% block title %}Destination account · NairaStash{% endblock %}
+
+{% block body_class %}pb-32{% endblock %}
+
+{% block nav %}{% endblock %}
+
+{% block content %}
+<header class="sticky top-0 z-30 flex items-center justify-between gap-2 px-5 h-16 bg-forest-900/50 backdrop-blur-xl">
+  <button type="button" onclick="history.back()" aria-label="Go back"
+    class="size-11 -ml-2 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 active:scale-95 transition-all">
+    <span class="material-symbols-outlined text-[22px]">arrow_back</span>
+  </button>
+  <div class="flex flex-col items-center min-w-0">
+    <span class="text-[10px] font-semibold uppercase tracking-widest text-lime">Withdraw</span>
+    <h1 class="text-base font-semibold tracking-tight text-white truncate">Destination account</h1>
+  </div>
+  <a href="/" aria-label="Close"
+    class="size-11 -mr-2 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 active:scale-95 transition-all">
+    <span class="material-symbols-outlined text-[22px]">close</span>
+  </a>
+</header>
+
+<main class="flex-1 flex flex-col gap-4 px-5 pt-2">
+
+  <!-- fragment: withdraw-stepper -->
+  <div class="glass rounded-2xl p-3">
+    <div class="flex items-center">
+      <div class="flex flex-col items-center gap-1">
+        <div class="size-7 rounded-full bg-lime text-lime-ink flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">check</span></div>
+        <span class="text-[10px] font-semibold uppercase tracking-wider text-lime">Plan</span>
+      </div>
+      <div class="flex-1 h-0.5 mx-1.5 -mt-4 rounded-full bg-lime"></div>
+      <div class="flex flex-col items-center gap-1">
+        <div class="size-7 rounded-full bg-lime text-lime-ink flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">check</span></div>
+        <span class="text-[10px] font-semibold uppercase tracking-wider text-lime">Amount</span>
+      </div>
+      <div class="flex-1 h-0.5 mx-1.5 -mt-4 rounded-full bg-lime"></div>
+      <div class="flex flex-col items-center gap-1">
+        <div class="size-7 rounded-full bg-azure text-white ring-2 ring-white/30 flex items-center justify-center text-xs font-semibold">3</div>
+        <span class="text-[10px] font-semibold uppercase tracking-wider text-white">Account</span>
+      </div>
+      <div class="flex-1 h-0.5 mx-1.5 -mt-4 rounded-full bg-white/10"></div>
+      <div class="flex flex-col items-center gap-1">
+        <div class="size-7 rounded-full bg-white/10 text-white/50 flex items-center justify-center text-xs font-semibold">4</div>
+        <span class="text-[10px] uppercase tracking-wider text-white/50">Review</span>
+      </div>
+    </div>
+  </div>
+  <!-- /fragment: withdraw-stepper -->
+
+  <!-- fragment: withdraw-dest-intro -->
+  <section>
+    <div class="flex items-center gap-2 mb-1">
+      <span class="material-symbols-outlined text-lime text-[20px]">account_balance</span>
+      <h2 class="text-lg font-semibold text-white">Select destination account</h2>
+    </div>
+    <p class="text-sm text-white/60">Choose where to send your <span id="amt-text" class="font-semibold text-lime">₦120,000.00</span> withdrawal.</p>
+  </section>
+  <!-- /fragment: withdraw-dest-intro -->
+
+  <!-- fragment: withdraw-dest-list -->
+  <div id="dest-list" class="flex flex-col gap-3">
+
+    <button type="button" data-id="gtbank" class="dest glass w-full text-left rounded-3xl p-4 transition-all ring-2 ring-lime/70">
+      <div class="flex items-start justify-between gap-3 mb-2">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="size-10 rounded-2xl bg-white/10 text-lime flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-[22px]">account_balance</span>
+          </div>
+          <div class="min-w-0">
+            <span class="text-sm font-semibold text-white block truncate">GTBank Savings</span>
+            <span class="text-xs text-white/50">•••• 4920</span>
+          </div>
+        </div>
+        <div class="badge size-6 rounded-full bg-lime text-lime-ink flex items-center justify-center shrink-0">
+          <span class="material-symbols-outlined text-[16px]">check</span>
+        </div>
+      </div>
+      <p class="text-xs text-white/60 mb-3">Primary linked account • Verified</p>
+      <div class="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-black/20 px-3 py-2">
+        <div class="flex items-center gap-1.5 text-lime">
+          <span class="material-symbols-outlined text-[16px]">bolt</span>
+          <span class="text-[11px] font-semibold">Instant (₦0 fee, under 2 mins)</span>
+        </div>
+        <span class="rounded bg-lime/15 px-2 py-0.5 text-[10px] font-semibold tracking-wider text-lime">RECOMMENDED</span>
+      </div>
+    </button>
+
+    <button type="button" data-id="access" class="dest glass w-full text-left rounded-3xl p-4 transition-all hover:bg-white/10">
+      <div class="flex items-start justify-between gap-3 mb-2">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="size-10 rounded-2xl bg-white/10 text-white/60 flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-[22px]">savings</span>
+          </div>
+          <div class="min-w-0">
+            <span class="text-sm font-semibold text-white block truncate">Access Bank Current</span>
+            <span class="text-xs text-white/50">•••• 8104</span>
+          </div>
+        </div>
+        <div class="badge size-6 rounded-full bg-white/10 text-transparent flex items-center justify-center shrink-0">
+          <span class="material-symbols-outlined text-[16px]">check</span>
+        </div>
+      </div>
+      <p class="text-xs text-white/60 mb-2">Standard transfer • Within 1 business day</p>
+      <div class="flex items-center justify-between pt-1">
+        <span class="text-[11px] text-white/50 flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">schedule</span>Standard speed</span>
+        <span class="text-[11px] font-semibold text-lime">Zero fee</span>
+      </div>
+    </button>
+
+    <button type="button" data-id="card" class="dest glass w-full text-left rounded-3xl p-4 transition-all hover:bg-white/10">
+      <div class="flex items-start justify-between gap-3 mb-2">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="size-10 rounded-2xl bg-white/10 text-white/60 flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-[22px]">credit_card</span>
+          </div>
+          <div class="min-w-0">
+            <span class="text-sm font-semibold text-white block truncate">Verve debit card</span>
+            <span class="text-xs text-white/50">•••• 3319</span>
+          </div>
+        </div>
+        <div class="badge size-6 rounded-full bg-white/10 text-transparent flex items-center justify-center shrink-0">
+          <span class="material-symbols-outlined text-[16px]">check</span>
+        </div>
+      </div>
+      <p class="text-xs text-white/60 mb-2">Instant push to card • Instant settlement</p>
+      <div class="flex items-center justify-between pt-1">
+        <span class="text-[11px] text-lime flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">flash_on</span>Instant payout</span>
+        <span class="text-[11px] text-white/60">Instant</span>
+      </div>
+    </button>
+
+    <button type="button"
+      class="w-full rounded-3xl bg-white/5 hover:bg-white/10 py-3.5 flex items-center justify-center gap-2 text-azure transition-colors">
+      <span class="size-7 rounded-full bg-azure/15 flex items-center justify-center"><span class="material-symbols-outlined text-[18px]">add</span></span>
+      <span class="text-sm font-medium">Link new bank account or card</span>
+    </button>
+  </div>
+  <!-- /fragment: withdraw-dest-list -->
+
+  <!-- fragment: withdraw-dest-guarantee -->
+  <section class="glass rounded-3xl p-4">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="material-symbols-outlined text-lime text-[18px]">verified_user</span>
+      <span class="text-[11px] font-semibold uppercase tracking-wider text-white">Settlement guarantee</span>
+    </div>
+    <div class="flex flex-col gap-2.5">
+      <div class="flex items-start gap-2.5">
+        <span class="material-symbols-outlined text-lime text-[16px] mt-0.5">bolt</span>
+        <p class="text-xs text-white/60"><span class="font-medium text-white">Speed: </span>Instant settlement via NIP transfer</p>
+      </div>
+      <div class="flex items-start gap-2.5">
+        <span class="material-symbols-outlined text-lime text-[16px] mt-0.5">payments</span>
+        <p class="text-xs text-white/60"><span class="font-medium text-white">Processing fee: </span><span class="font-semibold text-lime">₦0.00</span> (zero fee for NairaStash members)</p>
+      </div>
+      <div class="flex items-start gap-2.5">
+        <span class="material-symbols-outlined text-lime text-[16px] mt-0.5">lock</span>
+        <p class="text-xs text-white/60"><span class="font-medium text-white">Safety: </span>256-bit encryption • CBN-licensed partner bank</p>
+      </div>
+    </div>
+  </section>
+  <!-- /fragment: withdraw-dest-guarantee -->
+
+</main>
+
+<!-- fragment: withdraw-dest-dock -->
+<div class="fixed bottom-0 left-0 right-0 z-40 max-w-md mx-auto px-5 pb-5">
+  <div class="glass-dark rounded-3xl p-3">
+    <a id="go" href="/withdraw/review"
+      class="h-12 rounded-full bg-lime text-lime-ink text-sm font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition">
+      <span id="go-label">Review withdrawal</span>
+      <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+    </a>
+  </div>
+</div>
+<!-- /fragment: withdraw-dest-dock -->
+
+<script>
+(function () {
+  var q = new URLSearchParams(location.search);
+  var planId = q.get('plan') || 'emergency';
+  var amount = parseFloat(q.get('amount'));
+  if (isNaN(amount) || amount <= 0) amount = 120000;
+  var chosen = 'gtbank';
+
+  var amtText = '₦' + amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  document.getElementById('amt-text').textContent = amtText;
+  document.getElementById('go-label').textContent = 'Review withdrawal (' + amtText + ')';
+
+  var cards = document.querySelectorAll('#dest-list .dest');
+
+  function apply() {
+    cards.forEach(function (c) {
+      var on = c.getAttribute('data-id') === chosen;
+      c.classList.toggle('ring-2', on);
+      c.classList.toggle('ring-lime/70', on);
+      c.classList.toggle('hover:bg-white/10', !on);
+      var b = c.querySelector('.badge');
+      b.classList.toggle('bg-lime', on);
+      b.classList.toggle('text-lime-ink', on);
+      b.classList.toggle('bg-white/10', !on);
+      b.classList.toggle('text-transparent', !on);
+    });
+    document.getElementById('go').setAttribute('href',
+      '/withdraw/review?plan=' + planId + '&amount=' + amount + '&dest=' + chosen);
+  }
+
+  cards.forEach(function (c) {
+    c.addEventListener('click', function () {
+      chosen = c.getAttribute('data-id');
+      apply();
+    });
+  });
+
+  apply();
+})();
+</script>
+{% endblock %}
