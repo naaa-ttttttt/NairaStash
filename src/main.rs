@@ -91,6 +91,36 @@ struct WithdrawReviewTemplate {
     active: &'static str,
 }
 
+#[derive(Template)]
+#[template(path = "loan_request.html")]
+struct LoanRequestTemplate {
+    active: &'static str,
+}
+
+#[derive(Template)]
+#[template(path = "loan_review.html")]
+struct LoanReviewTemplate {
+    active: &'static str,
+}
+
+#[derive(Template)]
+#[template(path = "loan_detail.html")]
+struct LoanDetailTemplate {
+    active: &'static str,
+}
+
+#[derive(Template)]
+#[template(path = "group_rules.html")]
+struct GroupRulesTemplate {
+    active: &'static str,
+}
+
+#[derive(Template)]
+#[template(path = "group_approvals.html")]
+struct GroupApprovalsTemplate {
+    active: &'static str,
+}
+
 async fn dashboard_handler() -> Html<String> {
     let t = DashboardTemplate {
         active: "home",
@@ -175,6 +205,28 @@ async fn withdraw_review_handler() -> Html<String> {
     Html(WithdrawReviewTemplate { active: "home" }.render().unwrap())
 }
 
+// Group loan flow: request -> review -> detail (all loans wait for admin approval).
+async fn loan_request_handler() -> Html<String> {
+    Html(LoanRequestTemplate { active: "groups" }.render().unwrap())
+}
+
+async fn loan_review_handler() -> Html<String> {
+    Html(LoanReviewTemplate { active: "groups" }.render().unwrap())
+}
+
+async fn loan_detail_handler() -> Html<String> {
+    Html(LoanDetailTemplate { active: "groups" }.render().unwrap())
+}
+
+// Group rules and the admin approvals queue (group id ignored until SQLx).
+async fn group_rules_handler() -> Html<String> {
+    Html(GroupRulesTemplate { active: "groups" }.render().unwrap())
+}
+
+async fn group_approvals_handler() -> Html<String> {
+    Html(GroupApprovalsTemplate { active: "groups" }.render().unwrap())
+}
+
 #[tokio::main]
 async fn main() {
     let app = Router::new()
@@ -194,6 +246,11 @@ async fn main() {
         .route("/withdraw/amount", get(withdraw_amount_handler))
         .route("/withdraw/destination", get(withdraw_destination_handler))
         .route("/withdraw/review", get(withdraw_review_handler))
+        .route("/loans/new", get(loan_request_handler))
+        .route("/loans/review", get(loan_review_handler))
+        .route("/loans/detail", get(loan_detail_handler))
+        .route("/rules", get(group_rules_handler))
+        .route("/approvals", get(group_approvals_handler))
         .route("/profile", get(profile_handler))
         .route("/notifications", get(notifications_handler));
 
