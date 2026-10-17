@@ -1,0 +1,323 @@
+{% extends "base.html" %}
+
+{% block title %}Community Groups · Thrift Vault{% endblock %}
+
+{% block content %}
+<header class="sticky top-0 z-30 flex items-center justify-between px-5 h-16 bg-forest-900/50 backdrop-blur-xl">
+  <div class="leading-tight">
+    <h1 class="text-lg font-semibold text-white">Community groups</h1>
+    <p class="text-[11px] text-white/60">4 groups · auto-debit synchronized</p>
+  </div>
+  <button type="button" aria-label="Notifications"
+    class="relative size-10 rounded-full glass text-white flex items-center justify-center hover:bg-white/10 transition-colors">
+    <span class="material-symbols-outlined text-[20px]">notifications</span>
+    <span class="absolute top-2.5 right-2.5 size-2 rounded-full bg-lime ring-2 ring-forest-800"></span>
+  </button>
+</header>
+
+<main class="flex-1 flex flex-col gap-4 px-5 pt-4 pb-6">
+
+  <!-- Summary -->
+  <section class="glass rounded-3xl grid grid-cols-2 divide-x divide-white/10">
+    <div class="p-5">
+      <p class="text-xs text-white/60">Active groups</p>
+      <p class="mt-1 text-3xl font-semibold text-white">4</p>
+      <p class="mt-0.5 text-xs font-semibold text-lime">3 collecting</p>
+    </div>
+    <div class="p-5">
+      <p class="text-xs text-white/60">Group velocity</p>
+      <p class="mt-1 text-3xl font-semibold text-white">$100.00</p>
+      <p class="mt-0.5 text-xs text-white/50">per day</p>
+    </div>
+  </section>
+
+  <!-- Search + filters -->
+  <section class="flex flex-col gap-3">
+    <div class="relative">
+      <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-white/50 text-[20px] pointer-events-none">search</span>
+      <input id="search-input" type="text" placeholder="Search groups"
+        class="w-full h-12 pl-11 pr-11 rounded-full glass text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-lime/60 transition-colors">
+      <button id="clear-search" type="button"
+        class="hidden absolute right-3 top-1/2 -translate-y-1/2 size-6 rounded-full bg-white/10 flex items-center justify-center text-white/70">
+        <span class="material-symbols-outlined text-[14px]">close</span>
+      </button>
+    </div>
+
+    <div class="flex items-center gap-2 overflow-x-auto">
+      <button type="button" data-filter="all"
+        class="filter-pill shrink-0 px-4 py-2 rounded-full border text-xs font-semibold transition-colors bg-lime text-lime-ink border-lime">All (4)</button>
+      <button type="button" data-filter="active"
+        class="filter-pill shrink-0 px-4 py-2 rounded-full border text-xs font-medium transition-colors bg-white/[0.06] text-white/80 border-white/10">Active (3)</button>
+      <button type="button" data-filter="forming"
+        class="filter-pill shrink-0 px-4 py-2 rounded-full border text-xs font-medium transition-colors bg-white/[0.06] text-white/80 border-white/10">Forming (1)</button>
+    </div>
+  </section>
+
+  <!-- Group cards (each card = one fragment to loop later) -->
+  <div id="groups-container" class="flex flex-col gap-4">
+
+    <!-- 1: Founders Tech Stash -->
+    <a href="/groups/founders-x89" class="group-card glass rounded-3xl overflow-hidden block" data-name="founders tech stash" data-status="active">
+      <div class="p-5 flex flex-col gap-5">
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="size-11 shrink-0 rounded-full bg-azure text-white flex items-center justify-center">
+              <span class="material-symbols-outlined text-[22px]">token</span>
+            </div>
+            <div class="min-w-0">
+              <h2 class="text-sm font-semibold text-white truncate">Founders Tech Stash</h2>
+              <p class="text-xs text-white/60 truncate">Esusu chit · seed tech gear &amp; cloud credits</p>
+            </div>
+          </div>
+          <span class="shrink-0 rounded-full bg-lime/15 text-lime px-2.5 py-1 text-[11px] font-semibold">Cycle 5/8</span>
+        </div>
+
+        <div class="flex items-end justify-between">
+          <div>
+            <p class="text-xs text-white/60">Pool balance</p>
+            <p class="text-3xl font-semibold tracking-tight text-white">$12,400.00</p>
+          </div>
+          <div class="text-right">
+            <p class="text-xs text-white/60">Per member</p>
+            <p class="text-sm font-semibold text-white">$25.00 / day</p>
+          </div>
+        </div>
+
+        <div>
+          <div class="h-2 rounded-full bg-white/10 overflow-hidden">
+            <div class="h-full rounded-full bg-lime" style="width: 77%;"></div>
+          </div>
+          <div class="mt-2 flex justify-between text-xs text-white/60">
+            <span>77% of $16.0k goal</span>
+            <span>8 seats</span>
+          </div>
+        </div>
+      </div>
+      <div class="border-t border-white/10 px-5 py-3 flex items-center justify-between text-xs">
+        <span class="flex items-center gap-1.5 text-white/70">
+          <span class="material-symbols-outlined text-[16px] text-warn">cached</span>Your turn: <strong class="text-lime">Dec 12</strong> · $4,200.00
+        </span>
+        <span class="material-symbols-outlined text-[18px] text-white/50">chevron_right</span>
+      </div>
+    </a>
+
+    <!-- 2: Family Land Circle -->
+    <a href="/groups/family-land" class="group-card glass rounded-3xl overflow-hidden block" data-name="family land circle" data-status="active">
+      <div class="p-5 flex flex-col gap-5">
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="size-11 shrink-0 rounded-full bg-white/10 text-azure flex items-center justify-center">
+              <span class="material-symbols-outlined text-[22px]">home</span>
+            </div>
+            <div class="min-w-0">
+              <h2 class="text-sm font-semibold text-white truncate">Family Land Circle</h2>
+              <p class="text-xs text-white/60 truncate">Esusu chit · plot purchase fund</p>
+            </div>
+          </div>
+          <span class="shrink-0 rounded-full bg-lime/15 text-lime px-2.5 py-1 text-[11px] font-semibold">Cycle 2/6</span>
+        </div>
+
+        <div class="flex items-end justify-between">
+          <div>
+            <p class="text-xs text-white/60">Pool balance</p>
+            <p class="text-3xl font-semibold tracking-tight text-white">$5,600.00</p>
+          </div>
+          <div class="text-right">
+            <p class="text-xs text-white/60">Per member</p>
+            <p class="text-sm font-semibold text-white">$20.00 / day</p>
+          </div>
+        </div>
+
+        <div>
+          <div class="h-2 rounded-full bg-white/10 overflow-hidden">
+            <div class="h-full rounded-full bg-lime" style="width: 35%;"></div>
+          </div>
+          <div class="mt-2 flex justify-between text-xs text-white/60">
+            <span>35% of $16.0k goal</span>
+            <span>6 seats</span>
+          </div>
+        </div>
+      </div>
+      <div class="border-t border-white/10 px-5 py-3 flex items-center justify-between text-xs">
+        <span class="flex items-center gap-1.5 text-white/70">
+          <span class="material-symbols-outlined text-[16px] text-warn">cached</span>Your turn: <strong class="text-lime">Feb 20</strong> · $2,400.00
+        </span>
+        <span class="material-symbols-outlined text-[18px] text-white/50">chevron_right</span>
+      </div>
+    </a>
+
+    <!-- 3: Office Esusu (behind) -->
+    <a href="/groups/office-esusu" class="group-card glass rounded-3xl overflow-hidden block" data-name="office esusu" data-status="active">
+      <div class="p-5 flex flex-col gap-5">
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="size-11 shrink-0 rounded-full bg-warn/15 text-warn flex items-center justify-center">
+              <span class="material-symbols-outlined text-[22px]">work</span>
+            </div>
+            <div class="min-w-0">
+              <h2 class="text-sm font-semibold text-white truncate">Office Esusu</h2>
+              <p class="text-xs text-white/60 truncate">Esusu chit · monthly pot for the team</p>
+            </div>
+          </div>
+          <span class="shrink-0 rounded-full bg-warn/20 text-warn px-2.5 py-1 text-[11px] font-semibold">1 day behind</span>
+        </div>
+
+        <div class="flex items-end justify-between">
+          <div>
+            <p class="text-xs text-white/60">Pool balance</p>
+            <p class="text-3xl font-semibold tracking-tight text-white">$8,100.00</p>
+          </div>
+          <div class="text-right">
+            <p class="text-xs text-white/60">Per member</p>
+            <p class="text-sm font-semibold text-white">$30.00 / day</p>
+          </div>
+        </div>
+
+        <div>
+          <div class="h-2 rounded-full bg-white/10 overflow-hidden">
+            <div class="h-full rounded-full bg-warn" style="width: 54%;"></div>
+          </div>
+          <div class="mt-2 flex justify-between text-xs text-white/60">
+            <span>54% of $15.0k goal</span>
+            <span>10 seats</span>
+          </div>
+        </div>
+      </div>
+      <div class="border-t border-warn/20 bg-warn/10 px-5 py-3 flex items-center justify-between text-xs">
+        <span class="flex items-center gap-1.5 text-warn">
+          <span class="material-symbols-outlined text-[16px]">error_outline</span>$30.00 missed yesterday
+        </span>
+        <span class="material-symbols-outlined text-[18px] text-warn">chevron_right</span>
+      </div>
+    </a>
+
+    <!-- 4: Weekend Traders (forming) -->
+    <a href="/groups/weekend-traders" class="group-card glass rounded-3xl overflow-hidden block" data-name="weekend traders" data-status="forming">
+      <div class="p-5 flex flex-col gap-5">
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="size-11 shrink-0 rounded-full bg-white/10 text-lime flex items-center justify-center">
+              <span class="material-symbols-outlined text-[22px]">trending_up</span>
+            </div>
+            <div class="min-w-0">
+              <h2 class="text-sm font-semibold text-white truncate">Weekend Traders</h2>
+              <p class="text-xs text-white/60 truncate">Esusu chit · starts when seats are full</p>
+            </div>
+          </div>
+          <span class="shrink-0 rounded-full bg-azure/25 text-[#8DB8FF] px-2.5 py-1 text-[11px] font-semibold">Forming</span>
+        </div>
+
+        <div class="flex items-end justify-between">
+          <div>
+            <p class="text-xs text-white/60">Pool balance</p>
+            <p class="text-3xl font-semibold tracking-tight text-white">$0.00</p>
+          </div>
+          <div class="text-right">
+            <p class="text-xs text-white/60">Per member</p>
+            <p class="text-sm font-semibold text-white">$25.00 / day</p>
+          </div>
+        </div>
+
+        <div>
+          <div class="h-2 rounded-full bg-white/10 overflow-hidden">
+            <div class="h-full rounded-full bg-azure" style="width: 62%;"></div>
+          </div>
+          <div class="mt-2 flex justify-between text-xs text-white/60">
+            <span>5 of 8 seats filled</span>
+            <span>3 open</span>
+          </div>
+        </div>
+      </div>
+      <div class="border-t border-white/10 px-5 py-3 flex items-center justify-between text-xs">
+        <span class="flex items-center gap-1.5 text-white/70">
+          <span class="material-symbols-outlined text-[16px] text-white/50">hourglass_top</span>Waiting for members to join
+        </span>
+        <span class="material-symbols-outlined text-[18px] text-white/50">chevron_right</span>
+      </div>
+    </a>
+
+    <!-- Empty state -->
+    <div id="no-results" class="hidden glass rounded-3xl p-8 flex flex-col items-center text-center gap-2">
+      <div class="size-14 rounded-full bg-white/10 flex items-center justify-center text-white/60">
+        <span class="material-symbols-outlined text-[28px]">search_off</span>
+      </div>
+      <h3 class="text-sm font-semibold text-white">No groups found</h3>
+      <p class="text-xs text-white/60">Try resetting your filter or search.</p>
+      <button id="reset-filter-btn" type="button"
+        class="mt-2 h-10 px-5 rounded-full bg-lime text-lime-ink text-xs font-semibold active:scale-95 transition">
+        Reset filters
+      </button>
+    </div>
+  </div>
+
+  <!-- FAB -->
+  <aside class="sticky bottom-24 self-end z-30">
+    <a href="/groups/new"
+      class="h-12 px-5 rounded-full bg-lime text-lime-ink text-sm font-semibold flex items-center gap-2 shadow-xl active:scale-95 transition">
+      <span class="material-symbols-outlined text-[20px]">add</span>New group
+    </a>
+  </aside>
+
+  <script>
+    (function () {
+      const searchInput = document.getElementById('search-input');
+      const clearBtn = document.getElementById('clear-search');
+      const pills = document.querySelectorAll('.filter-pill');
+      const cards = document.querySelectorAll('.group-card');
+      const noResults = document.getElementById('no-results');
+      const resetBtn = document.getElementById('reset-filter-btn');
+
+      const ON = ['bg-lime', 'text-lime-ink', 'border-lime', 'font-semibold'];
+      const OFF = ['bg-white/[0.06]', 'text-white/80', 'border-white/10', 'font-medium'];
+
+      let currentFilter = 'all';
+      let query = '';
+
+      function apply() {
+        let visible = 0;
+        cards.forEach((card) => {
+          const okFilter = currentFilter === 'all' || card.dataset.status === currentFilter;
+          const okSearch = query === '' || (card.dataset.name || '').includes(query);
+          card.classList.toggle('hidden', !(okFilter && okSearch));
+          if (okFilter && okSearch) visible++;
+        });
+        noResults.classList.toggle('hidden', visible !== 0);
+      }
+
+      pills.forEach((pill) => {
+        pill.addEventListener('click', () => {
+          pills.forEach((p) => { p.classList.remove(...ON); p.classList.add(...OFF); });
+          pill.classList.remove(...OFF);
+          pill.classList.add(...ON);
+          currentFilter = pill.dataset.filter;
+          apply();
+        });
+      });
+
+      if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+          query = e.target.value.trim().toLowerCase();
+          clearBtn.classList.toggle('hidden', query.length === 0);
+          apply();
+        });
+        clearBtn.addEventListener('click', () => {
+          searchInput.value = '';
+          query = '';
+          clearBtn.classList.add('hidden');
+          apply();
+        });
+      }
+
+      if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+          query = '';
+          if (searchInput) searchInput.value = '';
+          if (clearBtn) clearBtn.classList.add('hidden');
+          const allPill = document.querySelector('.filter-pill[data-filter="all"]');
+          if (allPill) allPill.click();
+        });
+      }
+    })();
+  </script>
+</main>
+{% endblock %}
