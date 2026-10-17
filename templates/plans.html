@@ -1,0 +1,379 @@
+{% extends "base.html" %}
+
+{% block title %}Savings Plans · Thrift Vault{% endblock %}
+
+{% block content %}
+<header class="sticky top-0 z-30 flex items-center justify-between px-5 h-16 bg-forest-900/50 backdrop-blur-xl">
+  <div class="leading-tight">
+    <h1 class="text-lg font-semibold text-white">Savings plans</h1>
+    <p class="text-[11px] text-white/60">4 active · auto-debit synchronized</p>
+  </div>
+  <button type="button" aria-label="Notifications"
+    class="relative size-10 rounded-full glass text-white flex items-center justify-center hover:bg-white/10 transition-colors">
+    <span class="material-symbols-outlined text-[20px]">notifications</span>
+    <span class="absolute top-2.5 right-2.5 size-2 rounded-full bg-lime ring-2 ring-forest-800"></span>
+  </button>
+</header>
+
+<main class="flex-1 flex flex-col gap-4 px-5 pt-4 pb-6">
+
+  <!-- Summary -->
+  <section class="glass rounded-3xl grid grid-cols-2 divide-x divide-white/10">
+    <div class="p-5">
+      <p class="text-xs text-white/60">Active plans</p>
+      <p class="mt-1 text-3xl font-semibold text-white">4</p>
+      <p class="mt-0.5 text-xs font-semibold text-lime">All running</p>
+    </div>
+    <div class="p-5">
+      <p class="text-xs text-white/60">Daily velocity</p>
+      <p class="mt-1 text-3xl font-semibold text-white">$145.00</p>
+      <p class="mt-0.5 text-xs text-white/50">per day</p>
+    </div>
+  </section>
+
+  <!-- Search + filters -->
+  <section class="flex flex-col gap-3">
+    <div class="relative">
+      <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-white/50 text-[20px] pointer-events-none">search</span>
+      <input id="search-input" type="text" placeholder="Search plans"
+        class="w-full h-12 pl-11 pr-11 rounded-full glass text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-lime/60 transition-colors">
+      <button id="clear-search" type="button"
+        class="hidden absolute right-3 top-1/2 -translate-y-1/2 size-6 rounded-full bg-white/10 flex items-center justify-center text-white/70">
+        <span class="material-symbols-outlined text-[14px]">close</span>
+      </button>
+    </div>
+
+    <div class="flex items-center gap-2 overflow-x-auto">
+      <button type="button" data-filter="all"
+        class="filter-pill shrink-0 px-4 py-2 rounded-full border text-xs font-semibold transition-colors bg-lime text-lime-ink border-lime">All (4)</button>
+      <button type="button" data-filter="ahead"
+        class="filter-pill shrink-0 px-4 py-2 rounded-full border text-xs font-medium transition-colors bg-white/[0.06] text-white/80 border-white/10">Ahead (2)</button>
+      <button type="button" data-filter="ontrack"
+        class="filter-pill shrink-0 px-4 py-2 rounded-full border text-xs font-medium transition-colors bg-white/[0.06] text-white/80 border-white/10">On track (1)</button>
+      <button type="button" data-filter="behind"
+        class="filter-pill shrink-0 px-4 py-2 rounded-full border text-xs font-medium transition-colors bg-white/[0.06] text-white/80 border-white/10">Behind (1)</button>
+    </div>
+  </section>
+
+  <!-- Plan cards -->
+  <div id="plans-container" class="flex flex-col gap-4">
+
+    <!-- fragment: plan-card-emergency -->
+    <!-- 1: Ahead -->
+    <article class="plan-card glass rounded-3xl overflow-hidden" data-name="emergency liquidity vault" data-status="ahead">
+      <a href="/plans/emergency" class="block">
+        <div class="p-5 flex flex-col gap-5">
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="size-11 shrink-0 rounded-full bg-white/10 text-lime flex items-center justify-center">
+                <span class="material-symbols-outlined text-[22px]">verified_user</span>
+              </div>
+              <div class="min-w-0">
+                <h2 class="text-sm font-semibold text-white truncate">Emergency Liquidity Vault</h2>
+                <p class="text-xs text-white/60 truncate">Core safety reserve &amp; cash bridge</p>
+              </div>
+            </div>
+            <span class="shrink-0 rounded-full bg-lime/15 text-lime px-2.5 py-1 text-[11px] font-semibold">5 days ahead</span>
+          </div>
+
+          <div class="flex items-end justify-between">
+            <div>
+              <p class="text-xs text-white/60">Balance</p>
+              <p class="text-3xl font-semibold tracking-tight text-white">$14,200.00</p>
+            </div>
+            <div class="text-right">
+              <p class="text-xs text-white/60">Daily</p>
+              <p class="text-sm font-semibold text-white">$50.00</p>
+            </div>
+          </div>
+
+          <div>
+            <div class="h-2 rounded-full bg-white/10 overflow-hidden">
+              <div class="h-full rounded-full bg-lime" style="width: 78%;"></div>
+            </div>
+            <div class="mt-2 flex justify-between text-xs text-white/60">
+              <span>284 daily cycles</span>
+              <span>Prepaid until Nov 18</span>
+            </div>
+          </div>
+        </div>
+      </a>
+      <div class="border-t border-white/10 px-5 py-3 flex items-center justify-between text-xs">
+        <span class="flex items-center gap-1.5 text-white/70">
+          <span class="material-symbols-outlined text-[16px] text-lime">check_circle</span>Today, 8:00 AM · Auto-settled
+        </span>
+        <a href="/plans/emergency" class="font-semibold text-lime">View analytics</a>
+      </div>
+    </article>
+    <!-- /fragment: plan-card-emergency -->
+
+    <!-- fragment: plan-card-real-estate -->
+    <!-- 2: On track -->
+    <article class="plan-card glass rounded-3xl overflow-hidden" data-name="real estate buffer" data-status="ontrack">
+      <a href="/plans/real-estate" class="block">
+        <div class="p-5 flex flex-col gap-5">
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="size-11 shrink-0 rounded-full bg-white/10 text-azure flex items-center justify-center">
+                <span class="material-symbols-outlined text-[22px]">apartment</span>
+              </div>
+              <div class="min-w-0">
+                <h2 class="text-sm font-semibold text-white truncate">Real Estate Buffer</h2>
+                <p class="text-xs text-white/60 truncate">Quarterly property syndication pool</p>
+              </div>
+            </div>
+            <span class="shrink-0 rounded-full bg-azure/25 text-[#8DB8FF] px-2.5 py-1 text-[11px] font-semibold">Up to date</span>
+          </div>
+
+          <div class="flex items-end justify-between">
+            <div>
+              <p class="text-xs text-white/60">Balance</p>
+              <p class="text-3xl font-semibold tracking-tight text-white">$8,450.00</p>
+            </div>
+            <div class="text-right">
+              <p class="text-xs text-white/60">Daily</p>
+              <p class="text-sm font-semibold text-white">$75.00</p>
+            </div>
+          </div>
+
+          <div>
+            <div class="h-2 rounded-full bg-white/10 overflow-hidden">
+              <div class="h-full rounded-full bg-azure" style="width: 34%;"></div>
+            </div>
+            <div class="mt-2 flex justify-between text-xs text-white/60">
+              <span>112 daily cycles</span>
+              <span>Target $25,000</span>
+            </div>
+          </div>
+        </div>
+      </a>
+      <div class="border-t border-white/10 px-5 py-3 flex items-center justify-between text-xs">
+        <span class="flex items-center gap-1.5 text-white/70">
+          <span class="material-symbols-outlined text-[16px] text-white/50">schedule</span>Next debit tomorrow, 8:00 AM
+        </span>
+        <a href="/plans/real-estate" class="font-semibold text-lime">View plan</a>
+      </div>
+    </article>
+    <!-- /fragment: plan-card-real-estate -->
+
+    <!-- fragment: plan-card-family-health -->
+    <!-- 3: Behind -->
+    <article class="plan-card glass rounded-3xl overflow-hidden" data-name="family health reserve" data-status="behind">
+      <a href="/plans/family-health" class="block">
+        <div class="p-5 flex flex-col gap-5">
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="size-11 shrink-0 rounded-full bg-warn/15 text-warn flex items-center justify-center">
+                <span class="material-symbols-outlined text-[22px]">medical_services</span>
+              </div>
+              <div class="min-w-0">
+                <h2 class="text-sm font-semibold text-white truncate">Family Health Reserve</h2>
+                <p class="text-xs text-white/60 truncate">Dental, vision &amp; wellness contingency</p>
+              </div>
+            </div>
+            <span class="shrink-0 rounded-full bg-warn/20 text-warn px-2.5 py-1 text-[11px] font-semibold">1 day behind</span>
+          </div>
+
+          <div class="flex items-end justify-between">
+            <div>
+              <p class="text-xs text-white/60">Balance</p>
+              <p class="text-3xl font-semibold tracking-tight text-white">$2,200.00</p>
+            </div>
+            <div class="text-right">
+              <p class="text-xs text-white/60">Daily</p>
+              <p class="text-sm font-semibold text-white">$20.00</p>
+            </div>
+          </div>
+
+          <div>
+            <div class="h-2 rounded-full bg-white/10 overflow-hidden">
+              <div class="h-full rounded-full bg-warn" style="width: 44%;"></div>
+            </div>
+            <div class="mt-2 flex justify-between text-xs text-white/60">
+              <span>46 continuous cycles</span>
+              <span>Auto-recovery active</span>
+            </div>
+          </div>
+        </div>
+      </a>
+      <div class="border-t border-warn/20 bg-warn/10 px-5 py-3 flex items-center justify-between gap-3">
+        <span class="flex items-center gap-1.5 text-xs text-warn">
+          <span class="material-symbols-outlined text-[16px]">error_outline</span>$20.00 missed yesterday
+        </span>
+        <button id="catch-up-btn" type="button"
+          class="h-9 px-4 rounded-full bg-lime text-lime-ink text-xs font-semibold flex items-center gap-1.5 active:scale-95 transition">
+          <span>Catch up ($20)</span>
+        </button>
+      </div>
+    </article>
+    <!-- /fragment: plan-card-family-health -->
+
+    <!-- fragment: plan-card-tech-hardware -->
+    <!-- 4: Ahead -->
+    <article class="plan-card glass rounded-3xl overflow-hidden" data-name="tech hardware replacement" data-status="ahead">
+      <a href="/plans/tech-hardware" class="block">
+        <div class="p-5 flex flex-col gap-5">
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="size-11 shrink-0 rounded-full bg-white/10 text-lime flex items-center justify-center">
+                <span class="material-symbols-outlined text-[22px]">laptop_mac</span>
+              </div>
+              <div class="min-w-0">
+                <h2 class="text-sm font-semibold text-white truncate">Tech Hardware</h2>
+                <p class="text-xs text-white/60 truncate">Workstation refresh vault</p>
+              </div>
+            </div>
+            <span class="shrink-0 rounded-full bg-lime/15 text-lime px-2.5 py-1 text-[11px] font-semibold">3 days ahead</span>
+          </div>
+
+          <div class="flex items-end justify-between">
+            <div>
+              <p class="text-xs text-white/60">Balance</p>
+              <p class="text-3xl font-semibold tracking-tight text-white">$1,650.00</p>
+            </div>
+            <div class="text-right">
+              <p class="text-xs text-white/60">Daily</p>
+              <p class="text-sm font-semibold text-white">$15.00</p>
+            </div>
+          </div>
+
+          <div>
+            <div class="h-2 rounded-full bg-white/10 overflow-hidden">
+              <div class="h-full rounded-full bg-lime" style="width: 82%;"></div>
+            </div>
+            <div class="mt-2 flex justify-between text-xs text-white/60">
+              <span>55 continuous cycles</span>
+              <span>82.5% to goal</span>
+            </div>
+          </div>
+        </div>
+      </a>
+      <div class="border-t border-white/10 px-5 py-3 flex items-center justify-between text-xs">
+        <span class="flex items-center gap-1.5 text-white/70">
+          <span class="material-symbols-outlined text-[16px] text-lime">check_circle</span>Yesterday, 8:00 PM · Paced steady
+        </span>
+        <a href="/plans/tech-hardware" class="font-semibold text-lime">View plan</a>
+      </div>
+    </article>
+    <!-- /fragment: plan-card-tech-hardware -->
+
+  </div>
+
+  <!-- Empty state -->
+  <div id="no-results" class="hidden glass rounded-3xl p-8 flex flex-col items-center text-center gap-2">
+    <div class="size-14 rounded-full bg-white/10 flex items-center justify-center text-white/60">
+      <span class="material-symbols-outlined text-[28px]">search_off</span>
+    </div>
+    <h3 class="text-sm font-semibold text-white">No plans found</h3>
+    <p class="text-xs text-white/60">Try resetting your filter or search.</p>
+    <button id="reset-filter-btn" type="button"
+      class="mt-2 h-10 px-5 rounded-full bg-lime text-lime-ink text-xs font-semibold active:scale-95 transition">
+      Reset filters
+    </button>
+  </div>
+
+  <!-- Toast -->
+  <aside id="toast-notification" role="status" aria-live="polite"
+    class="fixed left-5 right-5 max-w-md mx-auto bottom-28 z-40 glass-dark text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 pointer-events-none opacity-0 translate-y-3 transition-all duration-300">
+    <div class="size-9 rounded-full bg-lime text-lime-ink flex items-center justify-center shrink-0">
+      <span class="material-symbols-outlined text-[18px]">check</span>
+    </div>
+    <div class="leading-tight">
+      <p class="text-sm font-semibold">Contribution synced</p>
+      <p class="text-xs text-white/60">$20.00 settled for Family Health Reserve.</p>
+    </div>
+  </aside>
+
+  <!-- FAB -->
+  <aside class="sticky bottom-24 self-end z-30">
+    <a id="new-plan-fab" href="/plans/new"
+      class="h-12 px-5 rounded-full bg-lime text-lime-ink text-sm font-semibold flex items-center gap-2 shadow-xl active:scale-95 transition">
+      <span class="material-symbols-outlined text-[20px]">add</span>New plan
+    </a>
+  </aside>
+
+  <script>
+    (function () {
+      const searchInput = document.getElementById('search-input');
+      const clearBtn = document.getElementById('clear-search');
+      const pills = document.querySelectorAll('.filter-pill');
+      const cards = document.querySelectorAll('.plan-card');
+      const noResults = document.getElementById('no-results');
+      const resetBtn = document.getElementById('reset-filter-btn');
+      const catchUpBtn = document.getElementById('catch-up-btn');
+      const toast = document.getElementById('toast-notification');
+
+      const ON = ['bg-lime', 'text-lime-ink', 'border-lime', 'font-semibold'];
+      const OFF = ['bg-white/[0.06]', 'text-white/80', 'border-white/10', 'font-medium'];
+
+      let currentFilter = 'all';
+      let query = '';
+
+      function apply() {
+        let visible = 0;
+        cards.forEach((card) => {
+          const okFilter = currentFilter === 'all' || card.dataset.status === currentFilter;
+          const okSearch = query === '' || (card.dataset.name || '').includes(query);
+          card.classList.toggle('hidden', !(okFilter && okSearch));
+          if (okFilter && okSearch) visible++;
+        });
+        noResults.classList.toggle('hidden', visible !== 0);
+      }
+
+      pills.forEach((pill) => {
+        pill.addEventListener('click', () => {
+          pills.forEach((p) => { p.classList.remove(...ON); p.classList.add(...OFF); });
+          pill.classList.remove(...OFF);
+          pill.classList.add(...ON);
+          currentFilter = pill.dataset.filter;
+          apply();
+        });
+      });
+
+      if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+          query = e.target.value.trim().toLowerCase();
+          clearBtn.classList.toggle('hidden', query.length === 0);
+          apply();
+        });
+        clearBtn.addEventListener('click', () => {
+          searchInput.value = '';
+          query = '';
+          clearBtn.classList.add('hidden');
+          apply();
+        });
+      }
+
+      if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+          query = '';
+          if (searchInput) searchInput.value = '';
+          if (clearBtn) clearBtn.classList.add('hidden');
+          const allPill = document.querySelector('.filter-pill[data-filter="all"]');
+          if (allPill) allPill.click();
+        });
+      }
+
+      if (catchUpBtn && toast) {
+        catchUpBtn.addEventListener('click', () => {
+          catchUpBtn.classList.add('opacity-60', 'pointer-events-none');
+          catchUpBtn.innerHTML = '<span class="material-symbols-outlined text-[16px] animate-spin">sync</span><span>Settling...</span>';
+
+          setTimeout(() => {
+            catchUpBtn.innerHTML = '<span class="material-symbols-outlined text-[16px]">done</span><span>Settled</span>';
+            catchUpBtn.classList.remove('opacity-60', 'bg-lime', 'text-lime-ink');
+            catchUpBtn.classList.add('bg-white/20', 'text-white');
+
+            toast.classList.remove('opacity-0', 'translate-y-3');
+            toast.classList.add('opacity-100', 'translate-y-0');
+            setTimeout(() => {
+              toast.classList.remove('opacity-100', 'translate-y-0');
+              toast.classList.add('opacity-0', 'translate-y-3');
+            }, 3200);
+          }, 800);
+        });
+      }
+    })();
+  </script>
+</main>
+{% endblock %}
