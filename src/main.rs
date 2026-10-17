@@ -52,7 +52,7 @@ struct DepositTemplate {
 async fn dashboard_handler() -> Html<String> {
     let t = DashboardTemplate {
         active: "home",
-        total_balance: "$24,850.00".to_string(),
+        total_balance: "₦2,485,000.00".to_string(),
     };
     Html(t.render().unwrap())
 }
