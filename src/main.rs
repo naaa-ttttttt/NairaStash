@@ -49,6 +49,18 @@ struct DepositTemplate {
     active: &'static str,
 }
 
+#[derive(Template)]
+#[template(path = "login.html")]
+struct LoginTemplate {
+    active: &'static str,
+}
+
+#[derive(Template)]
+#[template(path = "profile.html")]
+struct ProfileTemplate {
+    active: &'static str,
+}
+
 async fn dashboard_handler() -> Html<String> {
     let t = DashboardTemplate {
         active: "home",
@@ -93,10 +105,30 @@ async fn create_plan_handler() -> Redirect {
     Redirect::to("/plans")
 }
 
+async fn login_handler() -> Html<String> {
+    Html(LoginTemplate { active: "" }.render().unwrap())
+}
+
+// Stub: replace with real login check + session later
+async fn login_submit_handler() -> Redirect {
+    Redirect::to("/")
+}
+
+// Stub: replace with real account creation + SQLx insert later
+async fn signup_submit_handler() -> Redirect {
+    Redirect::to("/")
+}
+
+async fn profile_handler() -> Html<String> {
+    Html(ProfileTemplate { active: "profile" }.render().unwrap())
+}
+
 #[tokio::main]
 async fn main() {
     let app = Router::new()
         .route("/", get(dashboard_handler))
+        .route("/login", get(login_handler).post(login_submit_handler))
+        .route("/signup", axum::routing::post(signup_submit_handler))
         .route("/plans", get(plans_handler))
         .route("/plans/new", get(new_plan_handler).post(create_plan_handler))
         // axum 0.8 wants "/plans/{id}" instead
@@ -105,7 +137,8 @@ async fn main() {
         .route("/groups/new", get(new_group_handler))
         // axum 0.8 wants "/groups/{id}" instead
         .route("/groups/:id", get(group_detail_handler))
-        .route("/deposit", get(deposit_handler));
+        .route("/deposit", get(deposit_handler))
+        .route("/profile", get(profile_handler));
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:3000").await.unwrap();
     println!("Server running at http://127.0.0.1:3000");
