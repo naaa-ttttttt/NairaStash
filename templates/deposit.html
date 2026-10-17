@@ -1,0 +1,461 @@
+{% extends "base.html" %}
+
+{% block title %}Deposit · Thrift Vault{% endblock %}
+
+{% block content %}
+<style>
+  .step-ind { color: rgba(255,255,255,.5); }
+  .step-ind .num { background: rgba(255,255,255,.12); }
+  .step-ind.active, .step-ind.done { color: #fff; }
+  .step-ind.active .num { background: #D8F13A; color: #10301C; }
+  .step-ind.done .num { background: rgba(216,241,58,.2); color: #D8F13A; }
+</style>
+
+<header class="sticky top-0 z-30 flex items-center justify-between px-5 h-16 bg-forest-900/50 backdrop-blur-xl">
+  <div class="leading-tight">
+    <h1 class="text-base font-semibold text-white">Make a deposit</h1>
+    <p id="step-subtitle" class="text-[11px] text-white/60">Select a savings plan to fund</p>
+  </div>
+  <a href="/" aria-label="Close"
+    class="size-10 rounded-full glass text-white flex items-center justify-center hover:bg-white/10 transition-colors">
+    <span class="material-symbols-outlined text-[20px]">close</span>
+  </a>
+</header>
+
+<main class="flex-1 flex flex-col gap-4 px-5 pt-4 pb-52">
+
+  <!-- Step indicator -->
+  <section class="glass rounded-3xl p-4">
+    <div class="flex items-center text-[11px] font-semibold uppercase tracking-wider">
+      <div class="step-ind active flex items-center gap-1.5" data-step="1">
+        <span class="num size-6 rounded-full flex items-center justify-center text-[11px]">1</span>Plan
+      </div>
+      <span class="h-px flex-1 mx-2 bg-white/15"></span>
+      <div class="step-ind flex items-center gap-1.5" data-step="2">
+        <span class="num size-6 rounded-full flex items-center justify-center text-[11px]">2</span>Amount
+      </div>
+      <span class="h-px flex-1 mx-2 bg-white/15"></span>
+      <div class="step-ind flex items-center gap-1.5" data-step="3">
+        <span class="num size-6 rounded-full flex items-center justify-center text-[11px]">3</span>Transfer
+      </div>
+    </div>
+    <div class="mt-3 h-1.5 rounded-full bg-white/10 overflow-hidden">
+      <div id="wizard-progress" class="h-full rounded-full bg-lime transition-all duration-300" style="width: 33.333%;"></div>
+    </div>
+  </section>
+
+  <!-- STEP 1: choose plan -->
+  <section id="step-1" class="flex flex-col gap-3">
+    <label class="relative block cursor-pointer">
+      <input type="radio" name="plan" value="emergency" data-name="Emergency Liquidity Vault" class="peer sr-only" checked>
+      <div class="glass rounded-3xl p-4 pr-14 flex items-center gap-3 transition-colors peer-checked:bg-white/10 peer-checked:border-lime/60">
+        <div class="size-11 shrink-0 rounded-full bg-white/10 text-lime flex items-center justify-center">
+          <span class="material-symbols-outlined text-[22px]">shield</span>
+        </div>
+        <div class="min-w-0">
+          <p class="text-sm font-semibold text-white truncate">Emergency Liquidity Vault</p>
+          <span class="mt-1 inline-block rounded-full bg-lime/15 text-lime px-2.5 py-0.5 text-[11px] font-semibold">5 days ahead</span>
+        </div>
+      </div>
+      <span class="absolute top-1/2 -translate-y-1/2 right-4 size-6 rounded-full border border-white/25 flex items-center justify-center text-transparent peer-checked:bg-lime peer-checked:border-lime peer-checked:text-lime-ink transition-colors">
+        <span class="material-symbols-outlined text-[16px]">check</span>
+      </span>
+    </label>
+
+    <label class="relative block cursor-pointer">
+      <input type="radio" name="plan" value="real_estate" data-name="Real Estate Buffer" class="peer sr-only">
+      <div class="glass rounded-3xl p-4 pr-14 flex items-center gap-3 transition-colors peer-checked:bg-white/10 peer-checked:border-lime/60">
+        <div class="size-11 shrink-0 rounded-full bg-white/10 text-azure flex items-center justify-center">
+          <span class="material-symbols-outlined text-[22px]">apartment</span>
+        </div>
+        <div class="min-w-0">
+          <p class="text-sm font-semibold text-white truncate">Real Estate Buffer</p>
+          <span class="mt-1 inline-block rounded-full bg-azure/25 text-[#8DB8FF] px-2.5 py-0.5 text-[11px] font-semibold">Up to date</span>
+        </div>
+      </div>
+      <span class="absolute top-1/2 -translate-y-1/2 right-4 size-6 rounded-full border border-white/25 flex items-center justify-center text-transparent peer-checked:bg-lime peer-checked:border-lime peer-checked:text-lime-ink transition-colors">
+        <span class="material-symbols-outlined text-[16px]">check</span>
+      </span>
+    </label>
+
+    <label class="relative block cursor-pointer">
+      <input type="radio" name="plan" value="family_health" data-name="Family Health Reserve" class="peer sr-only">
+      <div class="glass rounded-3xl p-4 pr-14 flex items-center gap-3 transition-colors peer-checked:bg-white/10 peer-checked:border-lime/60">
+        <div class="size-11 shrink-0 rounded-full bg-warn/15 text-warn flex items-center justify-center">
+          <span class="material-symbols-outlined text-[22px]">medical_services</span>
+        </div>
+        <div class="min-w-0">
+          <p class="text-sm font-semibold text-white truncate">Family Health Reserve</p>
+          <span class="mt-1 inline-block rounded-full bg-warn/20 text-warn px-2.5 py-0.5 text-[11px] font-semibold">1 day behind</span>
+        </div>
+      </div>
+      <span class="absolute top-1/2 -translate-y-1/2 right-4 size-6 rounded-full border border-white/25 flex items-center justify-center text-transparent peer-checked:bg-lime peer-checked:border-lime peer-checked:text-lime-ink transition-colors">
+        <span class="material-symbols-outlined text-[16px]">check</span>
+      </span>
+    </label>
+
+    <label class="relative block cursor-pointer">
+      <input type="radio" name="plan" value="tech_hardware" data-name="Tech Hardware" class="peer sr-only">
+      <div class="glass rounded-3xl p-4 pr-14 flex items-center gap-3 transition-colors peer-checked:bg-white/10 peer-checked:border-lime/60">
+        <div class="size-11 shrink-0 rounded-full bg-white/10 text-lime flex items-center justify-center">
+          <span class="material-symbols-outlined text-[22px]">laptop_mac</span>
+        </div>
+        <div class="min-w-0">
+          <p class="text-sm font-semibold text-white truncate">Tech Hardware</p>
+          <span class="mt-1 inline-block rounded-full bg-lime/15 text-lime px-2.5 py-0.5 text-[11px] font-semibold">3 days ahead</span>
+        </div>
+      </div>
+      <span class="absolute top-1/2 -translate-y-1/2 right-4 size-6 rounded-full border border-white/25 flex items-center justify-center text-transparent peer-checked:bg-lime peer-checked:border-lime peer-checked:text-lime-ink transition-colors">
+        <span class="material-symbols-outlined text-[16px]">check</span>
+      </span>
+    </label>
+  </section>
+
+  <!-- STEP 2: amount -->
+  <section id="step-2" class="hidden flex flex-col gap-4">
+    <div class="glass rounded-2xl p-3 flex items-center justify-between gap-3">
+      <div class="min-w-0">
+        <p class="text-[11px] text-white/60 uppercase tracking-wider">Depositing to</p>
+        <p id="plan-chip-name" class="text-sm font-semibold text-white truncate">Emergency Liquidity Vault</p>
+      </div>
+      <button id="change-plan-btn" type="button" class="text-xs font-semibold text-lime shrink-0">Change</button>
+    </div>
+
+    <div class="glass rounded-3xl p-5 flex flex-col gap-4">
+      <div>
+        <h2 class="text-xs font-semibold text-white/80">Deposit amount</h2>
+        <p class="text-xs text-white/60">Paid by bank transfer</p>
+      </div>
+
+      <div class="flex items-baseline justify-center gap-1 py-6 rounded-2xl bg-black/25 border border-white/10">
+        <span class="text-3xl font-medium text-white/50">₦</span>
+        <input id="amount-input" type="number" inputmode="numeric" step="1" min="100" value="5000"
+          class="w-40 bg-transparent text-4xl font-semibold tracking-tight text-white text-center focus:outline-none">
+      </div>
+
+      <div class="grid grid-cols-4 gap-2">
+        <button type="button" data-val="1000" class="preset-btn py-2.5 rounded-full bg-white/[0.06] text-white/80 border border-white/10 text-xs font-medium hover:bg-white/10 transition-colors text-center">₦1k</button>
+        <button type="button" data-val="5000" class="preset-btn py-2.5 rounded-full bg-lime text-lime-ink border border-lime text-xs font-semibold text-center">₦5k</button>
+        <button type="button" data-val="10000" class="preset-btn py-2.5 rounded-full bg-white/[0.06] text-white/80 border border-white/10 text-xs font-medium hover:bg-white/10 transition-colors text-center">₦10k</button>
+        <button type="button" data-val="50000" class="preset-btn py-2.5 rounded-full bg-white/[0.06] text-white/80 border border-white/10 text-xs font-medium hover:bg-white/10 transition-colors text-center">₦50k</button>
+      </div>
+
+      <p class="flex items-start gap-2 text-xs text-white/60 pt-3 border-t border-white/10">
+        <span class="material-symbols-outlined text-[16px] text-lime">timer</span>
+        We generate a temporary account number for this deposit. You'll have 30 minutes to send the exact amount before it expires.
+      </p>
+    </div>
+
+    <p id="init-error" class="hidden rounded-2xl bg-red-500/15 border border-red-400/30 text-red-200 text-xs p-3"></p>
+  </section>
+
+  <!-- STEP 3: transfer details + countdown -->
+  <section id="step-3" class="hidden flex flex-col gap-4">
+
+    <div id="transfer-live" class="flex flex-col gap-4">
+      <div class="glass rounded-3xl p-5 text-center">
+        <p class="text-[11px] uppercase tracking-wider text-white/60">Account number expires in</p>
+        <p id="countdown" class="mt-1 text-5xl font-semibold tracking-tight text-white">30:00</p>
+        <div class="mt-4 h-1.5 rounded-full bg-white/10 overflow-hidden">
+          <div id="countdown-bar" class="h-full rounded-full bg-lime transition-all duration-1000 ease-linear" style="width: 100%;"></div>
+        </div>
+      </div>
+
+      <div class="glass rounded-3xl divide-y divide-white/10 overflow-hidden">
+        <div class="px-4 py-3.5">
+          <p class="text-[11px] text-white/60 uppercase tracking-wider">Bank</p>
+          <p id="d-bank" class="mt-0.5 text-sm font-semibold text-white">—</p>
+        </div>
+        <div class="px-4 py-3.5 flex items-center justify-between gap-3">
+          <div class="min-w-0">
+            <p class="text-[11px] text-white/60 uppercase tracking-wider">Account number</p>
+            <p id="d-acct" class="mt-0.5 text-2xl font-semibold tracking-widest text-lime">—</p>
+          </div>
+          <button type="button" data-copy="d-acct" aria-label="Copy account number"
+            class="copy-btn size-10 shrink-0 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/15 transition-colors">
+            <span class="material-symbols-outlined text-[18px]">content_copy</span>
+          </button>
+        </div>
+        <div class="px-4 py-3.5">
+          <p class="text-[11px] text-white/60 uppercase tracking-wider">Account name</p>
+          <p id="d-name" class="mt-0.5 text-sm font-semibold text-white">—</p>
+        </div>
+        <div class="px-4 py-3.5 flex items-center justify-between gap-3">
+          <div class="min-w-0">
+            <p class="text-[11px] text-white/60 uppercase tracking-wider">Amount to send</p>
+            <p id="d-amount" class="mt-0.5 text-lg font-semibold text-white">—</p>
+          </div>
+          <button type="button" data-copy="d-amount" aria-label="Copy amount"
+            class="copy-btn size-10 shrink-0 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/15 transition-colors">
+            <span class="material-symbols-outlined text-[18px]">content_copy</span>
+          </button>
+        </div>
+      </div>
+
+      <p class="flex items-center justify-center gap-2 text-xs text-white/70 text-center">
+        <span class="size-2 rounded-full bg-lime animate-pulse shrink-0"></span>
+        <span id="status-line-text">Waiting for your transfer. Send the exact amount from any bank app.</span>
+      </p>
+
+      <button id="ff-btn" type="button"
+        class="self-center text-[11px] text-white/40 hover:text-white/70 underline underline-offset-4 transition-colors">
+        Demo: fast-forward timer to 10 seconds
+      </button>
+    </div>
+
+    <!-- Success -->
+    <div id="panel-success" class="hidden glass rounded-3xl p-8 flex flex-col items-center text-center gap-3">
+      <div class="size-16 rounded-full bg-lime text-lime-ink flex items-center justify-center">
+        <span class="material-symbols-outlined text-[34px]">check</span>
+      </div>
+      <h2 class="text-xl font-semibold text-white">Deposit received</h2>
+      <p id="success-text" class="text-sm text-white/70"></p>
+      <a href="/plans"
+        class="mt-2 h-12 px-8 rounded-full bg-lime text-lime-ink text-sm font-semibold flex items-center justify-center active:scale-[0.98] transition">
+        View plans
+      </a>
+    </div>
+
+    <!-- Expired -->
+    <div id="panel-expired" class="hidden glass rounded-3xl p-8 flex flex-col items-center text-center gap-3">
+      <div class="size-16 rounded-full bg-warn/20 text-warn flex items-center justify-center">
+        <span class="material-symbols-outlined text-[34px]">timer_off</span>
+      </div>
+      <h2 class="text-xl font-semibold text-white">Account number expired</h2>
+      <p class="text-sm text-white/70">Please don't send money to this account anymore. Generate a new one to continue.</p>
+    </div>
+  </section>
+</main>
+
+<!-- Action dock -->
+<div class="fixed bottom-24 left-0 right-0 z-40 px-5 pointer-events-none">
+  <div id="dock" class="max-w-md mx-auto pointer-events-auto glass-dark rounded-3xl p-3 flex flex-col gap-2 shadow-2xl">
+    <div class="flex items-center gap-2 px-2 text-xs text-white/70">
+      <span class="size-2 rounded-full bg-lime shrink-0"></span>
+      <span id="dock-summary" class="truncate">Emergency Liquidity Vault</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <button id="back-btn" type="button" aria-label="Back"
+        class="hidden size-12 shrink-0 rounded-full glass text-white items-center justify-center hover:bg-white/10 transition-colors">
+        <span class="material-symbols-outlined text-[20px]">arrow_back</span>
+      </button>
+      <button id="primary-btn" type="button"
+        class="flex-1 h-12 rounded-full bg-lime text-lime-ink text-sm font-semibold flex items-center justify-center gap-2 active:scale-[0.99] transition disabled:opacity-60">
+        <span id="primary-label">Continue to amount</span>
+        <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    const $ = (id) => document.getElementById(id);
+    const stepEls = [$('step-1'), $('step-2'), $('step-3')];
+    const subtitles = [
+      'Select a savings plan to fund',
+      'Choose how much to deposit',
+      'Transfer to your temporary account'
+    ];
+    const WINDOW_SECONDS = 30 * 60;
+
+    let current = 1;
+    let outcome = 'pending'; // 'pending' | 'success' | 'expired'
+    let busy = false;
+    let amount = 0;
+    let expiresAtMs = 0;
+    let tickTimer = null;
+
+    const naira = (value) =>
+      '₦' + Number(value).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const plan = () => document.querySelector('input[name="plan"]:checked');
+    const amountValue = () => parseInt($('amount-input').value, 10) || 0;
+    const alive = () => document.body.contains($('countdown'));
+
+    /* ---------- wizard ---------- */
+    function updateDock() {
+      const name = plan().dataset.name;
+      const label = $('primary-label');
+      if (busy) return;
+      if (current === 1) {
+        $('dock-summary').textContent = name;
+        label.textContent = 'Continue to amount';
+      } else if (current === 2) {
+        $('dock-summary').textContent = naira(amountValue()) + ' to ' + name;
+        label.textContent = 'Generate account number';
+      } else {
+        $('dock-summary').textContent = 'Send exactly ' + naira(amount);
+        label.textContent = outcome === 'expired' ? 'Generate new account' : "I've made the transfer";
+      }
+      $('back-btn').classList.toggle('hidden', current !== 2);
+      $('back-btn').classList.toggle('flex', current === 2);
+    }
+
+    function goTo(n) {
+      current = n;
+      stepEls.forEach((el, i) => el.classList.toggle('hidden', i + 1 !== n));
+      document.querySelectorAll('.step-ind').forEach((el) => {
+        const s = Number(el.dataset.step);
+        el.classList.toggle('active', s === n);
+        el.classList.toggle('done', s < n);
+      });
+      $('wizard-progress').style.width = (n / 3 * 100) + '%';
+      $('step-subtitle').textContent = subtitles[n - 1];
+      $('plan-chip-name').textContent = plan().dataset.name;
+      updateDock();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function showError(msg) {
+      const box = $('init-error');
+      box.textContent = msg;
+      box.classList.remove('hidden');
+    }
+    function clearError() { $('init-error').classList.add('hidden'); }
+
+    /* ---------- presets ---------- */
+    const ACTIVE = 'preset-btn py-2.5 rounded-full bg-lime text-lime-ink border border-lime text-xs font-semibold text-center';
+    const IDLE = 'preset-btn py-2.5 rounded-full bg-white/[0.06] text-white/80 border border-white/10 text-xs font-medium hover:bg-white/10 transition-colors text-center';
+    const presets = document.querySelectorAll('.preset-btn');
+    function highlight(val) {
+      presets.forEach((b) => { b.className = b.dataset.val === String(val) ? ACTIVE : IDLE; });
+    }
+    presets.forEach((b) => b.addEventListener('click', () => {
+      $('amount-input').value = b.dataset.val;
+      highlight(b.dataset.val);
+      clearError();
+      updateDock();
+    }));
+    $('amount-input').addEventListener('input', (e) => {
+      highlight(e.target.value);
+      clearError();
+      updateDock();
+    });
+
+    /* ---------- countdown (real timer, fake account) ---------- */
+    function tick() {
+      if (!alive()) return clearInterval(tickTimer);
+      const left = Math.max(0, Math.round((expiresAtMs - Date.now()) / 1000));
+      const mm = String(Math.floor(left / 60)).padStart(2, '0');
+      const ss = String(left % 60).padStart(2, '0');
+      const urgent = left <= 300;
+      $('countdown').textContent = mm + ':' + ss;
+      $('countdown-bar').style.width = Math.min(100, left / WINDOW_SECONDS * 100) + '%';
+      $('countdown').classList.toggle('text-warn', urgent);
+      $('countdown').classList.toggle('text-white', !urgent);
+      $('countdown-bar').classList.toggle('bg-warn', urgent);
+      $('countdown-bar').classList.toggle('bg-lime', !urgent);
+      if (left === 0) onExpired();
+    }
+
+    function onSuccess() {
+      outcome = 'success';
+      busy = false;
+      clearInterval(tickTimer);
+      $('transfer-live').classList.add('hidden');
+      $('panel-success').classList.remove('hidden');
+      $('success-text').textContent = naira(amount) + ' was added to ' + plan().dataset.name + '.';
+      $('dock').classList.add('hidden');
+    }
+
+    function onExpired() {
+      if (outcome !== 'pending') return;
+      outcome = 'expired';
+      busy = false;
+      $('primary-btn').disabled = false;
+      clearInterval(tickTimer);
+      $('transfer-live').classList.add('hidden');
+      $('panel-expired').classList.remove('hidden');
+      updateDock();
+    }
+
+    function resetTransfer() {
+      clearInterval(tickTimer);
+      outcome = 'pending';
+      busy = false;
+      $('primary-btn').disabled = false;
+      $('transfer-live').classList.remove('hidden');
+      $('panel-expired').classList.add('hidden');
+      $('panel-success').classList.add('hidden');
+      $('dock').classList.remove('hidden');
+      $('status-line-text').textContent = 'Waiting for your transfer. Send the exact amount from any bank app.';
+    }
+
+    /* ---------- fake "generate account number" ---------- */
+    function generateAccount() {
+      const banks = ['Wema Bank', 'Titan Trust Bank'];
+      const number = String(Math.floor(1000000000 + Math.random() * 9000000000));
+      return { bank: banks[Math.floor(Math.random() * banks.length)], number };
+    }
+
+    function initiate() {
+      clearError();
+      amount = amountValue();
+      if (amount < 100) return showError('Minimum deposit is ₦100.');
+
+      busy = true;
+      $('primary-btn').disabled = true;
+      $('primary-label').textContent = 'Generating…';
+
+      setTimeout(() => {
+        const acct = generateAccount();
+        resetTransfer();
+        $('d-bank').textContent = acct.bank;
+        $('d-acct').textContent = acct.number;
+        $('d-name').textContent = 'THRIFT VAULT / ' + plan().dataset.name.toUpperCase();
+        $('d-amount').textContent = naira(amount);
+        $('d-amount').dataset.raw = String(amount);
+
+        expiresAtMs = Date.now() + WINDOW_SECONDS * 1000;
+        goTo(3);
+        tick();
+        tickTimer = setInterval(tick, 1000);
+      }, 1200);
+    }
+
+    /* ---------- fake "I've made the transfer" ---------- */
+    function confirmTransfer() {
+      busy = true;
+      $('primary-btn').disabled = true;
+      $('primary-label').textContent = 'Confirming with bank…';
+      $('status-line-text').textContent = 'Checking for your transfer…';
+      setTimeout(() => { if (outcome === 'pending' && alive()) onSuccess(); }, 2500);
+    }
+
+    /* ---------- buttons ---------- */
+    $('primary-btn').addEventListener('click', () => {
+      if (busy) return;
+      if (current === 1) return goTo(2);
+      if (current === 2) return initiate();
+      if (outcome === 'expired') { resetTransfer(); return goTo(2); }
+      confirmTransfer();
+    });
+    $('back-btn').addEventListener('click', () => { if (current === 2) goTo(1); });
+    $('change-plan-btn').addEventListener('click', () => goTo(1));
+
+    $('ff-btn').addEventListener('click', () => {
+      expiresAtMs = Date.now() + 10 * 1000;
+      tick();
+    });
+
+    document.querySelectorAll('input[name="plan"]').forEach((r) =>
+      r.addEventListener('change', updateDock)
+    );
+
+    document.querySelectorAll('.copy-btn').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const el = $(btn.dataset.copy);
+        try {
+          await navigator.clipboard.writeText(el.dataset.raw || el.textContent);
+          const icon = btn.querySelector('.material-symbols-outlined');
+          icon.textContent = 'done';
+          setTimeout(() => { icon.textContent = 'content_copy'; }, 1500);
+        } catch (_) { /* clipboard blocked */ }
+      });
+    });
+
+    highlight(5000);
+    goTo(1);
+  })();
+</script>
+{% endblock %}
