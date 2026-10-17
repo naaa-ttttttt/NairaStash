@@ -63,13 +63,14 @@
   </style>
 </head>
 
-<body hx-boost="true" class="text-white antialiased pb-28">
+<body hx-boost="true" class="text-white antialiased {% block body_class %}pb-28{% endblock %}">
   <div class="mx-auto max-w-md w-full min-h-screen flex flex-col relative">
 
     {% block content %}{% endblock %}
 
   </div>
 
+  {% block nav %}
   <!-- Floating nav pill -->
   <nav class="fixed bottom-4 left-0 right-0 z-40 max-w-md mx-auto px-5">
     <div class="flex items-center justify-between rounded-full bg-black/40 backdrop-blur-2xl border border-white/10 p-2 shadow-2xl">
@@ -95,5 +96,6 @@
       </a>
     </div>
   </nav>
+  {% endblock %}
 </body>
 </html>
