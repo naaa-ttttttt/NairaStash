@@ -1,0 +1,286 @@
+{% extends "base.html" %}
+
+{% block title %}Loan details · NairaStash{% endblock %}
+
+{% block content %}
+<header class="sticky top-0 z-30 flex items-center justify-between gap-2 px-5 h-16 bg-forest-900/50 backdrop-blur-xl">
+  <a href="/groups/founders" aria-label="Back to group"
+    class="h-10 px-3 rounded-full glass flex items-center gap-1 text-white/80 hover:text-white transition-colors">
+    <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+    <span class="text-xs font-semibold">Group</span>
+  </a>
+  <div class="flex flex-col items-center min-w-0">
+    <span class="text-[10px] font-semibold uppercase tracking-widest text-lime">NairaStash</span>
+    <h1 class="text-base font-semibold tracking-tight text-white truncate">Loan details</h1>
+  </div>
+  <span class="size-10"></span>
+</header>
+
+<main class="flex-1 flex flex-col gap-4 px-5 pt-2 pb-8">
+
+  <!-- fragment: loan-state-tabs -->
+  <div>
+    <div class="flex items-center justify-between pb-1.5">
+      <span class="text-[10px] uppercase tracking-wider text-white/50">Preview loan status</span>
+      <span class="text-[10px] text-lime flex items-center gap-1"><span class="size-1.5 rounded-full bg-lime animate-pulse"></span>Mock data</span>
+    </div>
+    <div id="tabs" class="flex items-center gap-1.5 overflow-x-auto py-1"></div>
+  </div>
+  <!-- /fragment: loan-state-tabs -->
+
+  <!-- fragment: loan-state-active -->
+  <div id="state-active" class="state flex flex-col gap-4">
+    <section class="glass rounded-3xl p-5 flex flex-col gap-4">
+      <div class="flex items-start justify-between gap-3">
+        <div class="min-w-0">
+          <div class="flex items-center gap-1.5 text-lime">
+            <span class="material-symbols-outlined text-[16px]">dns</span>
+            <span class="text-[10px] font-semibold uppercase tracking-wider">Founders Tech Stash</span>
+          </div>
+          <h2 class="text-base font-semibold text-white truncate mt-0.5">Server Cluster Scale</h2>
+          <span class="text-[10px] text-white/50">Ref: #LN-7742</span>
+        </div>
+        <span class="shrink-0 rounded-full bg-lime/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-lime flex items-center gap-1.5">
+          <span class="size-1.5 rounded-full bg-lime animate-ping"></span>Active loan
+        </span>
+      </div>
+      <div>
+        <div class="flex items-baseline justify-between">
+          <span class="text-xs text-white/60">Remaining balance</span>
+          <span class="text-[10px] font-semibold text-lime">66.6% paid</span>
+        </div>
+        <div class="flex items-baseline gap-2 mt-1">
+          <span class="text-3xl font-semibold tracking-tight text-white">₦20,000.00</span>
+          <span class="text-sm text-white/50">/ ₦60,000 total</span>
+        </div>
+      </div>
+      <div>
+        <div class="h-2.5 rounded-full bg-black/30 overflow-hidden p-0.5"><div class="h-full rounded-full bg-lime" style="width: 66.6%;"></div></div>
+        <div class="flex justify-between text-[10px] text-white/50 mt-1.5"><span>₦40,000 paid back</span><span>20 days left</span></div>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <div class="rounded-2xl bg-white/5 p-3"><span class="text-[10px] uppercase text-white/50">Daily repayment</span><p class="text-sm font-semibold text-white mt-1">₦1,000 <span class="text-[10px] font-normal text-white/50">/ day</span></p></div>
+        <div class="rounded-2xl bg-white/5 p-3"><span class="text-[10px] uppercase text-white/50">Settled days</span><p class="text-sm font-semibold text-lime mt-1">40 <span class="text-[10px] font-normal text-white/50">/ 60 days</span></p></div>
+        <div class="rounded-2xl bg-white/5 p-3"><span class="text-[10px] uppercase text-white/50">Next auto-debit</span><p class="text-xs font-medium text-white mt-1">Tomorrow, 08:00 AM</p></div>
+        <div class="rounded-2xl bg-white/5 p-3"><span class="text-[10px] uppercase text-white/50">Settles on</span><p class="text-xs font-medium text-azure mt-1">Nov 6, 2026</p></div>
+      </div>
+    </section>
+
+    <div class="grid grid-cols-2 gap-2">
+      <button type="button" data-toast="Early repayment: pay the remaining ₦20,000 from your savings share"
+        class="h-12 rounded-full bg-lime text-lime-ink text-sm font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition">
+        <span class="material-symbols-outlined text-[20px]">bolt</span>Repay early
+      </button>
+      <button type="button" data-toast="Repayment options: ₦1,000/day or ₦7,000/week"
+        class="h-12 rounded-full glass text-white text-sm font-semibold flex items-center justify-center gap-2 hover:bg-white/10 active:scale-[0.98] transition-all">
+        <span class="material-symbols-outlined text-[18px]">tune</span>Adjust pace
+      </button>
+    </div>
+
+    <section class="glass rounded-3xl p-4 flex flex-col gap-2.5">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="size-7 rounded-lg bg-azure/20 text-azure flex items-center justify-center"><span class="material-symbols-outlined text-[18px]">admin_panel_settings</span></div>
+          <span class="text-base font-semibold text-white">Admin approval</span>
+        </div>
+        <span class="rounded-full bg-lime/15 px-2 py-0.5 text-[10px] font-semibold text-lime">Approved</span>
+      </div>
+      <p class="text-xs text-white/60 leading-relaxed">Approved by group admin <span class="text-white font-medium">David Chen</span> on Sep 7, 2026 after checking it against the group loan rules.</p>
+    </section>
+
+    <section class="glass rounded-3xl p-4 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="size-10 rounded-2xl bg-lime/15 text-lime flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[22px]">shield_with_heart</span></div>
+        <div class="min-w-0">
+          <p class="text-sm font-semibold text-white truncate">Cover: 258%</p>
+          <p class="text-xs text-white/60 truncate">₦155,000 savings share • 0 missed debits</p>
+        </div>
+      </div>
+      <span class="shrink-0 rounded bg-lime/15 px-2 py-1 text-[10px] font-semibold uppercase text-lime">Safe</span>
+    </section>
+
+    <section class="glass rounded-3xl p-4 flex flex-col gap-3">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2"><span class="material-symbols-outlined text-azure text-[20px]">receipt_long</span><h3 class="text-base font-semibold text-white">Repayment ledger</h3></div>
+        <button type="button" data-toast="Ledger statement exported as PDF" class="text-[10px] font-semibold text-azure flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">download</span>Export PDF</button>
+      </div>
+      <div id="ledger" class="flex flex-col gap-2"></div>
+      <button type="button" data-toast="Loading earlier repayments..."
+        class="w-full py-2.5 rounded-full bg-white/10 text-xs font-semibold text-white/70 hover:text-white flex items-center justify-center gap-1.5 transition-all">
+        Load 35 earlier repayments<span class="material-symbols-outlined text-[16px]">expand_more</span>
+      </button>
+    </section>
+  </div>
+  <!-- /fragment: loan-state-active -->
+
+  <!-- fragment: loan-state-pending -->
+  <div id="state-pending" class="state hidden flex-col gap-4">
+    <section class="glass rounded-3xl p-5 flex flex-col gap-4">
+      <div class="flex items-start justify-between gap-2">
+        <div>
+          <span class="text-[10px] font-semibold uppercase tracking-wider text-warn">Waiting for admin</span>
+          <h2 class="text-base font-semibold text-white mt-0.5">Founders Tech Stash (#LN-8109)</h2>
+          <span id="p-amt" class="text-xs text-white/50"></span>
+        </div>
+        <span class="shrink-0 rounded-full bg-warn/15 px-2.5 py-1 text-[10px] font-semibold text-warn flex items-center gap-1.5">
+          <span class="size-1.5 rounded-full bg-warn animate-pulse"></span>In review
+        </span>
+      </div>
+      <div class="rounded-2xl bg-white/5 p-3 flex flex-col gap-2">
+        <div class="flex items-center justify-between text-[11px]"><span class="text-white/70">Approval progress</span><span class="text-warn">Admin review</span></div>
+        <div class="flex items-center gap-1.5">
+          <div class="flex-1 h-2 rounded bg-lime"></div><div class="flex-1 h-2 rounded bg-warn/60"></div><div class="flex-1 h-2 rounded bg-white/10"></div>
+        </div>
+        <div class="flex justify-between text-[10px] text-white/50"><span>Submitted</span><span>Admin review</span><span>Paid out</span></div>
+        <span class="text-xs text-white/50">Group admins David Chen and Liam S. have been notified. Most requests are decided within a day.</span>
+      </div>
+      <div class="flex gap-2">
+        <button type="button" data-toast="Reminder sent to the group admins"
+          class="flex-1 h-11 rounded-full bg-white/10 text-white text-xs font-semibold flex items-center justify-center gap-1 hover:bg-white/15">
+          <span class="material-symbols-outlined text-[16px]">notifications_active</span>Remind admins
+        </button>
+        <button type="button" data-state-go="active" class="h-11 px-5 rounded-full bg-white/5 text-xs text-white/60 hover:text-white">Cancel request</button>
+      </div>
+    </section>
+  </div>
+  <!-- /fragment: loan-state-pending -->
+
+  <!-- fragment: loan-state-approved -->
+  <div id="state-approved" class="state hidden flex-col gap-4">
+    <section class="glass rounded-3xl p-5 flex flex-col gap-4">
+      <div class="flex items-start justify-between gap-2">
+        <div>
+          <span class="text-[10px] font-semibold uppercase tracking-wider text-lime">Approved by admin</span>
+          <h2 class="text-base font-semibold text-white mt-0.5">Approved &amp; ready to release</h2>
+          <span class="mt-1 inline-block text-xl font-semibold text-white">₦60,000.00</span>
+        </div>
+        <span class="shrink-0 rounded-full bg-lime/15 px-2.5 py-1 text-[10px] font-semibold text-lime">Ready to receive</span>
+      </div>
+      <p class="text-sm text-white/60 leading-relaxed">A group admin approved your request. Tap below to receive the money in your GTBank account.</p>
+      <button type="button" data-toast="Sending ₦60,000 to GTBank (•••• 4920)..."
+        class="h-12 rounded-full bg-lime text-lime-ink text-sm font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition">
+        <span class="material-symbols-outlined text-[20px]">account_balance_wallet</span>Receive funds
+      </button>
+    </section>
+  </div>
+  <!-- /fragment: loan-state-approved -->
+
+  <!-- fragment: loan-state-repaid -->
+  <div id="state-repaid" class="state hidden flex-col gap-4">
+    <section class="glass rounded-3xl p-5 flex flex-col items-center text-center gap-4">
+      <div class="size-14 rounded-full bg-lime/15 text-lime flex items-center justify-center"><span class="material-symbols-outlined text-[32px]">verified</span></div>
+      <div>
+        <h2 class="text-xl font-semibold text-white">Loan fully paid!</h2>
+        <p class="text-sm text-white/60 max-w-xs mt-1">₦60,900 paid back over 60 days with no late payments. +25 reputation points added to your group profile.</p>
+      </div>
+      <div class="w-full rounded-2xl bg-white/5 p-3 flex justify-around text-left">
+        <div><span class="text-[10px] text-white/50">Total paid</span><div class="text-sm font-semibold text-lime">₦60,900</div></div>
+        <div><span class="text-[10px] text-white/50">Paid off on</span><div class="text-sm font-medium text-white">Nov 6, 2026</div></div>
+      </div>
+    </section>
+  </div>
+  <!-- /fragment: loan-state-repaid -->
+
+  <!-- fragment: loan-state-rejected -->
+  <div id="state-rejected" class="state hidden flex-col gap-4">
+    <section class="glass rounded-3xl p-5 flex flex-col gap-4">
+      <div class="flex items-start justify-between gap-2">
+        <div>
+          <span class="text-[10px] font-semibold uppercase tracking-wider text-red-300">Decided by admin</span>
+          <h2 class="text-base font-semibold text-white mt-0.5">Request not approved</h2>
+          <span class="text-xs text-white/50">Group loan rule: pool balance</span>
+        </div>
+        <span class="shrink-0 rounded-full bg-red-400/15 px-2.5 py-1 text-[10px] font-semibold text-red-300">Declined</span>
+      </div>
+      <p class="text-sm text-white/60 leading-relaxed">The admin declined this request. Admin note: "Loans above ₦100,000 need the pool to keep at least ₦500,000 afterwards. Please request a smaller amount."</p>
+      <a href="/loans/new" class="h-11 rounded-full bg-white/10 text-white text-xs font-semibold flex items-center justify-center gap-2 hover:bg-white/15">
+        <span class="material-symbols-outlined text-[16px]">refresh</span>Apply again with a new amount
+      </a>
+    </section>
+  </div>
+  <!-- /fragment: loan-state-rejected -->
+
+  <div class="glass rounded-2xl p-3 flex items-center gap-2 text-white/60">
+    <span class="material-symbols-outlined text-[16px] text-lime">info</span>
+    <span class="text-xs">Daily repayments come from GTBank •• 4920 at 08:00 AM WAT, with no fee.</span>
+  </div>
+</main>
+
+<div id="toast" class="fixed bottom-28 left-0 right-0 z-50 max-w-md mx-auto px-5 pointer-events-none opacity-0 translate-y-4 transition-all duration-300">
+  <div class="glass-dark rounded-2xl px-4 py-3 flex items-center gap-2 text-white">
+    <span class="material-symbols-outlined text-lime text-[20px]">check_circle</span>
+    <span id="toast-text" class="text-xs"></span>
+  </div>
+</div>
+
+<script>
+(function () {
+  var STATES = [
+    { id: 'active', label: 'Active (66%)', icon: 'bolt' },
+    { id: 'pending', label: 'Waiting for admin', icon: 'hourglass_top' },
+    { id: 'approved', label: 'Approved', icon: 'verified' },
+    { id: 'repaid', label: 'Paid off', icon: 'task_alt' },
+    { id: 'rejected', label: 'Declined', icon: 'cancel' }
+  ];
+  var q = new URLSearchParams(location.search);
+  var current = q.get('state');
+  if (!STATES.some(function (s) { return s.id === current; })) current = 'active';
+  var amt = parseInt(q.get('amount'), 10);
+  if (isNaN(amt) || amt <= 0) amt = 60000;
+  document.getElementById('p-amt').textContent = 'Requested amount: ₦' + amt.toLocaleString('en-US') + '.00';
+
+  function show(id) {
+    current = id;
+    STATES.forEach(function (s) {
+      var p = document.getElementById('state-' + s.id);
+      p.classList.toggle('hidden', s.id !== id);
+      p.classList.toggle('flex', s.id === id);
+    });
+    document.getElementById('tabs').innerHTML = STATES.map(function (s) {
+      var on = s.id === id;
+      return '<button type="button" data-s="' + s.id + '" class="tab shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold flex items-center gap-1.5 whitespace-nowrap transition-all ' +
+        (on ? 'bg-lime text-lime-ink' : 'glass text-white/70 hover:text-white') + '">' +
+        '<span class="material-symbols-outlined text-[14px]">' + s.icon + '</span>' + s.label + '</button>';
+    }).join('');
+    document.querySelectorAll('.tab').forEach(function (b) {
+      b.addEventListener('click', function () { show(b.getAttribute('data-s')); });
+    });
+  }
+
+  var rows = [
+    ['Auto-debit #40', 'Today, 08:00 AM • GTBank •• 4920'],
+    ['Auto-debit #39', 'Oct 16, 08:00 AM • GTBank •• 4920'],
+    ['Auto-debit #38', 'Oct 15, 08:00 AM • GTBank •• 4920'],
+    ['Auto-debit #37', 'Oct 14, 08:00 AM • GTBank •• 4920']
+  ];
+  var html = rows.map(function (r) {
+    return '<div class="rounded-2xl bg-white/5 p-3 flex items-center justify-between"><div class="flex items-center gap-3 min-w-0">' +
+      '<div class="size-8 rounded-lg bg-lime/15 text-lime flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[18px]">autorenew</span></div>' +
+      '<div class="min-w-0"><p class="text-sm font-medium text-white truncate">' + r[0] + '</p><p class="text-[11px] text-white/50 truncate">' + r[1] + '</p></div></div>' +
+      '<div class="text-right shrink-0 pl-2"><p class="text-sm font-semibold text-lime">-₦1,000</p><p class="text-[10px] text-white/50">Settled</p></div></div>';
+  }).join('');
+  html += '<div class="rounded-2xl bg-white/5 p-3 flex items-center justify-between"><div class="flex items-center gap-3 min-w-0">' +
+    '<div class="size-8 rounded-lg bg-warn/15 text-warn flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[18px]">account_balance</span></div>' +
+    '<div class="min-w-0"><p class="text-sm font-medium text-white truncate">Paid out to GTBank</p><p class="text-[11px] text-white/50 truncate">Sep 7, 09:12 AM • Initial loan</p></div></div>' +
+    '<div class="text-right shrink-0 pl-2"><p class="text-sm font-semibold text-warn">+₦60,000</p><p class="text-[10px] text-white/50">Paid out</p></div></div>';
+  document.getElementById('ledger').innerHTML = html;
+
+  var timer;
+  function toast(msg) {
+    var t = document.getElementById('toast');
+    document.getElementById('toast-text').textContent = msg;
+    t.classList.remove('opacity-0', 'translate-y-4');
+    clearTimeout(timer);
+    timer = setTimeout(function () { t.classList.add('opacity-0', 'translate-y-4'); }, 2600);
+  }
+  document.querySelectorAll('[data-toast]').forEach(function (b) {
+    b.addEventListener('click', function () { toast(b.getAttribute('data-toast')); });
+  });
+  document.querySelectorAll('[data-state-go]').forEach(function (b) {
+    b.addEventListener('click', function () { show(b.getAttribute('data-state-go')); });
+  });
+
+  show(current);
+})();
+</script>
+{% endblock %}
