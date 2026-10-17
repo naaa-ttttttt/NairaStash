@@ -1,0 +1,358 @@
+{% extends "base.html" %}
+
+{% block title %}Profile · NairaStash{% endblock %}
+
+{% block content %}
+<header class="sticky top-0 z-30 flex items-center justify-between gap-2 px-5 py-4 bg-forest-900/50 backdrop-blur-xl">
+  <div class="flex flex-col min-w-0">
+    <span class="text-lg font-semibold tracking-tight text-white truncate">Profile</span>
+    <span class="text-[10px] font-semibold uppercase tracking-widest text-lime">NairaStash</span>
+  </div>
+  <div class="flex items-center gap-2 shrink-0">
+    <button type="button" aria-label="Notifications"
+      class="size-11 rounded-full flex items-center justify-center text-white/60 hover:text-white hover:bg-white/10 transition-colors">
+      <span class="material-symbols-outlined text-[22px]">notifications</span>
+    </button>
+    <a href="/profile" aria-label="Open Profile"
+      class="size-9 rounded-full bg-lime text-lime-ink text-xs font-bold flex items-center justify-center">CO</a>
+  </div>
+</header>
+
+<main class="flex-1 flex flex-col gap-6 px-5 pt-4">
+
+  <!-- fragment: profile-hero -->
+  <section class="glass rounded-3xl p-5 flex flex-col gap-4">
+    <div class="flex items-center gap-4">
+      <div class="relative shrink-0">
+        <div class="size-16 rounded-full bg-lime text-lime-ink text-xl font-bold flex items-center justify-center">CO</div>
+        <span class="absolute bottom-0 right-0 size-4 rounded-full bg-lime text-lime-ink ring-2 ring-forest-900 flex items-center justify-center">
+          <span class="material-symbols-outlined text-[11px] font-bold">check</span>
+        </span>
+      </div>
+      <div class="flex flex-col min-w-0 flex-1">
+        <div class="flex items-center gap-2 flex-wrap">
+          <h1 class="text-xl font-semibold tracking-tight text-white truncate">Chinedu Okafor</h1>
+          <span class="inline-flex items-center gap-1 rounded-full bg-lime/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-lime">
+            <span class="size-1.5 rounded-full bg-lime animate-pulse"></span>Tier 1
+          </span>
+        </div>
+        <span class="text-xs text-white/60 truncate">@chinedu • #NS-88219</span>
+        <span class="text-xs text-white/40 truncate mt-0.5">chinedu.okafor@example.com</span>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between rounded-2xl bg-white/5 px-4 py-2.5">
+      <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined fill-1 text-lime text-[18px]">verified</span>
+        <span class="text-xs font-semibold text-white">100% on-time payment record</span>
+      </div>
+      <span class="rounded-full bg-black/30 px-2 py-0.5 text-[10px] font-semibold uppercase text-lime">Verified</span>
+    </div>
+
+    <div class="grid grid-cols-3 gap-2">
+      <div class="rounded-2xl bg-white/5 p-2.5 text-center flex flex-col items-center">
+        <div class="flex items-center gap-1 text-lime mb-0.5">
+          <span class="material-symbols-outlined fill-1 text-[16px]">local_fire_department</span>
+          <span class="text-base font-semibold">62d</span>
+        </div>
+        <span class="text-[10px] uppercase tracking-wider text-white/60">Streak</span>
+      </div>
+      <div class="rounded-2xl bg-white/5 p-2.5 text-center flex flex-col items-center">
+        <div class="flex items-center gap-1 text-azure mb-0.5">
+          <span class="material-symbols-outlined text-[16px]">savings</span>
+          <span class="text-base font-semibold">3</span>
+        </div>
+        <span class="text-[10px] uppercase tracking-wider text-white/60">Active plans</span>
+      </div>
+      <div class="rounded-2xl bg-white/5 p-2.5 text-center flex flex-col items-center">
+        <div class="flex items-center gap-1 text-warn mb-0.5">
+          <span class="material-symbols-outlined text-[16px]">calendar_today</span>
+          <span class="text-sm font-semibold">Mar '24</span>
+        </div>
+        <span class="text-[10px] uppercase tracking-wider text-white/60">Member since</span>
+      </div>
+    </div>
+  </section>
+  <!-- /fragment: profile-hero -->
+
+  <!-- fragment: profile-autosave -->
+  <div class="glass rounded-3xl p-4 flex items-center justify-between gap-2">
+    <div class="flex items-center gap-3 min-w-0">
+      <div class="size-10 rounded-full bg-azure text-white flex items-center justify-center shrink-0">
+        <span class="material-symbols-outlined text-[20px]">autorenew</span>
+      </div>
+      <div class="flex flex-col min-w-0">
+        <div class="flex items-center gap-1.5">
+          <span class="text-sm font-semibold text-white">Auto-save</span>
+          <span class="size-2 rounded-full bg-lime"></span>
+        </div>
+        <span class="text-xs text-white/60 truncate">₦14,500 scheduled daily • Next run 08:00 WAT</span>
+      </div>
+    </div>
+    <span class="rounded-full bg-black/30 px-2.5 py-1 text-xs font-semibold text-lime shrink-0">Active</span>
+  </div>
+  <!-- /fragment: profile-autosave -->
+
+  <!-- fragment: profile-identity -->
+  <section class="flex flex-col gap-2">
+    <div class="flex items-center justify-between px-1">
+      <span class="text-xs font-semibold uppercase tracking-widest text-lime">Identity &amp; records</span>
+      <span class="text-[10px] text-white/40">Section 01</span>
+    </div>
+    <div class="glass rounded-3xl overflow-hidden flex flex-col">
+      <button type="button" class="w-full text-left p-4 flex items-center justify-between hover:bg-white/5 transition-colors">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="size-9 rounded-xl bg-white/10 flex items-center justify-center text-azure shrink-0"><span class="material-symbols-outlined text-[20px]">badge</span></div>
+          <div class="flex flex-col min-w-0">
+            <span class="text-sm font-medium text-white truncate">Personal information</span>
+            <span class="text-xs text-white/60 truncate">Legal name, DOB, BVN, NIN &amp; address verified</span>
+          </div>
+        </div>
+        <span class="material-symbols-outlined text-white/40 text-[20px] ml-2 shrink-0">chevron_right</span>
+      </button>
+      <div class="h-px bg-white/10 mx-4"></div>
+      <button type="button" class="w-full text-left p-4 flex items-center justify-between hover:bg-white/5 transition-colors">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="size-9 rounded-xl bg-white/10 flex items-center justify-center text-lime shrink-0"><span class="material-symbols-outlined text-[20px]">workspace_premium</span></div>
+          <div class="flex flex-col min-w-0">
+            <div class="flex items-center gap-2">
+              <span class="text-sm font-medium text-white truncate">Account tier &amp; limits</span>
+              <span class="rounded-md bg-black/30 px-1.5 py-0.5 text-[10px] font-semibold text-lime shrink-0">₦5,000,000 limit</span>
+            </div>
+            <span class="text-xs text-white/60 truncate">Tier 1 • ₦120,000 micro-credit cap</span>
+          </div>
+        </div>
+        <span class="material-symbols-outlined text-white/40 text-[20px] ml-2 shrink-0">chevron_right</span>
+      </button>
+      <div class="h-px bg-white/10 mx-4"></div>
+      <button type="button" class="w-full text-left p-4 flex items-center justify-between hover:bg-white/5 transition-colors">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="size-9 rounded-xl bg-white/10 flex items-center justify-center text-warn shrink-0"><span class="material-symbols-outlined text-[20px]">description</span></div>
+          <div class="flex flex-col min-w-0">
+            <span class="text-sm font-medium text-white truncate">Statements &amp; receipts</span>
+            <span class="text-xs text-white/60 truncate">Monthly statements, deposit receipts &amp; audits</span>
+          </div>
+        </div>
+        <span class="material-symbols-outlined text-white/40 text-[20px] ml-2 shrink-0">chevron_right</span>
+      </button>
+    </div>
+  </section>
+  <!-- /fragment: profile-identity -->
+
+  <!-- fragment: profile-security -->
+  <section class="flex flex-col gap-2">
+    <div class="flex items-center justify-between px-1">
+      <span class="text-xs font-semibold uppercase tracking-widest text-azure">Security</span>
+      <span class="text-[10px] text-white/40">Section 02</span>
+    </div>
+    <div class="glass rounded-3xl overflow-hidden flex flex-col">
+      <button type="button" class="w-full text-left p-4 flex items-center justify-between hover:bg-white/5 transition-colors">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="size-9 rounded-xl bg-white/10 flex items-center justify-center text-azure shrink-0"><span class="material-symbols-outlined text-[20px]">fingerprint</span></div>
+          <div class="flex flex-col min-w-0">
+            <div class="flex items-center gap-1.5">
+              <span class="text-sm font-medium text-white truncate">Security &amp; biometrics</span>
+              <span class="size-2 rounded-full bg-lime"></span>
+            </div>
+            <span class="text-xs text-white/60 truncate">Fingerprint active • 2-factor auth (authenticator app)</span>
+          </div>
+        </div>
+        <span class="material-symbols-outlined text-white/40 text-[20px] ml-2 shrink-0">chevron_right</span>
+      </button>
+      <div class="h-px bg-white/10 mx-4"></div>
+      <button type="button" class="w-full text-left p-4 flex items-center justify-between hover:bg-white/5 transition-colors">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="size-9 rounded-xl bg-white/10 flex items-center justify-center text-white/70 shrink-0"><span class="material-symbols-outlined text-[20px]">key</span></div>
+          <div class="flex flex-col min-w-0">
+            <span class="text-sm font-medium text-white truncate">Passcode &amp; recovery</span>
+            <span class="text-xs text-white/60 truncate">6-digit PIN • Recovery email set</span>
+          </div>
+        </div>
+        <span class="material-symbols-outlined text-white/40 text-[20px] ml-2 shrink-0">chevron_right</span>
+      </button>
+      <div class="h-px bg-white/10 mx-4"></div>
+      <button type="button" class="w-full text-left p-4 flex items-center justify-between hover:bg-white/5 transition-colors">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="size-9 rounded-xl bg-white/10 flex items-center justify-center text-white/70 shrink-0"><span class="material-symbols-outlined text-[20px]">devices</span></div>
+          <div class="flex flex-col min-w-0">
+            <span class="text-sm font-medium text-white truncate">Active devices &amp; sessions</span>
+            <span class="text-xs text-white/60 truncate">Infinix Note 30 • Lagos, Nigeria (Current)</span>
+          </div>
+        </div>
+        <span class="material-symbols-outlined text-white/40 text-[20px] ml-2 shrink-0">chevron_right</span>
+      </button>
+    </div>
+  </section>
+  <!-- /fragment: profile-security -->
+
+  <!-- fragment: profile-banking -->
+  <section class="flex flex-col gap-2">
+    <div class="flex items-center justify-between px-1">
+      <span class="text-xs font-semibold uppercase tracking-widest text-lime">Banking &amp; payouts</span>
+      <span class="text-[10px] text-white/40">Section 03</span>
+    </div>
+    <div class="glass rounded-3xl overflow-hidden flex flex-col">
+      <button type="button" class="w-full text-left p-4 flex items-center justify-between hover:bg-white/5 transition-colors">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="size-9 rounded-xl bg-white/10 flex items-center justify-center text-azure shrink-0"><span class="material-symbols-outlined text-[20px]">account_balance</span></div>
+          <div class="flex flex-col min-w-0">
+            <div class="flex items-center gap-2">
+              <span class="text-sm font-medium text-white truncate">Linked bank accounts</span>
+              <span class="rounded-md bg-black/30 px-1.5 py-0.5 text-[10px] font-semibold text-azure shrink-0">2 active</span>
+            </div>
+            <span class="text-xs text-white/60 truncate">GTBank (•••• 4920), Access Bank (•••• 8104)</span>
+          </div>
+        </div>
+        <span class="material-symbols-outlined text-white/40 text-[20px] ml-2 shrink-0">chevron_right</span>
+      </button>
+      <div class="h-px bg-white/10 mx-4"></div>
+      <button type="button" class="w-full text-left p-4 flex items-center justify-between hover:bg-white/5 transition-colors">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="size-9 rounded-xl bg-white/10 flex items-center justify-center text-lime shrink-0"><span class="material-symbols-outlined text-[20px]">credit_card</span></div>
+          <div class="flex flex-col min-w-0">
+            <span class="text-sm font-medium text-white truncate">Debit &amp; payout cards</span>
+            <span class="text-xs text-white/60 truncate">Verve card (•••• 3319) • Instant transfers active</span>
+          </div>
+        </div>
+        <span class="material-symbols-outlined text-white/40 text-[20px] ml-2 shrink-0">chevron_right</span>
+      </button>
+      <div class="h-px bg-white/10 mx-4"></div>
+      <button type="button" class="w-full text-left p-4 flex items-center justify-between hover:bg-white/5 transition-colors">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="size-9 rounded-xl bg-white/10 flex items-center justify-center text-warn shrink-0"><span class="material-symbols-outlined text-[20px]">schedule</span></div>
+          <div class="flex flex-col min-w-0">
+            <span class="text-sm font-medium text-white truncate">Daily auto-save schedules</span>
+            <span class="text-xs text-white/60 truncate">₦14,500/day across 3 plans</span>
+          </div>
+        </div>
+        <span class="material-symbols-outlined text-white/40 text-[20px] ml-2 shrink-0">chevron_right</span>
+      </button>
+    </div>
+  </section>
+  <!-- /fragment: profile-banking -->
+
+  <!-- fragment: profile-notifications -->
+  <section class="flex flex-col gap-2">
+    <div class="flex items-center justify-between px-1">
+      <span class="text-xs font-semibold uppercase tracking-widest text-white/60">Reminders &amp; notifications</span>
+      <span class="text-[10px] text-white/40">Section 04</span>
+    </div>
+    <div class="glass rounded-3xl overflow-hidden flex flex-col">
+      <div class="w-full p-4 flex items-center justify-between">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="size-9 rounded-xl bg-white/10 flex items-center justify-center text-azure shrink-0"><span class="material-symbols-outlined text-[20px]">notifications_active</span></div>
+          <div class="flex flex-col min-w-0">
+            <span class="text-sm font-medium text-white truncate">Payment reminders</span>
+            <span class="text-xs text-white/60 truncate">Alert 1 hr before the 08:00 WAT daily run</span>
+          </div>
+        </div>
+        <button id="toggle-reminders" type="button" aria-label="Toggle payment reminders"
+          class="w-12 h-6 rounded-full bg-lime p-0.5 flex items-center justify-end transition-colors shrink-0">
+          <span class="size-5 rounded-full bg-forest-900 shadow-md"></span>
+        </button>
+      </div>
+      <div class="h-px bg-white/10 mx-4"></div>
+      <button type="button" class="w-full text-left p-4 flex items-center justify-between hover:bg-white/5 transition-colors">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="size-9 rounded-xl bg-white/10 flex items-center justify-center text-lime shrink-0"><span class="material-symbols-outlined text-[20px]">how_to_vote</span></div>
+          <div class="flex flex-col min-w-0">
+            <span class="text-sm font-medium text-white truncate">Group alerts</span>
+            <span class="text-xs text-white/60 truncate">Loan requests, member votes, payout rotation</span>
+          </div>
+        </div>
+        <span class="rounded-md bg-black/30 px-2 py-0.5 text-[10px] font-semibold text-lime shrink-0">Instant</span>
+      </button>
+      <div class="h-px bg-white/10 mx-4"></div>
+      <button type="button" class="w-full text-left p-4 flex items-center justify-between hover:bg-white/5 transition-colors">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="size-9 rounded-xl bg-white/10 flex items-center justify-center text-white/70 shrink-0"><span class="material-symbols-outlined text-[20px]">mail</span></div>
+          <div class="flex flex-col min-w-0">
+            <span class="text-sm font-medium text-white truncate">Email &amp; statement digests</span>
+            <span class="text-xs text-white/60 truncate">Weekly savings recap on Mondays</span>
+          </div>
+        </div>
+        <span class="material-symbols-outlined text-white/40 text-[20px] ml-2 shrink-0">chevron_right</span>
+      </button>
+    </div>
+  </section>
+  <!-- /fragment: profile-notifications -->
+
+  <!-- fragment: profile-support -->
+  <section class="flex flex-col gap-2">
+    <div class="flex items-center justify-between px-1">
+      <span class="text-xs font-semibold uppercase tracking-widest text-white/60">Support &amp; legal</span>
+      <span class="text-[10px] text-white/40">Section 05</span>
+    </div>
+    <div class="glass rounded-3xl overflow-hidden flex flex-col">
+      <button type="button" class="w-full text-left p-4 flex items-center justify-between hover:bg-white/5 transition-colors">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="size-9 rounded-xl bg-white/10 flex items-center justify-center text-lime shrink-0"><span class="material-symbols-outlined text-[20px]">support_agent</span></div>
+          <div class="flex flex-col min-w-0">
+            <div class="flex items-center gap-1.5">
+              <span class="text-sm font-medium text-white truncate">Live support</span>
+              <span class="size-2 rounded-full bg-lime"></span>
+            </div>
+            <span class="text-xs text-white/60 truncate">Typical response under 5 mins • Encrypted chat</span>
+          </div>
+        </div>
+        <span class="material-symbols-outlined text-white/40 text-[20px] ml-2 shrink-0">chevron_right</span>
+      </button>
+      <div class="h-px bg-white/10 mx-4"></div>
+      <button type="button" class="w-full text-left p-4 flex items-center justify-between hover:bg-white/5 transition-colors">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="size-9 rounded-xl bg-white/10 flex items-center justify-center text-white/70 shrink-0"><span class="material-symbols-outlined text-[20px]">gavel</span></div>
+          <div class="flex flex-col min-w-0">
+            <span class="text-sm font-medium text-white truncate">Group governance &amp; rules</span>
+            <span class="text-xs text-white/60 truncate">Esusu mechanics &amp; default resolution</span>
+          </div>
+        </div>
+        <span class="material-symbols-outlined text-white/40 text-[20px] ml-2 shrink-0">chevron_right</span>
+      </button>
+      <div class="h-px bg-white/10 mx-4"></div>
+      <button type="button" class="w-full text-left p-4 flex items-center justify-between hover:bg-white/5 transition-colors">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="size-9 rounded-xl bg-white/10 flex items-center justify-center text-white/70 shrink-0"><span class="material-symbols-outlined text-[20px]">policy</span></div>
+          <div class="flex flex-col min-w-0">
+            <span class="text-sm font-medium text-white truncate">Privacy policy &amp; terms</span>
+            <span class="text-xs text-white/60 truncate">Bank-grade encryption, full audit trail</span>
+          </div>
+        </div>
+        <span class="material-symbols-outlined text-white/40 text-[20px] ml-2 shrink-0">chevron_right</span>
+      </button>
+    </div>
+  </section>
+  <!-- /fragment: profile-support -->
+
+  <!-- fragment: profile-logout -->
+  <section class="flex flex-col gap-4 items-center pt-2 pb-6">
+    <a href="/login"
+      class="glass w-full h-12 rounded-full text-red-300 hover:bg-red-400/10 active:scale-[0.99] transition-all flex items-center justify-center gap-2">
+      <span class="material-symbols-outlined text-[20px]">logout</span>
+      <span class="text-sm font-semibold">Log out of NairaStash</span>
+    </a>
+    <div class="flex flex-col items-center gap-1 text-center">
+      <div class="flex items-center gap-1.5 text-white/60">
+        <span class="material-symbols-outlined text-[14px] text-lime">shield</span>
+        <span class="text-[10px] font-medium">NairaStash v2.4.1 (Build 4902)</span>
+      </div>
+      <span class="text-[10px] text-white/40">Partner banking services provided by CBN-licensed institutions.</span>
+    </div>
+  </section>
+  <!-- /fragment: profile-logout -->
+
+</main>
+
+<script>
+(function () {
+  var btn = document.getElementById('toggle-reminders');
+  if (!btn) return;
+  btn.addEventListener('click', function () {
+    var on = btn.classList.contains('bg-lime');
+    btn.classList.toggle('bg-lime', !on);
+    btn.classList.toggle('justify-end', !on);
+    btn.classList.toggle('bg-white/15', on);
+    btn.classList.toggle('justify-start', on);
+  });
+})();
+</script>
+{% endblock %}
