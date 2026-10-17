@@ -51,10 +51,20 @@
       </div>
     </div>
 
+    <div id="approval-note" class="hidden rounded-3xl bg-warn/10 border border-warn/20 p-4 items-start gap-3">
+      <div class="size-8 rounded-xl bg-warn/20 text-warn flex items-center justify-center shrink-0">
+        <span class="material-symbols-outlined text-[18px]">admin_panel_settings</span>
+      </div>
+      <div>
+        <span class="text-[10px] font-semibold uppercase tracking-wider text-warn block">Needs admin approval</span>
+        <p class="text-xs text-white/70 mt-0.5">Group withdrawals are not sent straight away. A group admin reviews this request against the <a href="/rules" class="text-lime font-semibold">group rules</a> first.</p>
+      </div>
+    </div>
+
     <section class="glass rounded-3xl p-5 text-center">
-      <span class="text-[10px] font-semibold uppercase tracking-wider text-white/50">You are withdrawing</span>
+      <span id="r-label" class="text-[10px] font-semibold uppercase tracking-wider text-white/50">You are withdrawing</span>
       <p id="r-amount" class="mt-1 text-4xl font-semibold tracking-tight text-white"></p>
-      <p class="mt-1 text-xs text-white/50">NGN • Zero fees</p>
+      <p id="r-fee-line" class="mt-1 text-xs text-white/50">NGN • Zero fees</p>
     </section>
 
     <section class="glass rounded-3xl divide-y divide-white/10 overflow-hidden">
@@ -85,29 +95,29 @@
         <p class="text-sm font-semibold text-lime">₦0.00</p>
       </div>
       <div class="flex items-center justify-between gap-3 px-4 py-3.5 bg-white/5">
-        <p class="text-xs font-semibold text-white">You receive</p>
+        <p id="r-total-label" class="text-xs font-semibold text-white">You receive</p>
         <p id="r-total" class="text-sm font-semibold text-white"></p>
       </div>
     </section>
 
     <div class="flex items-start gap-2 px-1">
       <span class="material-symbols-outlined text-white/50 text-[16px] mt-0.5">lock</span>
-      <p class="text-xs text-white/50">Protected by 256-bit encryption. Withdrawals cannot be undone once sent.</p>
+      <p id="r-foot" class="text-xs text-white/50">Protected by 256-bit encryption. Withdrawals cannot be undone once sent.</p>
     </div>
   </div>
   <!-- /fragment: withdraw-review-form -->
 
   <!-- fragment: withdraw-review-success -->
   <section id="success" class="hidden flex-1 flex-col items-center justify-center text-center gap-4 py-16">
-    <div class="size-20 rounded-full bg-lime text-lime-ink flex items-center justify-center">
-      <span class="material-symbols-outlined fill-1 text-[44px]">check_circle</span>
+    <div id="s-icon-box" class="size-20 rounded-full bg-lime text-lime-ink flex items-center justify-center">
+      <span id="s-icon" class="material-symbols-outlined fill-1 text-[44px]">check_circle</span>
     </div>
     <div>
-      <h2 class="text-2xl font-semibold tracking-tight text-white">Withdrawal submitted</h2>
-      <p id="s-text" class="text-sm text-white/60 mt-1"></p>
-      <p class="text-xs text-white/40 mt-2">Reference: #WTH-9022</p>
+      <h2 id="s-title" class="text-2xl font-semibold tracking-tight text-white">Withdrawal submitted</h2>
+      <p id="s-text" class="text-sm text-white/60 mt-1 max-w-xs"></p>
+      <p id="s-ref" class="text-xs text-white/40 mt-2">Reference: #WTH-9022</p>
     </div>
-    <a href="/" class="mt-2 h-12 px-8 rounded-full bg-lime text-lime-ink text-sm font-semibold flex items-center justify-center active:scale-[0.98] transition">Back to home</a>
+    <a id="s-back" href="/" class="mt-2 h-12 px-8 rounded-full bg-lime text-lime-ink text-sm font-semibold flex items-center justify-center active:scale-[0.98] transition">Back to home</a>
   </section>
   <!-- /fragment: withdraw-review-success -->
 
@@ -118,8 +128,8 @@
   <div class="glass-dark rounded-3xl p-3">
     <button id="confirm" type="button"
       class="w-full h-12 rounded-full bg-lime text-lime-ink text-sm font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition">
-      <span class="material-symbols-outlined text-[20px]">lock</span>
-      <span>Confirm withdrawal</span>
+      <span id="c-icon" class="material-symbols-outlined text-[20px]">lock</span>
+      <span id="c-label">Confirm withdrawal</span>
     </button>
   </div>
 </div>
@@ -131,7 +141,8 @@
     'emergency': 'Emergency Liquidity Vault',
     'real-estate': 'Real Estate Buffer',
     'family-health': 'Family Health Reserve',
-    'tech-hardware': 'Tech Hardware Refresh'
+    'tech-hardware': 'Tech Hardware Refresh',
+    'founders': 'Founders Tech Stash (my share)'
   };
   var dests = {
     'gtbank': { name: 'GTBank Savings', sub: '•••• 4920 • Instant transfer (NIP)', short: 'GTBank' },
@@ -144,6 +155,7 @@
   var destId = dests[q.get('dest')] ? q.get('dest') : 'gtbank';
   var amount = parseFloat(q.get('amount'));
   if (isNaN(amount) || amount <= 0) amount = 120000;
+  var isGroup = planId === 'founders';
 
   var money = '₦' + amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   function el(id) { return document.getElementById(id); }
@@ -159,13 +171,35 @@
   el('e-amount').setAttribute('href', '/withdraw/amount?plan=' + planId);
   el('e-dest').setAttribute('href', '/withdraw/destination?plan=' + planId + '&amount=' + amount);
 
+  if (isGroup) {
+    document.title = 'Review withdrawal request · NairaStash';
+    var note = el('approval-note');
+    note.classList.remove('hidden');
+    note.classList.add('flex');
+    el('r-label').textContent = 'You are requesting';
+    el('r-total-label').textContent = 'You would receive';
+    el('r-foot').textContent = 'Nothing is sent until an admin approves. You will be notified of the decision.';
+    el('c-icon').textContent = 'send';
+    el('c-label').textContent = 'Send request for approval';
+  }
+
   el('confirm').addEventListener('click', function () {
     el('review').classList.add('hidden');
     el('dock').classList.add('hidden');
     var s = el('success');
     s.classList.remove('hidden');
     s.classList.add('flex');
-    el('s-text').textContent = money + ' is on its way to ' + dests[destId].short + '.';
+    if (isGroup) {
+      el('s-icon-box').className = 'size-20 rounded-full bg-warn text-lime-ink flex items-center justify-center';
+      el('s-icon').textContent = 'hourglass_top';
+      el('s-title').textContent = 'Request sent for approval';
+      el('s-text').textContent = 'A group admin will review your request for ' + money + '. Once approved, it goes to ' + dests[destId].short + '.';
+      el('s-ref').textContent = 'Reference: #WRQ-3301';
+      el('s-back').textContent = 'Back to group';
+      el('s-back').setAttribute('href', '/groups/founders');
+    } else {
+      el('s-text').textContent = money + ' is on its way to ' + dests[destId].short + '.';
+    }
     window.scrollTo(0, 0);
   });
 })();
