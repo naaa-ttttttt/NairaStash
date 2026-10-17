@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="htmx-config" content='{"globalViewTransitions":true}'>
+  <title>{% block title %}Thrift Vault{% endblock %}</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            lime: { DEFAULT: "#D8F13A", ink: "#10301C" },
+            azure: "#2F7CF6",
+            warn: "#FFC247",
+            forest: { 950: "#071A10", 900: "#0A2416", 800: "#0F3D24", 700: "#1B6B3A" }
+          },
+          fontFamily: { sans: ["Plus Jakarta Sans", "system-ui", "sans-serif"] }
+        }
+      }
+    }
+  </script>
+  <style>
+    html {
+      min-height: 100%;
+      background-color: #071A10;
+      background-image:
+        radial-gradient(60% 38% at 92% 4%, rgba(190, 240, 60, .30), transparent 62%),
+        radial-gradient(75% 45% at 0% 42%, rgba(34, 139, 70, .60), transparent 66%),
+        radial-gradient(80% 45% at 100% 100%, rgba(60, 170, 90, .50), transparent 62%),
+        linear-gradient(165deg, #0A2416 0%, #0E3A22 50%, #14592F 100%);
+      background-attachment: fixed;
+    }
+    body { background: transparent; font-variant-numeric: tabular-nums; }
+    .glass {
+      background: rgba(255, 255, 255, .06);
+      border: 1px solid rgba(255, 255, 255, .10);
+      -webkit-backdrop-filter: blur(20px);
+      backdrop-filter: blur(20px);
+    }
+    .glass-dark {
+      background: rgba(0, 0, 0, .28);
+      border: 1px solid rgba(255, 255, 255, .08);
+      -webkit-backdrop-filter: blur(20px);
+      backdrop-filter: blur(20px);
+    }
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400; }
+    .fill-1 { font-variation-settings: 'FILL' 1, 'wght' 400; }
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type=number] { -moz-appearance: textfield; }
+    ::-webkit-scrollbar { display: none; }
+    ::view-transition-old(root), ::view-transition-new(root) { animation-duration: .15s; }
+  </style>
+</head>
+
+<body hx-boost="true" class="text-white antialiased pb-28">
+  <div class="mx-auto max-w-md w-full min-h-screen flex flex-col relative">
+
+    {% block content %}{% endblock %}
+
+  </div>
+
+  <!-- Floating nav pill -->
+  <nav class="fixed bottom-4 left-0 right-0 z-40 max-w-md mx-auto px-5">
+    <div class="flex items-center justify-between rounded-full bg-black/40 backdrop-blur-2xl border border-white/10 p-2 shadow-2xl">
+      <a href="/" aria-label="Home" title="Home"
+         class="size-12 rounded-full flex items-center justify-center transition-colors {% if active == "home" %}bg-white/15 text-white{% else %}text-white/50 hover:text-white{% endif %}">
+        <span class="material-symbols-outlined text-[22px]">dashboard</span>
+      </a>
+      <a href="/plans" aria-label="Plans" title="Plans"
+         class="size-12 rounded-full flex items-center justify-center transition-colors {% if active == "plans" %}bg-white/15 text-white{% else %}text-white/50 hover:text-white{% endif %}">
+        <span class="material-symbols-outlined text-[22px]">savings</span>
+      </a>
+      <a href="/groups" aria-label="Groups" title="Groups"
+         class="size-12 rounded-full flex items-center justify-center transition-colors {% if active == "groups" %}bg-white/15 text-white{% else %}text-white/50 hover:text-white{% endif %}">
+        <span class="material-symbols-outlined text-[22px]">diversity_3</span>
+      </a>
+      <a href="#" aria-label="Activity" title="Activity"
+         class="size-12 rounded-full flex items-center justify-center text-white/50 hover:text-white transition-colors">
+        <span class="material-symbols-outlined text-[22px]">receipt_long</span>
+      </a>
+      <a href="#" aria-label="Profile" title="Profile"
+         class="size-12 rounded-full flex items-center justify-center text-white/50 hover:text-white transition-colors">
+        <span class="material-symbols-outlined text-[22px]">manage_accounts</span>
+      </a>
+    </div>
+  </nav>
+</body>
+</html>
