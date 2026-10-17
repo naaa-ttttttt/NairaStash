@@ -1,0 +1,428 @@
+{% extends "base.html" %}
+
+{% block title %}Founders Tech Stash · Thrift Vault{% endblock %}
+
+{% block content %}
+<header class="sticky top-0 z-30 flex items-center justify-between px-5 h-16 bg-forest-900/50 backdrop-blur-xl">
+  <div class="flex items-center gap-3 min-w-0">
+    <a href="/groups" aria-label="Back"
+      class="size-10 shrink-0 rounded-full glass text-white flex items-center justify-center hover:bg-white/10 transition-colors">
+      <span class="material-symbols-outlined text-[20px]">arrow_back</span>
+    </a>
+    <div class="leading-tight min-w-0">
+      <h1 class="text-sm font-semibold text-white truncate">Thrift Vault</h1>
+      <p class="text-[11px] text-lime uppercase tracking-widest truncate">Community groups</p>
+    </div>
+  </div>
+  <button type="button" aria-label="Notifications"
+    class="relative size-10 shrink-0 rounded-full glass text-white flex items-center justify-center hover:bg-white/10 transition-colors">
+    <span class="material-symbols-outlined text-[20px]">notifications</span>
+    <span class="absolute top-2.5 right-2.5 size-2 rounded-full bg-lime ring-2 ring-forest-800"></span>
+  </button>
+</header>
+
+<main class="flex-1 flex flex-col gap-4 px-5 pt-4 pb-28">
+
+  <!-- Invite code + settings -->
+  <div class="flex items-center justify-between">
+    <button type="button"
+      class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full glass text-lime text-[11px] font-semibold uppercase tracking-wider hover:bg-white/10 transition-colors">
+      # FOUNDERS-X89
+      <span class="material-symbols-outlined text-[14px]">share</span>
+    </button>
+    <button type="button" aria-label="Circle settings"
+      class="size-9 rounded-full glass text-white flex items-center justify-center hover:bg-white/10 transition-colors">
+      <span class="material-symbols-outlined text-[18px]">more_horiz</span>
+    </button>
+  </div>
+
+  <!-- Group hero -->
+  <section class="glass rounded-3xl p-5 flex flex-col gap-4">
+    <div class="flex items-start justify-between gap-3">
+      <div class="min-w-0">
+        <div class="flex items-center gap-2 flex-wrap mb-2">
+          <span class="px-2.5 py-1 rounded-full bg-azure text-white text-[10px] font-semibold uppercase tracking-wider">Esusu Chit</span>
+          <span class="px-2.5 py-1 rounded-full bg-lime/15 text-lime text-[10px] font-semibold uppercase tracking-wider">Active • Cycle 5/8</span>
+        </div>
+        <h1 class="text-2xl font-semibold tracking-tight text-white">Founders Tech Stash</h1>
+      </div>
+      <div class="size-11 shrink-0 rounded-2xl bg-azure text-white flex items-center justify-center">
+        <span class="material-symbols-outlined text-[24px]">token</span>
+      </div>
+    </div>
+
+    <p class="text-sm text-white/70 leading-relaxed">
+      Collaborative revolving fund for seed tech gear, dedicated cloud credits, and quarterly liquidity disbursements.
+    </p>
+
+    <!-- Pool progress -->
+    <div class="rounded-2xl bg-black/25 border border-white/10 p-4 flex flex-col gap-2">
+      <div class="flex items-end justify-between">
+        <div>
+          <p class="text-[11px] text-white/60 uppercase tracking-wider">Total pool stash</p>
+          <p class="mt-0.5 text-2xl font-semibold text-white">$12,400.00</p>
+        </div>
+        <div class="text-right">
+          <p class="text-sm font-semibold text-lime">77%</p>
+          <p class="text-[11px] text-white/60">of $16.0k goal</p>
+        </div>
+      </div>
+      <div class="h-2 rounded-full bg-white/10 overflow-hidden">
+        <div class="h-full rounded-full bg-lime" style="width: 77.5%;"></div>
+      </div>
+      <div class="flex items-center justify-between pt-1 text-[11px]">
+        <span class="text-white/60">$25.00 / member / day</span>
+        <span class="inline-flex items-center gap-1.5 text-lime">
+          <span class="size-1.5 rounded-full bg-lime animate-pulse"></span>100% group velocity
+        </span>
+      </div>
+    </div>
+
+    <!-- Payout banner -->
+    <div class="rounded-2xl bg-warn/10 border border-warn/20 p-3 flex items-center gap-3">
+      <div class="size-9 shrink-0 rounded-full bg-warn/20 text-warn flex items-center justify-center">
+        <span class="material-symbols-outlined text-[18px]">cached</span>
+      </div>
+      <div class="min-w-0">
+        <p class="text-[11px] font-semibold text-warn uppercase tracking-wider">Next payout: Maya K. (Dec 01)</p>
+        <p class="text-xs text-white/80">Your turn: <strong class="text-lime">Cycle #6 (Dec 12)</strong> for $4,200.00</p>
+      </div>
+    </div>
+
+    <!-- Members stack -->
+    <div class="flex items-center justify-between">
+      <div class="flex items-center -space-x-2">
+        <span class="size-8 rounded-full bg-lime text-lime-ink text-[11px] font-bold flex items-center justify-center ring-2 ring-forest-800">MV</span>
+        <span class="size-8 rounded-full bg-azure text-white text-[11px] font-bold flex items-center justify-center ring-2 ring-forest-800">MK</span>
+        <span class="size-8 rounded-full bg-warn text-lime-ink text-[11px] font-bold flex items-center justify-center ring-2 ring-forest-800">LS</span>
+        <span class="size-8 rounded-full bg-white/25 text-white text-[11px] font-bold flex items-center justify-center ring-2 ring-forest-800">ER</span>
+        <span class="size-8 rounded-full bg-forest-700 text-white text-[10px] font-semibold flex items-center justify-center ring-2 ring-forest-800">+4</span>
+      </div>
+      <span class="text-[11px] text-white/60 uppercase tracking-wider">8 collective seats</span>
+    </div>
+  </section>
+
+  <!-- Tabs -->
+  <div class="glass rounded-full p-1 flex items-center gap-1">
+    <button type="button" id="tab-savings" data-tab="savings"
+      class="circle-tab flex-1 py-2.5 rounded-full text-[11px] font-semibold uppercase tracking-wider transition-colors flex items-center justify-center gap-1.5 bg-lime text-lime-ink">
+      <span class="material-symbols-outlined text-[16px]">savings</span>Personal
+    </button>
+    <button type="button" id="tab-loans" data-tab="loans"
+      class="circle-tab flex-1 py-2.5 rounded-full text-[11px] font-medium uppercase tracking-wider transition-colors flex items-center justify-center gap-1.5 text-white/70">
+      <span class="material-symbols-outlined text-[16px]">handshake</span>Credit vault
+    </button>
+    <button type="button" id="tab-roster" data-tab="roster"
+      class="circle-tab flex-1 py-2.5 rounded-full text-[11px] font-medium uppercase tracking-wider transition-colors flex items-center justify-center gap-1.5 text-white/70">
+      <span class="material-symbols-outlined text-[16px]">groups</span>Roster (8)
+    </button>
+  </div>
+
+  <!-- TAB 1: Personal -->
+  <section id="panel-savings" class="circle-panel flex flex-col gap-3">
+    <div class="flex items-center justify-between">
+      <h2 class="text-base font-semibold text-white">Your savings standing</h2>
+      <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-lime/15 text-lime text-[10px] font-semibold uppercase">
+        <span class="size-1.5 rounded-full bg-lime"></span>Auto-debit: on
+      </span>
+    </div>
+
+    <div class="glass rounded-3xl p-5 flex flex-col gap-5">
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <p class="text-[11px] text-white/60 uppercase tracking-wider">Your total equity in stash</p>
+          <p class="mt-1 text-3xl font-semibold tracking-tight text-white">$1,550.00</p>
+          <p class="mt-0.5 text-xs text-white/60">62 continuous daily cycles completed</p>
+        </div>
+        <div class="px-3 py-1.5 rounded-2xl bg-white/10 text-right shrink-0">
+          <p class="text-[11px] font-semibold text-lime uppercase">5 days ahead</p>
+          <p class="text-[10px] text-white/60">Buffer to Nov 18</p>
+        </div>
+      </div>
+
+      <div class="rounded-2xl bg-black/25 border border-white/10 p-4 flex flex-col gap-3">
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-[11px] text-white/60 uppercase">Contribution cadence</span>
+          <span class="text-[11px] font-semibold text-lime">62/62 on time (100%)</span>
+        </div>
+        <div class="grid grid-cols-7 gap-1.5">
+          <div class="flex flex-col items-center gap-1">
+            <span class="text-[10px] text-white/50">M</span>
+            <span class="size-8 rounded-full bg-lime/20 text-lime flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">check</span></span>
+          </div>
+          <div class="flex flex-col items-center gap-1">
+            <span class="text-[10px] text-white/50">T</span>
+            <span class="size-8 rounded-full bg-lime/20 text-lime flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">check</span></span>
+          </div>
+          <div class="flex flex-col items-center gap-1">
+            <span class="text-[10px] text-white/50">W</span>
+            <span class="size-8 rounded-full bg-lime/20 text-lime flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">check</span></span>
+          </div>
+          <div class="flex flex-col items-center gap-1">
+            <span class="text-[10px] text-white/50">T</span>
+            <span class="size-8 rounded-full bg-lime/20 text-lime flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">check</span></span>
+          </div>
+          <div class="flex flex-col items-center gap-1">
+            <span class="text-[10px] text-white/50">F</span>
+            <span class="size-8 rounded-full bg-lime/20 text-lime flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">check</span></span>
+          </div>
+          <div class="flex flex-col items-center gap-1">
+            <span class="text-[10px] text-white/50">S</span>
+            <span class="size-8 rounded-full bg-lime/20 text-lime flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">check</span></span>
+          </div>
+          <div class="flex flex-col items-center gap-1">
+            <span class="text-[10px] text-white/50">S</span>
+            <span class="size-8 rounded-full bg-azure text-white flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">bolt</span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2">
+        <button type="button"
+          class="h-12 rounded-full bg-azure text-white text-sm font-semibold flex items-center justify-center gap-1.5 active:scale-[0.98] transition">
+          <span class="material-symbols-outlined text-[18px]">add</span>Add boost
+        </button>
+        <button type="button"
+          class="h-12 rounded-full glass text-white text-sm font-medium flex items-center justify-center gap-1.5 hover:bg-white/10 transition-colors">
+          <span class="material-symbols-outlined text-[18px] text-white/60">tune</span>Cadence ($25/d)
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- TAB 2: Credit vault -->
+  <section id="panel-loans" class="circle-panel hidden flex flex-col gap-3">
+    <div class="flex items-center justify-between">
+      <h2 class="text-base font-semibold text-white">Community credit vault</h2>
+      <span class="px-2.5 py-1 rounded-full bg-warn/20 text-warn text-[10px] font-semibold uppercase tracking-wider">1.5% pool fee</span>
+    </div>
+
+    <div class="glass rounded-3xl p-5 flex flex-col gap-5">
+      <div class="flex items-center justify-between gap-3">
+        <div>
+          <p class="text-[11px] text-white/60 uppercase tracking-wider">Available peer credit</p>
+          <p class="mt-1 text-3xl font-semibold tracking-tight text-warn">$3,800.00</p>
+          <p class="mt-0.5 text-xs text-white/60">Zero predatory interest • Backed by pool reserves</p>
+        </div>
+        <div class="size-12 shrink-0 rounded-2xl bg-warn/20 text-warn flex items-center justify-center">
+          <span class="material-symbols-outlined text-[24px]">account_balance_wallet</span>
+        </div>
+      </div>
+
+      <div class="rounded-2xl bg-black/25 border border-white/10 p-4 flex flex-col gap-2">
+        <div class="flex items-center justify-between">
+          <span class="flex items-center gap-2 text-[11px] font-semibold text-white uppercase">
+            <span class="size-2 rounded-full bg-warn"></span>Active micro-loan
+          </span>
+          <span class="text-sm font-semibold text-white">$200.00 left</span>
+        </div>
+        <div class="flex items-center justify-between gap-2 pt-1 text-xs text-white/70">
+          <span>Server Cluster Scale (Oct 24)</span>
+          <span class="text-[11px] font-semibold text-lime whitespace-nowrap">$400 / $600 paid (66%)</span>
+        </div>
+        <div class="h-2 rounded-full bg-white/10 overflow-hidden my-1">
+          <div class="h-full rounded-full bg-lime" style="width: 66.6%;"></div>
+        </div>
+        <div class="flex items-center justify-between text-[11px] text-white/60">
+          <span>Auto-amortized: $10/day</span>
+          <span>Settles Nov 30 (20d)</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2">
+        <button type="button"
+          class="h-12 rounded-full glass text-white text-sm font-medium flex items-center justify-center gap-1.5 hover:bg-white/10 transition-colors">
+          <span class="material-symbols-outlined text-[18px] text-lime">payments</span>Repay early
+        </button>
+        <button type="button"
+          class="h-12 rounded-full bg-warn text-lime-ink text-sm font-semibold flex items-center justify-center gap-1.5 active:scale-[0.98] transition">
+          <span class="material-symbols-outlined text-[18px]">add_circle</span>Borrow limit
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- TAB 3: Roster -->
+  <section id="panel-roster" class="circle-panel hidden flex flex-col gap-3">
+    <div class="flex items-center justify-between">
+      <div>
+        <h2 class="text-base font-semibold text-white">Circle roster &amp; standing</h2>
+        <p class="text-[11px] text-white/50">🔒 Balances &amp; credentials remain private</p>
+      </div>
+      <span class="text-[11px] text-white/60 uppercase">8 members</span>
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <!-- 1: You -->
+      <div class="glass rounded-2xl p-3 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="relative shrink-0">
+            <span class="size-11 rounded-full bg-lime text-lime-ink text-sm font-bold flex items-center justify-center">MV</span>
+            <span class="absolute -bottom-1 -right-1 size-4 rounded-full bg-azure text-white flex items-center justify-center text-[9px] font-bold">★</span>
+          </div>
+          <div class="min-w-0">
+            <div class="flex items-center gap-1.5">
+              <p class="text-sm font-semibold text-white truncate">Marcus Vance (You)</p>
+              <span class="px-1.5 py-0.5 rounded bg-white/10 text-[9px] text-white/60 uppercase">Admin</span>
+            </div>
+            <p class="text-[11px] text-lime">Turn #6 • Dec 12 payout ($4.2k)</p>
+          </div>
+        </div>
+        <span class="px-2.5 py-1 rounded-full bg-lime/15 text-lime text-[10px] font-semibold uppercase whitespace-nowrap">+5d ahead</span>
+      </div>
+
+      <!-- 2: Maya -->
+      <div class="glass rounded-2xl p-3 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <span class="size-11 shrink-0 rounded-full bg-azure text-white text-sm font-bold flex items-center justify-center">MK</span>
+          <div class="min-w-0">
+            <div class="flex items-center gap-1.5">
+              <p class="text-sm font-medium text-white truncate">Maya K.</p>
+              <span class="px-1.5 py-0.5 rounded bg-warn/20 text-[9px] text-warn uppercase">Next pot</span>
+            </div>
+            <p class="text-[11px] text-warn">Turn #5 • Dec 01 (upcoming)</p>
+          </div>
+        </div>
+        <span class="px-2.5 py-1 rounded-full bg-lime/15 text-lime text-[10px] font-semibold uppercase whitespace-nowrap">Up to date</span>
+      </div>
+
+      <!-- 3: Liam -->
+      <div class="glass rounded-2xl p-3 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <span class="size-11 shrink-0 rounded-full bg-warn text-lime-ink text-sm font-bold flex items-center justify-center">LS</span>
+          <div class="min-w-0">
+            <p class="text-sm font-medium text-white truncate">Liam S.</p>
+            <p class="text-[11px] text-white/60">Turn #7 • Dec 24</p>
+          </div>
+        </div>
+        <span class="px-2.5 py-1 rounded-full bg-lime/15 text-lime text-[10px] font-semibold uppercase whitespace-nowrap">+2d ahead</span>
+      </div>
+
+      <!-- 4: Kofi (pending) -->
+      <div class="glass rounded-2xl p-3 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <span class="size-11 shrink-0 rounded-full bg-white/20 text-white text-sm font-bold flex items-center justify-center">KM</span>
+          <div class="min-w-0">
+            <p class="text-sm font-medium text-white truncate">Kofi Mensah</p>
+            <p class="text-[11px] text-warn">Pending today ($25.00)</p>
+          </div>
+        </div>
+        <button type="button"
+          class="nudge-btn px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/15 text-warn text-[10px] font-semibold uppercase flex items-center gap-1 transition-colors">
+          <span class="material-symbols-outlined text-[14px]">notifications_active</span>Nudge
+        </button>
+      </div>
+
+      <!-- 5: Elena -->
+      <div class="glass rounded-2xl p-3 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <span class="size-11 shrink-0 rounded-full bg-white/25 text-white text-sm font-bold flex items-center justify-center">ER</span>
+          <div class="min-w-0">
+            <p class="text-sm font-medium text-white truncate">Elena Rostova</p>
+            <p class="text-[11px] text-white/60">Turn #8 • Jan 04</p>
+          </div>
+        </div>
+        <span class="px-2.5 py-1 rounded-full bg-lime/15 text-lime text-[10px] font-semibold uppercase whitespace-nowrap">Up to date</span>
+      </div>
+
+      <!-- 6: David -->
+      <div class="glass rounded-2xl p-3 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <span class="size-11 shrink-0 rounded-full bg-forest-700 text-white text-sm font-bold flex items-center justify-center">DC</span>
+          <div class="min-w-0">
+            <p class="text-sm font-medium text-white truncate">David Chen</p>
+            <p class="text-[11px] text-white/60">Turn #1 • Disbursed Oct 18</p>
+          </div>
+        </div>
+        <span class="px-2.5 py-1 rounded-full bg-lime/15 text-lime text-[10px] font-semibold uppercase whitespace-nowrap">Up to date</span>
+      </div>
+
+      <!-- 7: Sarah -->
+      <div class="glass rounded-2xl p-3 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <span class="size-11 shrink-0 rounded-full bg-azure/60 text-white text-sm font-bold flex items-center justify-center">ST</span>
+          <div class="min-w-0">
+            <p class="text-sm font-medium text-white truncate">Sarah T.</p>
+            <p class="text-[11px] text-white/60">Turn #2 • Disbursed Oct 29</p>
+          </div>
+        </div>
+        <span class="px-2.5 py-1 rounded-full bg-lime/15 text-lime text-[10px] font-semibold uppercase whitespace-nowrap">+3d ahead</span>
+      </div>
+
+      <!-- 8: Amara -->
+      <div class="glass rounded-2xl p-3 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <span class="size-11 shrink-0 rounded-full bg-warn/70 text-lime-ink text-sm font-bold flex items-center justify-center">AP</span>
+          <div class="min-w-0">
+            <p class="text-sm font-medium text-white truncate">Amara Patel</p>
+            <p class="text-[11px] text-white/60">Turn #3 • Disbursed Nov 10</p>
+          </div>
+        </div>
+        <span class="px-2.5 py-1 rounded-full bg-lime/15 text-lime text-[10px] font-semibold uppercase whitespace-nowrap">Up to date</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Governance -->
+  <div class="glass rounded-2xl p-4 flex flex-col gap-2">
+    <div class="flex items-center justify-between">
+      <span class="flex items-center gap-2 text-[11px] text-white/70 uppercase">
+        <span class="material-symbols-outlined text-[18px] text-white/50">verified_user</span>Circle governance rules
+      </span>
+      <span class="text-[10px] font-semibold text-lime">Verified escrow</span>
+    </div>
+    <p class="text-xs text-white/60">
+      Automatic daily collection at 04:00 UTC. Unclaimed borrowing quotas roll automatically into low-risk treasury buffers.
+    </p>
+  </div>
+
+  <!-- Persistent action bar (above the nav pill) -->
+  <div class="fixed bottom-24 left-0 right-0 z-40 px-5 pointer-events-none">
+    <div class="max-w-md mx-auto flex items-center gap-2 pointer-events-auto">
+      <button type="button" aria-label="Group chat"
+        class="size-14 shrink-0 rounded-full glass-dark text-white flex items-center justify-center shadow-xl hover:bg-white/10 transition-colors">
+        <span class="material-symbols-outlined text-[22px]">chat</span>
+      </button>
+      <a href="/deposit"
+        class="flex-1 h-14 rounded-full bg-lime text-lime-ink text-sm font-semibold flex items-center justify-center gap-2 shadow-xl active:scale-[0.99] transition">
+        <span class="material-symbols-outlined text-[20px]">electric_bolt</span>
+        Instant deposit ($25.00)
+      </a>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const tabs = document.querySelectorAll('.circle-tab');
+      const panels = document.querySelectorAll('.circle-panel');
+
+      const ON = ['bg-lime', 'text-lime-ink', 'font-semibold'];
+      const OFF = ['text-white/70', 'font-medium'];
+
+      tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          const name = tab.dataset.tab;
+          tabs.forEach((t) => { t.classList.remove(...ON); t.classList.add(...OFF); });
+          tab.classList.remove(...OFF);
+          tab.classList.add(...ON);
+          panels.forEach((p) => p.classList.toggle('hidden', p.id !== 'panel-' + name));
+        });
+      });
+
+      document.querySelectorAll('.nudge-btn').forEach((btn) => {
+        const original = btn.innerHTML;
+        btn.addEventListener('click', () => {
+          btn.innerHTML = '<span class="material-symbols-outlined text-[14px]">done</span>Nudged!';
+          btn.classList.remove('text-warn');
+          btn.classList.add('text-lime');
+          setTimeout(() => {
+            btn.innerHTML = original;
+            btn.classList.remove('text-lime');
+            btn.classList.add('text-warn');
+          }, 2400);
+        });
+      });
+    })();
+  </script>
+</main>
+{% endblock %}
