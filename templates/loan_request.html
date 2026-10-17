@@ -1,0 +1,297 @@
+{% extends "base.html" %}
+
+{% block title %}Request group loan · NairaStash{% endblock %}
+
+{% block body_class %}pb-40{% endblock %}
+
+{% block nav %}{% endblock %}
+
+{% block content %}
+<header class="sticky top-0 z-30 flex items-center justify-between gap-2 px-5 h-16 bg-forest-900/50 backdrop-blur-xl">
+  <button type="button" onclick="history.back()" aria-label="Go back"
+    class="size-11 -ml-2 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 active:scale-95 transition-all">
+    <span class="material-symbols-outlined text-[22px]">arrow_back</span>
+  </button>
+  <div class="flex flex-col items-center min-w-0">
+    <span class="text-[10px] font-semibold uppercase tracking-widest text-lime">Group loan</span>
+    <h1 class="text-base font-semibold tracking-tight text-white truncate">Request loan</h1>
+  </div>
+  <a href="/groups/founders" aria-label="Close"
+    class="size-11 -mr-2 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 active:scale-95 transition-all">
+    <span class="material-symbols-outlined text-[22px]">close</span>
+  </a>
+</header>
+
+<main class="flex-1 flex flex-col gap-4 px-5 pt-2">
+
+  <!-- fragment: loan-progress -->
+  <div>
+    <div class="flex items-center justify-between mb-1.5">
+      <span class="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-lime">
+        <span class="size-1.5 rounded-full bg-lime animate-pulse"></span>Step 1 of 2
+      </span>
+      <span class="text-[10px] text-white/50">Eligibility &amp; amount</span>
+    </div>
+    <div class="h-1.5 rounded-full bg-white/10 overflow-hidden"><div class="h-full w-1/2 rounded-full bg-lime"></div></div>
+  </div>
+  <!-- /fragment: loan-progress -->
+
+  <!-- fragment: loan-context -->
+  <section class="glass rounded-3xl p-4 flex flex-col gap-3">
+    <div class="flex items-start justify-between gap-2">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="size-10 rounded-2xl bg-white/10 text-lime flex items-center justify-center shrink-0">
+          <span class="material-symbols-outlined fill-1 text-[22px]">diversity_3</span>
+        </div>
+        <div class="min-w-0">
+          <p class="text-sm font-semibold text-white truncate">Founders Tech Stash</p>
+          <p class="text-[10px] uppercase tracking-wider text-white/50"># FOUNDERS-X89</p>
+        </div>
+      </div>
+      <span class="shrink-0 rounded-full bg-white/10 px-2 py-1 text-[10px] font-semibold text-lime flex items-center gap-1">
+        <span class="material-symbols-outlined text-[14px]">verified_user</span>Escrow verified
+      </span>
+    </div>
+    <div class="grid grid-cols-2 gap-2">
+      <div class="rounded-2xl bg-white/5 p-3">
+        <span class="text-[10px] uppercase text-white/50">Pool available</span>
+        <p class="mt-0.5 text-sm font-semibold text-white">₦380,000.00</p>
+      </div>
+      <div class="rounded-2xl bg-white/5 p-3">
+        <span class="text-[10px] uppercase text-white/50">Your savings share</span>
+        <p class="mt-0.5 text-sm font-semibold text-white">₦155,000.00</p>
+        <p class="text-[10px] text-lime">62/62 days on time</p>
+      </div>
+    </div>
+  </section>
+  <!-- /fragment: loan-context -->
+
+  <!-- fragment: loan-eligibility -->
+  <section class="glass rounded-3xl p-4 flex flex-col gap-3">
+    <div class="flex items-center justify-between flex-wrap gap-2">
+      <span class="rounded-full bg-lime/15 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-lime flex items-center gap-1.5">
+        <span class="size-1.5 rounded-full bg-lime"></span>Eligible for group credit
+      </span>
+    </div>
+    <div class="flex items-end justify-between">
+      <div>
+        <p class="text-xs text-white/60">Your loan limit</p>
+        <p id="cap-label" class="text-3xl font-semibold tracking-tight text-white"></p>
+      </div>
+      <div class="text-right">
+        <p class="text-[10px] uppercase text-white/50">Pool fee</p>
+        <p class="text-sm font-semibold text-lime">1.5% flat</p>
+        <p class="text-[10px] text-white/50">No interest</p>
+      </div>
+    </div>
+    <div class="rounded-2xl bg-white/5 p-3 flex items-start gap-2">
+      <span class="material-symbols-outlined text-warn text-[18px] shrink-0 mt-0.5">admin_panel_settings</span>
+      <p class="text-xs text-white/70 leading-snug">Your limit is <span class="font-semibold text-white">75% of your savings share</span>, set by the group rules. <span class="font-semibold text-white">Every loan is reviewed and approved by a group admin</span> before it is paid out.</p>
+    </div>
+    <a href="/rules" class="text-xs font-semibold text-lime">View group loan rules</a>
+  </section>
+  <!-- /fragment: loan-eligibility -->
+
+  <!-- fragment: loan-amount -->
+  <section class="glass rounded-3xl p-4 flex flex-col gap-3">
+    <div class="flex items-center justify-between">
+      <label for="amt" class="text-base font-semibold text-white">Loan amount</label>
+      <span id="amt-ok" class="text-[10px] font-semibold uppercase tracking-wider text-lime flex items-center gap-1">
+        <span class="material-symbols-outlined text-[14px]">check</span>Within your limit
+      </span>
+    </div>
+    <div class="rounded-2xl bg-black/20 px-4 py-3 flex items-center focus-within:ring-2 focus-within:ring-lime/60 transition-all">
+      <span class="text-3xl font-light text-white/40 mr-1">₦</span>
+      <input id="amt" type="text" inputmode="numeric" value="60,000"
+        class="w-full bg-transparent text-right text-3xl font-semibold tracking-tight text-white focus:outline-none">
+    </div>
+    <p id="amt-err" class="hidden text-xs font-semibold text-red-300"></p>
+    <div class="grid grid-cols-4 gap-2">
+      <button type="button" data-val="20000" class="chip rounded-xl bg-white/10 py-2 text-xs font-semibold text-white active:scale-95 transition-all">₦20,000</button>
+      <button type="button" data-val="40000" class="chip rounded-xl bg-white/10 py-2 text-xs font-semibold text-white active:scale-95 transition-all">₦40,000</button>
+      <button type="button" data-val="60000" class="chip rounded-xl bg-white/10 py-2 text-xs font-semibold text-white active:scale-95 transition-all">₦60,000</button>
+      <button type="button" data-val="max" class="chip rounded-xl bg-white/10 py-2 text-xs font-semibold text-lime active:scale-95 transition-all">Max</button>
+    </div>
+  </section>
+  <!-- /fragment: loan-amount -->
+
+  <!-- fragment: loan-terms -->
+  <section class="glass rounded-3xl p-4 flex flex-col gap-3">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-base font-semibold text-white">Daily repayment</p>
+        <p class="text-xs text-white/60">Taken automatically each morning</p>
+      </div>
+      <span class="rounded-full bg-lime/10 px-2 py-0.5 text-[10px] font-semibold uppercase text-lime">Auto-pay</span>
+    </div>
+    <div id="terms" class="flex flex-col gap-2"></div>
+    <div class="rounded-2xl bg-black/20 p-3 flex items-start gap-3">
+      <div class="size-8 rounded-xl bg-white/10 text-lime flex items-center justify-center shrink-0">
+        <span class="material-symbols-outlined text-[18px]">calendar_month</span>
+      </div>
+      <div>
+        <span class="text-[10px] uppercase tracking-wider text-white/50">Settlement projection</span>
+        <p id="proj" class="mt-0.5 text-xs text-white leading-relaxed"></p>
+      </div>
+    </div>
+  </section>
+  <!-- /fragment: loan-terms -->
+
+  <!-- fragment: loan-purpose -->
+  <section class="glass rounded-3xl p-4 flex flex-col gap-3">
+    <div class="flex items-center justify-between">
+      <span class="text-base font-semibold text-white">Loan purpose</span>
+      <span class="text-[10px] uppercase text-white/50">Shown to admins</span>
+    </div>
+    <div id="purposes" class="flex flex-wrap gap-2"></div>
+    <div class="flex flex-col gap-1">
+      <label for="note" class="text-xs text-white/60">Note for the admins</label>
+      <input id="note" type="text" value="Server cluster upgrade and annual cloud reserve" placeholder="Add a short note..."
+        class="w-full rounded-2xl bg-white/5 border border-white/10 px-4 py-3 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-lime/60 transition-all">
+    </div>
+  </section>
+  <!-- /fragment: loan-purpose -->
+
+  <p class="flex items-center justify-center gap-1.5 text-center text-xs text-white/50">
+    <span class="material-symbols-outlined text-[16px] text-lime">verified</span>Backed by group escrow • No credit bureau checks
+  </p>
+</main>
+
+<!-- fragment: loan-dock -->
+<div class="fixed bottom-0 left-0 right-0 z-40 max-w-md mx-auto px-5 pb-5">
+  <div class="glass-dark rounded-3xl p-3 flex flex-col gap-1.5">
+    <a id="go" href="/loans/review"
+      class="h-12 rounded-full bg-lime text-lime-ink text-sm font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition">
+      <span>Review application (<span id="go-amt"></span>)</span>
+      <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+    </a>
+    <span class="text-center text-[10px] text-white/50">Next: review terms, then send to the admins</span>
+  </div>
+</div>
+<!-- /fragment: loan-dock -->
+
+<script>
+(function () {
+  var EQUITY = 155000, RATE = 0.75, FEE = 0.015, MIN = 10000, POOL = 380000;
+  var CAP = Math.min(Math.floor(EQUITY * RATE / 1000) * 1000, POOL);
+  var TERMS = [
+    { days: 60, label: 'Balanced', tag: 'Recommended' },
+    { days: 30, label: 'Standard', tag: 'Faster' },
+    { days: 20, label: 'Sprint', tag: 'Quick pay' }
+  ];
+  var PURPOSES = [
+    { name: 'Equipment & Cloud', icon: 'memory' },
+    { name: 'Emergency Buffer', icon: 'shield' },
+    { name: 'Inventory', icon: 'inventory_2' },
+    { name: 'Other', icon: 'more_horiz' }
+  ];
+
+  var amount = 60000, days = 60, purpose = PURPOSES[0].name;
+
+  function el(id) { return document.getElementById(id); }
+  function naira(n) { return '₦' + Math.round(n).toLocaleString('en-US'); }
+  function addDays(d) {
+    var t = new Date();
+    t.setDate(t.getDate() + d);
+    return t.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  el('cap-label').textContent = naira(CAP);
+
+  function renderTerms() {
+    var fee = amount * FEE, total = amount + fee;
+    el('terms').innerHTML = TERMS.map(function (t) {
+      var daily = Math.ceil(total / t.days);
+      var on = t.days === days;
+      return '<button type="button" data-days="' + t.days + '" class="term w-full text-left rounded-2xl p-3 flex items-center justify-between transition-all ' +
+        (on ? 'bg-white/15 ring-1 ring-lime/60' : 'bg-white/5 hover:bg-white/10') + '">' +
+        '<div class="flex items-center gap-3"><span class="size-4 rounded-full border-2 ' + (on ? 'border-lime bg-lime' : 'border-white/30') + '"></span>' +
+        '<div><p class="text-sm font-semibold text-white">' + naira(daily) + ' <span class="text-xs font-normal text-white/50">/ day</span></p>' +
+        '<p class="text-xs text-white/60">' + t.days + ' calendar days</p></div></div>' +
+        '<div class="text-right"><p class="text-[10px] font-semibold uppercase ' + (on ? 'text-lime' : 'text-white/60') + '">' + t.tag + '</p>' +
+        '<p class="text-[10px] text-white/50">' + t.label + '</p></div></button>';
+    }).join('');
+    el('terms').querySelectorAll('.term').forEach(function (b) {
+      b.addEventListener('click', function () {
+        days = parseInt(b.getAttribute('data-days'), 10);
+        update();
+      });
+    });
+  }
+
+  function renderPurposes() {
+    el('purposes').innerHTML = PURPOSES.map(function (p) {
+      var on = p.name === purpose;
+      return '<button type="button" data-p="' + p.name + '" class="purpose rounded-xl px-3 py-1.5 text-xs font-semibold flex items-center gap-1 transition-all ' +
+        (on ? 'bg-lime text-lime-ink' : 'bg-white/10 text-white hover:bg-white/15') + '">' +
+        '<span class="material-symbols-outlined text-[16px]">' + p.icon + '</span>' + p.name + '</button>';
+    }).join('');
+    el('purposes').querySelectorAll('.purpose').forEach(function (b) {
+      b.addEventListener('click', function () {
+        purpose = b.getAttribute('data-p');
+        renderPurposes();
+        update();
+      });
+    });
+  }
+
+  function parse() {
+    var n = parseInt(el('amt').value.replace(/[^0-9]/g, ''), 10);
+    return isNaN(n) ? 0 : n;
+  }
+
+  function update() {
+    var fee = amount * FEE, total = amount + fee;
+    var daily = Math.ceil(total / days);
+    var bad = amount < MIN || amount > CAP;
+
+    el('amt-err').textContent = amount > CAP ? 'The most you can borrow is ' + naira(CAP) + '.' : 'The minimum loan is ' + naira(MIN) + '.';
+    el('amt-err').classList.toggle('hidden', !bad);
+    el('amt-ok').classList.toggle('hidden', bad);
+
+    document.querySelectorAll('.chip').forEach(function (c) {
+      var v = c.getAttribute('data-val');
+      var val = v === 'max' ? CAP : parseInt(v, 10);
+      var on = val === amount;
+      c.classList.toggle('bg-lime/20', on);
+      c.classList.toggle('ring-1', on);
+      c.classList.toggle('ring-lime/60', on);
+      c.classList.toggle('bg-white/10', !on);
+    });
+
+    renderTerms();
+    el('proj').innerHTML = 'Paying <span class="font-semibold text-lime">' + naira(daily) + '/day</span> settles the loan (' +
+      '<span class="font-semibold">' + naira(amount) + '</span>) plus the pool fee (<span class="font-semibold">' + naira(fee) +
+      '</span>) by <span class="font-semibold text-lime">' + addDays(days) + '</span>.';
+    el('go-amt').textContent = naira(amount);
+
+    var go = el('go');
+    go.setAttribute('href', '/loans/review?amount=' + amount + '&days=' + days +
+      '&purpose=' + encodeURIComponent(purpose) + '&note=' + encodeURIComponent(el('note').value));
+    go.classList.toggle('opacity-50', bad);
+    go.classList.toggle('pointer-events-none', bad);
+  }
+
+  document.querySelectorAll('.chip').forEach(function (c) {
+    c.addEventListener('click', function () {
+      var v = c.getAttribute('data-val');
+      amount = v === 'max' ? CAP : parseInt(v, 10);
+      el('amt').value = amount.toLocaleString('en-US');
+      update();
+    });
+  });
+
+  el('amt').addEventListener('input', function () {
+    amount = parse();
+    update();
+  });
+  el('amt').addEventListener('blur', function () {
+    el('amt').value = amount.toLocaleString('en-US');
+  });
+  el('note').addEventListener('input', update);
+
+  renderPurposes();
+  update();
+})();
+</script>
+{% endblock %}
