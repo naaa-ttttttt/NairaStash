@@ -1,0 +1,245 @@
+{% extends "base.html" %}
+
+{% block title %}Review loan application · NairaStash{% endblock %}
+
+{% block body_class %}pb-44{% endblock %}
+
+{% block nav %}{% endblock %}
+
+{% block content %}
+<header class="sticky top-0 z-30 flex items-center justify-between gap-2 px-5 h-16 bg-forest-900/50 backdrop-blur-xl">
+  <button type="button" onclick="history.back()" aria-label="Go back"
+    class="size-11 -ml-2 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 active:scale-95 transition-all">
+    <span class="material-symbols-outlined text-[22px]">arrow_back</span>
+  </button>
+  <div class="flex flex-col items-center min-w-0">
+    <span class="text-[10px] font-semibold uppercase tracking-widest text-lime">Group loan</span>
+    <h1 class="text-base font-semibold tracking-tight text-white truncate">Review application</h1>
+  </div>
+  <a href="/groups/founders" aria-label="Close"
+    class="size-11 -mr-2 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 active:scale-95 transition-all">
+    <span class="material-symbols-outlined text-[22px]">close</span>
+  </a>
+</header>
+
+<main class="flex-1 flex flex-col gap-4 px-5 pt-2">
+
+  <div id="review" class="flex flex-col gap-4">
+
+    <!-- fragment: loan-review-steps -->
+    <div class="glass rounded-2xl p-3 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="size-6 rounded-full bg-lime text-lime-ink flex items-center justify-center"><span class="material-symbols-outlined text-[15px]">check</span></div>
+        <div><p class="text-[10px] font-semibold text-lime">STEP 1</p><p class="text-xs text-white">Eligibility &amp; amount</p></div>
+      </div>
+      <div class="h-0.5 w-6 bg-lime/60 rounded-full"></div>
+      <div class="flex items-center gap-2">
+        <div class="text-right"><p class="text-[10px] font-semibold text-azure">STEP 2</p><p class="text-xs font-semibold text-white">Review &amp; terms</p></div>
+        <div class="size-6 rounded-full bg-azure text-white flex items-center justify-center text-xs font-bold">2</div>
+      </div>
+    </div>
+    <!-- /fragment: loan-review-steps -->
+
+    <!-- fragment: loan-review-hero -->
+    <section class="glass rounded-3xl p-5">
+      <div class="flex items-center justify-between mb-3">
+        <span class="rounded bg-lime/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-lime flex items-center gap-1.5">
+          <span class="size-1.5 rounded-full bg-lime animate-pulse"></span>Group loan application
+        </span>
+        <span class="material-symbols-outlined fill-1 text-lime text-[20px]">verified_user</span>
+      </div>
+      <h2 class="text-xl font-semibold tracking-tight text-white leading-tight">Borrow <span id="h-amt" class="text-lime"></span> from Founders Tech Stash?</h2>
+      <p class="text-xs text-white/60 mt-1.5 mb-4">No interest. Paid from the group pool once an admin approves it.</p>
+      <div class="rounded-2xl bg-black/20 px-3 py-2.5 flex items-center gap-2">
+        <span class="material-symbols-outlined text-lime text-[18px]">account_balance</span>
+        <span class="text-xs font-medium text-white truncate">Paid out to: GTBank Savings (•••• 4920)</span>
+      </div>
+    </section>
+    <!-- /fragment: loan-review-hero -->
+
+    <!-- fragment: loan-review-ledger -->
+    <section class="glass rounded-3xl p-4 flex flex-col gap-2">
+      <div class="flex items-center justify-between pb-1">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-lime text-[20px]">receipt_long</span>
+          <span class="text-base font-semibold text-white">Repayment summary</span>
+        </div>
+        <span class="text-[10px] uppercase tracking-wider text-white/50">NGN</span>
+      </div>
+      <div class="flex items-center justify-between px-1 py-1">
+        <span class="text-sm text-white/70">Requested amount</span>
+        <span id="r-principal" class="text-sm font-semibold text-white"></span>
+      </div>
+      <div class="flex items-center justify-between px-1 py-1">
+        <div class="flex items-center gap-1.5">
+          <span class="text-sm text-white/70">Group pool fee</span>
+          <span class="rounded bg-lime/10 px-1.5 text-[10px] font-semibold text-lime">1.5% flat</span>
+        </div>
+        <span id="r-fee" class="text-sm font-semibold text-lime"></span>
+      </div>
+      <p class="px-1 text-[11px] text-white/50">The whole fee goes into the group treasury reserve.</p>
+      <div class="h-px bg-white/10 my-1"></div>
+      <div class="flex items-center justify-between rounded-2xl bg-white/5 px-3 py-2.5">
+        <span class="text-sm font-semibold text-white">Total to repay</span>
+        <span id="r-total" class="text-2xl font-semibold tracking-tight text-lime"></span>
+      </div>
+      <div class="grid grid-cols-2 gap-2 mt-1">
+        <div class="rounded-2xl bg-white/5 p-3">
+          <span class="text-[10px] uppercase text-white/50">Daily repayment</span>
+          <p id="r-daily" class="text-sm font-semibold text-lime"></p>
+          <p class="text-[10px] text-white/50">08:00 AM WAT auto-debit</p>
+        </div>
+        <div class="rounded-2xl bg-white/5 p-3">
+          <span class="text-[10px] uppercase text-white/50">Term</span>
+          <p id="r-term" class="text-sm font-semibold text-white"></p>
+          <p id="r-date" class="text-[10px] text-white/50"></p>
+        </div>
+      </div>
+      <div class="rounded-2xl bg-black/20 p-3 flex items-center justify-between mt-1">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-lime text-[20px]">lock</span>
+          <div>
+            <span class="text-[10px] uppercase text-white/50 block">Backed by your savings share</span>
+            <span class="text-xs font-semibold text-white">Founders Tech Stash balance</span>
+          </div>
+        </div>
+        <span class="text-sm font-semibold text-white">₦155,000</span>
+      </div>
+      <div class="flex items-start gap-2 px-1 pt-1">
+        <span class="material-symbols-outlined text-white/50 text-[16px] mt-0.5">sell</span>
+        <p class="text-xs text-white/60"><span class="text-white/80">Purpose:</span> <span id="r-purpose"></span><span id="r-note" class="text-white/50"></span></p>
+      </div>
+    </section>
+    <!-- /fragment: loan-review-ledger -->
+
+    <!-- fragment: loan-review-approval -->
+    <section class="glass rounded-3xl p-4 flex flex-col gap-3">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-warn text-[20px]">admin_panel_settings</span>
+          <span class="text-base font-semibold text-white">Admin approval</span>
+        </div>
+        <span class="rounded bg-warn/15 px-2 py-0.5 text-[10px] font-semibold text-warn">Required for all loans</span>
+      </div>
+      <div class="rounded-2xl bg-white/5 p-3 flex flex-col gap-2">
+        <div class="flex items-center justify-between text-xs">
+          <span class="text-white/70">Status after you submit</span>
+          <span class="font-semibold text-warn">Waiting for admin</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <div class="flex-1 h-2 rounded bg-lime"></div>
+          <div class="flex-1 h-2 rounded bg-warn/60"></div>
+          <div class="flex-1 h-2 rounded bg-white/10"></div>
+        </div>
+        <div class="flex justify-between text-[10px] text-white/50">
+          <span>Submitted</span><span>Admin review</span><span>Paid out</span>
+        </div>
+      </div>
+      <div class="flex items-start gap-2 rounded-2xl bg-white/5 p-3">
+        <span class="material-symbols-outlined text-lime text-[18px] shrink-0 mt-0.5">bolt</span>
+        <p class="text-xs text-white/70 leading-snug">Admins check your request against the group rules. Once approved, the money is sent to your account by <span class="font-semibold text-white">instant transfer</span> and you get a notification.</p>
+      </div>
+    </section>
+    <!-- /fragment: loan-review-approval -->
+
+    <!-- fragment: loan-review-pledge -->
+    <section class="glass rounded-3xl p-4 flex flex-col gap-3">
+      <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined text-azure text-[20px]">handshake</span>
+        <h3 class="text-base font-semibold text-white">My commitment</h3>
+      </div>
+      <label class="cursor-pointer flex items-start gap-3 rounded-2xl bg-white/5 p-3 select-none">
+        <input id="pledge" type="checkbox" checked class="mt-1 size-4 rounded accent-[#D8F13A] shrink-0">
+        <span class="text-xs text-white/70 leading-relaxed">I allow the automatic <strong id="p-daily" class="text-white"></strong> daily repayment from my GTBank account. If I miss a day, it is taken from my <strong class="text-lime">₦155,000 savings share</strong>.</span>
+      </label>
+    </section>
+    <!-- /fragment: loan-review-pledge -->
+  </div>
+
+  <!-- fragment: loan-review-success -->
+  <section id="success" class="hidden flex-1 flex-col items-center justify-center text-center gap-4 py-12">
+    <div class="size-20 rounded-full bg-warn text-lime-ink flex items-center justify-center">
+      <span class="material-symbols-outlined fill-1 text-[44px]">hourglass_top</span>
+    </div>
+    <div>
+      <h2 class="text-2xl font-semibold tracking-tight text-white">Sent for approval</h2>
+      <p id="s-text" class="text-sm text-white/60 mt-1 max-w-xs"></p>
+      <p class="text-xs text-white/40 mt-2">Reference: #LN-8109</p>
+    </div>
+    <a id="s-track" href="/loans/detail?state=pending"
+      class="mt-2 h-12 px-8 rounded-full bg-lime text-lime-ink text-sm font-semibold flex items-center justify-center active:scale-[0.98] transition">Track my request</a>
+    <a href="/groups/founders" class="text-sm text-white/60 hover:text-white">Back to group</a>
+  </section>
+  <!-- /fragment: loan-review-success -->
+</main>
+
+<!-- fragment: loan-review-dock -->
+<div id="dock" class="fixed bottom-0 left-0 right-0 z-40 max-w-md mx-auto px-5 pb-5">
+  <div class="glass-dark rounded-3xl p-3 flex flex-col gap-1.5">
+    <div class="flex items-center justify-center gap-1.5">
+      <span class="material-symbols-outlined text-[14px] text-lime">verified</span>
+      <span class="text-[10px] uppercase tracking-wider text-white/50">CBN-licensed partner bank • 256-bit encryption</span>
+    </div>
+    <button id="submit" type="button"
+      class="w-full h-12 rounded-full bg-lime text-lime-ink text-sm font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition">
+      <span class="material-symbols-outlined text-[20px]">send</span>
+      <span>Send for admin approval (<span id="b-amt"></span>)</span>
+    </button>
+    <button type="button" onclick="history.back()" class="py-1 text-xs text-white/60 hover:text-white transition-colors">Cancel and go back</button>
+  </div>
+</div>
+<!-- /fragment: loan-review-dock -->
+
+<script>
+(function () {
+  var FEE = 0.015;
+  var q = new URLSearchParams(location.search);
+  var amount = parseInt(q.get('amount'), 10);
+  if (isNaN(amount) || amount <= 0) amount = 60000;
+  var days = parseInt(q.get('days'), 10);
+  if ([20, 30, 60].indexOf(days) === -1) days = 60;
+  var purpose = q.get('purpose') || 'Equipment & Cloud';
+  var note = q.get('note') || '';
+
+  function el(id) { return document.getElementById(id); }
+  function naira(n) { return '₦' + Math.round(n).toLocaleString('en-US'); }
+
+  var fee = amount * FEE, total = amount + fee, daily = Math.ceil(total / days);
+  var t = new Date();
+  t.setDate(t.getDate() + days);
+  var date = t.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+  el('h-amt').textContent = naira(amount);
+  el('r-principal').textContent = naira(amount);
+  el('r-fee').textContent = '+' + naira(fee);
+  el('r-total').textContent = naira(total);
+  el('r-daily').textContent = naira(daily) + ' / day';
+  el('r-term').textContent = days + ' days';
+  el('r-date').textContent = 'Settles ' + date;
+  el('r-purpose').textContent = purpose;
+  el('r-note').textContent = note ? ' • ' + note : '';
+  el('p-daily').textContent = naira(daily) + '/day';
+  el('b-amt').textContent = naira(amount);
+
+  var pledge = el('pledge'), submit = el('submit');
+  function sync() {
+    submit.classList.toggle('opacity-50', !pledge.checked);
+    submit.classList.toggle('pointer-events-none', !pledge.checked);
+  }
+  pledge.addEventListener('change', sync);
+  sync();
+
+  submit.addEventListener('click', function () {
+    if (!pledge.checked) return;
+    el('review').classList.add('hidden');
+    el('dock').classList.add('hidden');
+    var s = el('success');
+    s.classList.remove('hidden');
+    s.classList.add('flex');
+    el('s-text').textContent = 'Your request for ' + naira(amount) + ' is waiting for a group admin to review it. You will be notified once it is decided.';
+    el('s-track').setAttribute('href', '/loans/detail?state=pending&amount=' + amount);
+    window.scrollTo(0, 0);
+  });
+})();
+</script>
+{% endblock %}
