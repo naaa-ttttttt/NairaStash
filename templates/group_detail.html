@@ -269,4 +269,154 @@
             <p class="text-[11px] text-white/60">Turn #7 · Dec 24</p>
           </div>
         </div>
-        <span class="shrink-0 rounded-full bg-lime/15 px-2.5
+        <span class="shrink-0 rounded-full bg-lime/15 px-2.5 py-1 text-[10px] font-semibold uppercase text-lime">+2d ahead</span>
+      </div>
+
+      <!-- 4: Kofi Mensah (pending, nudge) -->
+      <div class="glass rounded-2xl p-3 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <span class="size-10 shrink-0 rounded-full bg-white/20 text-white text-sm font-bold flex items-center justify-center">KM</span>
+          <div class="min-w-0">
+            <p class="text-sm font-medium text-white truncate">Kofi Mensah</p>
+            <p class="text-[11px] text-warn">Pending today (₦2,500.00)</p>
+          </div>
+        </div>
+        <button type="button" data-nudge
+          class="shrink-0 inline-flex items-center gap-1 rounded-full bg-white/10 px-3 py-1.5 text-[10px] font-semibold uppercase text-warn hover:bg-white/20 transition-colors">
+          <span class="material-symbols-outlined text-[14px]">notifications_active</span>Nudge
+        </button>
+      </div>
+
+      <!-- 5: Elena Rostova -->
+      <div class="glass rounded-2xl p-3 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <span class="size-10 shrink-0 rounded-full bg-forest-700 text-white text-sm font-bold flex items-center justify-center">ER</span>
+          <div class="min-w-0">
+            <p class="text-sm font-medium text-white truncate">Elena Rostova</p>
+            <p class="text-[11px] text-white/60">Turn #8 · Jan 04</p>
+          </div>
+        </div>
+        <span class="shrink-0 rounded-full bg-lime/15 px-2.5 py-1 text-[10px] font-semibold uppercase text-lime">Up to date</span>
+      </div>
+
+      <!-- 6: David Chen -->
+      <div class="glass rounded-2xl p-3 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <span class="size-10 shrink-0 rounded-full bg-lime text-lime-ink text-sm font-bold flex items-center justify-center">DC</span>
+          <div class="min-w-0">
+            <p class="text-sm font-medium text-white truncate">David Chen</p>
+            <p class="text-[11px] text-white/60">Turn #1 · Disbursed Oct 18</p>
+          </div>
+        </div>
+        <span class="shrink-0 rounded-full bg-lime/15 px-2.5 py-1 text-[10px] font-semibold uppercase text-lime">Up to date</span>
+      </div>
+
+      <!-- 7: Sarah T. -->
+      <div class="glass rounded-2xl p-3 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <span class="size-10 shrink-0 rounded-full bg-azure text-white text-sm font-bold flex items-center justify-center">ST</span>
+          <div class="min-w-0">
+            <p class="text-sm font-medium text-white truncate">Sarah T.</p>
+            <p class="text-[11px] text-white/60">Turn #2 · Disbursed Oct 29</p>
+          </div>
+        </div>
+        <span class="shrink-0 rounded-full bg-lime/15 px-2.5 py-1 text-[10px] font-semibold uppercase text-lime">+3d ahead</span>
+      </div>
+
+      <!-- 8: Amara Patel -->
+      <div class="glass rounded-2xl p-3 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <span class="size-10 shrink-0 rounded-full bg-warn text-lime-ink text-sm font-bold flex items-center justify-center">AP</span>
+          <div class="min-w-0">
+            <p class="text-sm font-medium text-white truncate">Amara Patel</p>
+            <p class="text-[11px] text-white/60">Turn #3 · Disbursed Nov 10</p>
+          </div>
+        </div>
+        <span class="shrink-0 rounded-full bg-lime/15 px-2.5 py-1 text-[10px] font-semibold uppercase text-lime">Up to date</span>
+      </div>
+    </div>
+  </section>
+  <!-- /fragment: group-tab-roster -->
+
+  <!-- Governance note -->
+  <section class="glass rounded-2xl p-4 flex flex-col gap-2">
+    <div class="flex items-center justify-between">
+      <span class="flex items-center gap-2 text-[11px] font-semibold uppercase text-white/70">
+        <span class="material-symbols-outlined text-[18px] text-white/50">verified_user</span>Circle governance rules
+      </span>
+      <span class="text-[10px] font-semibold text-lime">Verified escrow</span>
+    </div>
+    <p class="text-xs text-white/60">
+      Automatic daily collection at 04:00 UTC. Unclaimed borrowing quotas roll automatically into low-risk treasury buffers.
+    </p>
+  </section>
+
+  <!-- Floating actions (sit above the bottom nav pill) -->
+  <div class="fixed bottom-24 left-0 right-0 z-30 px-5 pointer-events-none">
+    <div class="max-w-md mx-auto flex items-center gap-2 pointer-events-auto">
+      <button type="button" aria-label="Group chat"
+        class="size-12 shrink-0 rounded-full glass-dark text-white flex items-center justify-center hover:bg-white/10 transition-colors">
+        <span class="material-symbols-outlined text-[20px]">chat</span>
+      </button>
+      <a href="/deposit"
+        class="flex-1 h-12 rounded-full bg-lime text-lime-ink text-sm font-semibold flex items-center justify-center gap-2 shadow-xl active:scale-[0.98] transition">
+        <span class="material-symbols-outlined text-[20px]">electric_bolt</span>
+        Instant deposit (₦2,500.00)
+      </a>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      /* Tabs */
+      var tabs = document.querySelectorAll('.group-tab');
+      var panels = document.querySelectorAll('.group-panel');
+      var ON = ['bg-white/15', 'text-white'];
+      var OFF = ['text-white/60'];
+
+      tabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+          var name = tab.dataset.tab;
+          tabs.forEach(function (t) {
+            t.classList.remove.apply(t.classList, ON);
+            t.classList.add.apply(t.classList, OFF);
+          });
+          tab.classList.remove.apply(tab.classList, OFF);
+          tab.classList.add.apply(tab.classList, ON);
+          panels.forEach(function (p) {
+            p.classList.toggle('hidden', p.id !== 'panel-' + name);
+          });
+        });
+      });
+
+      /* Weekly cadence strip (mock) */
+      var strip = document.getElementById('cadence-strip');
+      if (strip) {
+        var days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+        strip.innerHTML = days.map(function (d, i) {
+          var last = i === days.length - 1;
+          var box = last
+            ? '<div class="size-7 rounded-lg bg-azure text-white flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">bolt</span></div>'
+            : '<div class="size-7 rounded-lg bg-lime/20 text-lime flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">check</span></div>';
+          return '<div class="flex flex-col items-center gap-1"><span class="text-[9px] text-white/50">' + d + '</span>' + box + '</div>';
+        }).join('');
+      }
+
+      /* Nudge button (mock) */
+      document.querySelectorAll('[data-nudge]').forEach(function (btn) {
+        var original = btn.innerHTML;
+        btn.addEventListener('click', function () {
+          btn.innerHTML = '<span class="material-symbols-outlined text-[14px]">done</span>Nudged!';
+          btn.classList.remove('text-warn');
+          btn.classList.add('text-lime', 'pointer-events-none');
+          setTimeout(function () {
+            btn.innerHTML = original;
+            btn.classList.remove('text-lime', 'pointer-events-none');
+            btn.classList.add('text-warn');
+          }, 2400);
+        });
+      });
+    })();
+  </script>
+</main>
+{% endblock %}
