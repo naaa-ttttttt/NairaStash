@@ -1,0 +1,13 @@
+[package]
+name = "savings_app"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+axum = "0.7"
+tokio = { version = "1.0", features = ["full"] }
+sqlx = { version = "0.8", features = ["runtime-tokio-native-tls", "postgres", "macros", "chrono"] }
+serde = { version = "1.0", features = ["derive"] }
+tower-http = { version = "0.5", features = ["fs", "cors"] }
+askama = { version = "0.12", features = ["with-axum"] }
+askama_axum = "0.4"
