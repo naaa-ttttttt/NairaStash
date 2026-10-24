@@ -21,7 +21,7 @@
   </a>
 </header>
 
-<main class="flex-1 flex flex-col gap-4 px-5 pt-4 pb-40">
+<main class="flex-1 flex flex-col gap-4 px-5 pt-4 pb-8">
 
   <!-- Group code + settings -->
   <div class="flex items-center justify-between">
@@ -99,6 +99,20 @@
     </div>
   </section>
   <!-- /fragment: group-hero -->
+
+  <!-- fragment: group-quick-deposit -->
+  <div class="flex items-center gap-2">
+    <a href="/deposit"
+      class="flex-1 h-12 rounded-full bg-lime text-lime-ink text-sm font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition">
+      <span class="material-symbols-outlined text-[20px]">electric_bolt</span>
+      Instant deposit (₦2,500.00)
+    </a>
+    <button type="button" aria-label="Group chat"
+      class="size-12 shrink-0 rounded-full glass text-white flex items-center justify-center hover:bg-white/10 transition-colors">
+      <span class="material-symbols-outlined text-[20px]">chat</span>
+    </button>
+  </div>
+  <!-- /fragment: group-quick-deposit -->
 
   <!-- Tabs -->
   <div class="flex items-center gap-1 rounded-full glass p-1" role="tablist">
@@ -372,21 +386,6 @@
     </div>
   </section>
   <!-- /fragment: group-governance -->
-
-  <!-- Floating actions (sit above the bottom nav pill) -->
-  <div class="fixed bottom-24 left-0 right-0 z-30 px-5 pointer-events-none">
-    <div class="max-w-md mx-auto flex items-center gap-2 pointer-events-auto">
-      <button type="button" aria-label="Group chat"
-        class="size-12 shrink-0 rounded-full glass-dark text-white flex items-center justify-center hover:bg-white/10 transition-colors">
-        <span class="material-symbols-outlined text-[20px]">chat</span>
-      </button>
-      <a href="/deposit"
-        class="flex-1 h-12 rounded-full bg-lime text-lime-ink text-sm font-semibold flex items-center justify-center gap-2 shadow-xl active:scale-[0.98] transition">
-        <span class="material-symbols-outlined text-[20px]">electric_bolt</span>
-        Instant deposit (₦2,500.00)
-      </a>
-    </div>
-  </div>
 
 <script>
 (function () {
