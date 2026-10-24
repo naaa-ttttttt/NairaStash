@@ -5,7 +5,7 @@
 {% block content %}
 <header class="sticky top-0 z-30 flex items-center gap-3 px-5 py-4 bg-forest-900/50 backdrop-blur-xl">
   <a href="/plans" aria-label="Back to plans"
-     class="size-10 rounded-full glass flex items-center justify-center text-white/80 hover:text-white transition-colors">
+    class="size-10 rounded-full glass flex items-center justify-center text-white/80 hover:text-white transition-colors">
     <span class="material-symbols-outlined text-[20px]">arrow_back</span>
   </a>
   <div class="min-w-0 flex-1">
@@ -221,11 +221,19 @@
       </a>
     </div>
 
-    <a href="/deposit"
-       class="w-full rounded-full bg-lime text-lime-ink font-semibold py-4 flex items-center justify-center gap-2 active:scale-[0.98] transition-transform">
-      <span class="material-symbols-outlined text-[20px]">add</span>
-      Deposit / custom boost
-    </a>
+    <div class="grid grid-cols-2 gap-2">
+      <a href="/deposit"
+        class="rounded-full bg-lime text-lime-ink font-semibold py-4 flex items-center justify-center gap-2 active:scale-[0.98] transition-transform">
+        <span class="material-symbols-outlined text-[20px]">add</span>
+        Deposit
+      </a>
+      <a href="/withdraw/amount?plan=emergency"
+        class="rounded-full glass text-white font-semibold py-4 flex items-center justify-center gap-2 hover:bg-white/10 active:scale-[0.98] transition-all">
+        <span class="material-symbols-outlined text-[20px]">arrow_outward</span>
+        Withdraw
+      </a>
+    </div>
+
     <button type="button"
             class="w-full rounded-full glass py-3 flex items-center justify-center gap-2 text-sm text-white/80 hover:text-white transition-colors">
       <span class="material-symbols-outlined text-[18px]">tune</span>
@@ -298,133 +306,133 @@
 </main>
 
 <script>
-  /* Status preview toggle (mock) */
-  (function () {
-    var states = {
-      ahead: {
-        icon: 'verified', iconBox: 'bg-lime/15 text-lime',
-        title: '5 days ahead',
-        pill: 'bg-lime/15 text-lime', dot: 'bg-lime', pillText: 'Funded buffer',
-        desc: 'Zero debit stress. Your streak covers every scheduled cycle through <span class="text-white font-medium">Nov 18</span> without touching your bank.',
-        chipIcon: 'calendar_today', chipColor: 'text-lime',
-        chip: 'Next debit: <strong class="text-lime">Nov 19</strong>',
-        btn: 'bg-lime text-lime-ink'
-      },
-      current: {
-        icon: 'check_circle', iconBox: 'bg-azure/20 text-azure',
-        title: 'Up to date',
-        pill: 'bg-azure/20 text-azure', dot: 'bg-azure', pillText: 'On track',
-        desc: 'Today\u2019s \u20a65,000 deposit settled at 08:00 AM. The next debit runs tomorrow morning at the normal daily rate.',
-        chipIcon: 'schedule', chipColor: 'text-azure',
-        chip: 'Next auto-debit: <strong class="text-white">Tomorrow, 08:00 AM</strong>',
-        btn: 'bg-azure text-white'
-      },
-      behind: {
-        icon: 'warning', iconBox: 'bg-warn/20 text-warn',
-        title: '1 day behind',
-        pill: 'bg-warn/20 text-warn', dot: 'bg-warn', pillText: '\u20a62,000 needed',
-        desc: 'Yesterday\u2019s cycle settled partially. Deposit \u20a62,000 now to keep your 284-day streak unbroken.',
-        chipIcon: 'priority_high', chipColor: 'text-warn',
-        chip: 'Grace period ends in: <strong class="text-warn">14h 22m</strong>',
-        btn: 'bg-warn text-lime-ink'
-      }
-    };
-
-    var btns = document.querySelectorAll('.status-btn');
-    var icon = document.getElementById('status-icon');
-    var title = document.getElementById('status-title');
-    var pill = document.getElementById('status-pill');
-    var desc = document.getElementById('status-desc');
-    var chip = document.getElementById('status-chip');
-    if (!btns.length || !icon) return;
-
-    function apply(key) {
-      var s = states[key];
-      btns.forEach(function (b) {
-        b.className = 'status-btn rounded-full px-2.5 py-1 text-xs font-semibold transition-colors ' +
-          (b.dataset.state === key ? s.btn : 'text-white/60');
-      });
-      icon.className = 'size-10 shrink-0 rounded-2xl flex items-center justify-center ' + s.iconBox;
-      icon.innerHTML = '<span class="material-symbols-outlined text-[24px]">' + s.icon + '</span>';
-      title.textContent = s.title;
-      pill.className = 'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ' + s.pill;
-      pill.innerHTML = '<span class="size-1.5 rounded-full ' + s.dot + '"></span>' + s.pillText;
-      desc.innerHTML = s.desc;
-      chip.innerHTML = '<span class="material-symbols-outlined text-[14px] ' + s.chipColor + '">' + s.chipIcon + '</span><span>' + s.chip + '</span>';
+/* Status preview toggle (mock) */
+(function () {
+  var states = {
+    ahead: {
+      icon: 'verified', iconBox: 'bg-lime/15 text-lime',
+      title: '5 days ahead',
+      pill: 'bg-lime/15 text-lime', dot: 'bg-lime', pillText: 'Funded buffer',
+      desc: 'Zero debit stress. Your streak covers every scheduled cycle through <span class="text-white font-medium">Nov 18</span> without touching your bank.',
+      chipIcon: 'calendar_today', chipColor: 'text-lime',
+      chip: 'Next debit: <strong class="text-lime">Nov 19</strong>',
+      btn: 'bg-lime text-lime-ink'
+    },
+    current: {
+      icon: 'check_circle', iconBox: 'bg-azure/20 text-azure',
+      title: 'Up to date',
+      pill: 'bg-azure/20 text-azure', dot: 'bg-azure', pillText: 'On track',
+      desc: 'Today\u2019s \u20a65,000 deposit settled at 08:00 AM. The next debit runs tomorrow morning at the normal daily rate.',
+      chipIcon: 'schedule', chipColor: 'text-azure',
+      chip: 'Next auto-debit: <strong class="text-white">Tomorrow, 08:00 AM</strong>',
+      btn: 'bg-azure text-white'
+    },
+    behind: {
+      icon: 'warning', iconBox: 'bg-warn/20 text-warn',
+      title: '1 day behind',
+      pill: 'bg-warn/20 text-warn', dot: 'bg-warn', pillText: '\u20a62,000 needed',
+      desc: 'Yesterday\u2019s cycle settled partially. Deposit \u20a62,000 now to keep your 284-day streak unbroken.',
+      chipIcon: 'priority_high', chipColor: 'text-warn',
+      chip: 'Grace period ends in: <strong class="text-warn">14h 22m</strong>',
+      btn: 'bg-warn text-lime-ink'
     }
+  };
 
+  var btns = document.querySelectorAll('.status-btn');
+  var icon = document.getElementById('status-icon');
+  var title = document.getElementById('status-title');
+  var pill = document.getElementById('status-pill');
+  var desc = document.getElementById('status-desc');
+  var chip = document.getElementById('status-chip');
+  if (!btns.length || !icon) return;
+
+  function apply(key) {
+    var s = states[key];
     btns.forEach(function (b) {
-      b.addEventListener('click', function () { apply(b.dataset.state); });
+      b.className = 'status-btn rounded-full px-2.5 py-1 text-xs font-semibold transition-colors ' +
+        (b.dataset.state === key ? s.btn : 'text-white/60');
     });
-  })();
+    icon.className = 'size-10 shrink-0 rounded-2xl flex items-center justify-center ' + s.iconBox;
+    icon.innerHTML = '<span class="material-symbols-outlined text-[24px]">' + s.icon + '</span>';
+    title.textContent = s.title;
+    pill.className = 'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ' + s.pill;
+    pill.innerHTML = '<span class="size-1.5 rounded-full ' + s.dot + '"></span>' + s.pillText;
+    desc.innerHTML = s.desc;
+    chip.innerHTML = '<span class="material-symbols-outlined text-[14px] ' + s.chipColor + '">' + s.chipIcon + '</span><span>' + s.chip + '</span>';
+  }
 
-  /* Passbook ledger builder (mock data) */
-  (function () {
-    var head = document.getElementById('passbook-head');
-    var body = document.getElementById('passbook-body');
-    if (!head || !body) return;
+  btns.forEach(function (b) {
+    b.addEventListener('click', function () { apply(b.dataset.state); });
+  });
+})();
 
-    var CELL = {
-      paid: '<div class="size-5 mx-auto rounded bg-lime/90 text-lime-ink flex items-center justify-center text-[10px] font-bold">\u2713</div>',
-      today: '<div class="size-5 mx-auto rounded bg-azure text-white ring-2 ring-azure/40 flex items-center justify-center text-[10px] font-bold" title="Today #284">\u2713</div>',
-      buffer: '<div class="size-5 mx-auto rounded bg-lime/30 border border-lime/40 text-lime flex items-center justify-center text-[10px] font-bold">\u2605</div>',
-      pending: '<div class="size-5 mx-auto rounded border border-white/20 bg-white/5 flex items-center justify-center text-[9px] text-white/50">\u00b7</div>',
-      na: '<div class="size-5 mx-auto leading-5 text-[10px] text-white/30">\u2013</div>',
-      empty: '<div class="size-5 mx-auto rounded border border-white/10 bg-white/5"></div>'
-    };
+/* Passbook ledger builder (mock data) */
+(function () {
+  var head = document.getElementById('passbook-head');
+  var body = document.getElementById('passbook-body');
+  if (!head || !body) return;
 
-    function rep(type, n) { return Array(n).fill(type); }
+  var CELL = {
+    paid: '<div class="size-5 mx-auto rounded bg-lime/90 text-lime-ink flex items-center justify-center text-[10px] font-bold">\u2713</div>',
+    today: '<div class="size-5 mx-auto rounded bg-azure text-white ring-2 ring-azure/40 flex items-center justify-center text-[10px] font-bold" title="Today #284">\u2713</div>',
+    buffer: '<div class="size-5 mx-auto rounded bg-lime/30 border border-lime/40 text-lime flex items-center justify-center text-[10px] font-bold">\u2605</div>',
+    pending: '<div class="size-5 mx-auto rounded border border-white/20 bg-white/5 flex items-center justify-center text-[9px] text-white/50">\u00b7</div>',
+    na: '<div class="size-5 mx-auto leading-5 text-[10px] text-white/30">\u2013</div>',
+    empty: '<div class="size-5 mx-auto rounded border border-white/10 bg-white/5"></div>'
+  };
 
-    var rows = [
-      { m: 'Jan', cells: rep('paid', 31), adv: '\u20a60', bal: '\u20a6155,000', sign: '\u2713 ESCR' },
-      { m: 'Feb', cells: rep('paid', 29).concat(rep('na', 2)), adv: '\u20a60', bal: '\u20a6145,000', sign: '\u2713 ESCR' },
-      { m: 'Mar', cells: rep('paid', 31), adv: '\u20a60', bal: '\u20a6155,000', sign: '\u2713 ESCR' },
-      { summary: true, m: 'Apr\u2013Oct', text: '214 consecutive settled days \u2022 7 monthly cards audited', adv: '+\u20a620,000', bal: '\u20a6875,000', sign: '\u2713 ESCR' },
-      { m: 'Nov', current: true, cells: rep('paid', 12).concat(['today'], rep('buffer', 5), rep('pending', 12), ['na']), adv: '+\u20a625,000', bal: '\u20a690,000', sign: 'ACTIVE' },
-      { m: 'Dec', future: true, cells: rep('empty', 31), adv: '\u2014', bal: '\u2014', sign: 'Pending' }
-    ];
+  function rep(type, n) { return Array(n).fill(type); }
 
-    // Header
-    var h = '<th scope="col" class="sticky left-0 z-20 bg-forest-800 px-2.5 py-1.5 text-left text-[10px] font-semibold uppercase text-lime border-r border-white/10 min-w-[58px]">Month</th>';
-    for (var d = 1; d <= 31; d++) {
-      h += '<th class="w-7 px-1 py-1 text-[10px] font-medium border-r border-white/5">' + d + '</th>';
-    }
-    h += '<th scope="col" class="px-2 py-1 text-[10px] font-semibold uppercase text-lime border-r border-white/10 min-w-[70px]">Advance</th>';
-    h += '<th scope="col" class="px-2 py-1 text-[10px] font-semibold uppercase text-white border-r border-white/10 min-w-[78px]">Balance</th>';
-    h += '<th scope="col" class="px-2.5 py-1 text-[10px] font-semibold uppercase text-white/80 min-w-[65px]">Sign</th>';
-    head.innerHTML = h;
+  var rows = [
+    { m: 'Jan', cells: rep('paid', 31), adv: '\u20a60', bal: '\u20a6155,000', sign: '\u2713 ESCR' },
+    { m: 'Feb', cells: rep('paid', 29).concat(rep('na', 2)), adv: '\u20a60', bal: '\u20a6145,000', sign: '\u2713 ESCR' },
+    { m: 'Mar', cells: rep('paid', 31), adv: '\u20a60', bal: '\u20a6155,000', sign: '\u2713 ESCR' },
+    { summary: true, m: 'Apr\u2013Oct', text: '214 consecutive settled days \u2022 7 monthly cards audited', adv: '+\u20a620,000', bal: '\u20a6875,000', sign: '\u2713 ESCR' },
+    { m: 'Nov', current: true, cells: rep('paid', 12).concat(['today'], rep('buffer', 5), rep('pending', 12), ['na']), adv: '+\u20a625,000', bal: '\u20a690,000', sign: 'ACTIVE' },
+    { m: 'Dec', future: true, cells: rep('empty', 31), adv: '\u2014', bal: '\u2014', sign: 'Pending' }
+  ];
 
-    // Body
-    var out = '';
-    rows.forEach(function (r) {
-      if (r.summary) {
-        out += '<tr class="bg-white/5">' +
-          '<td class="sticky left-0 z-10 bg-forest-800 px-2.5 py-1 text-left font-bold text-lime border-r border-white/10">' + r.m + '</td>' +
-          '<td colspan="31" class="py-1.5 px-3 text-left text-[11px] text-white/70 border-r border-white/10">' +
-            '<span class="inline-flex items-center gap-1 font-semibold text-lime"><span class="material-symbols-outlined text-[13px]">verified</span>' + r.text + '</span>' +
-          '</td>' +
-          '<td class="px-2 py-1 text-white/70 border-r border-white/10">' + r.adv + '</td>' +
-          '<td class="px-2 py-1 font-bold text-white border-r border-white/10">' + r.bal + '</td>' +
-          '<td class="px-2 py-1"><span class="rounded bg-lime/15 px-1 py-0.5 text-[10px] text-lime">' + r.sign + '</span></td>' +
-          '</tr>';
-        return;
-      }
-      var trCls = r.current ? 'bg-lime/5 font-semibold border-y border-lime/30' : (r.future ? 'opacity-70' : '');
-      var monthCls = r.current ? 'text-lime' : (r.future ? 'text-white/50' : 'text-white');
-      var tds = r.cells.map(function (c, i) {
-        return '<td class="p-1 border-r ' + (i === 30 ? 'border-white/10' : 'border-white/5') + '">' + CELL[c] + '</td>';
-      }).join('');
-      var signCls = r.current ? 'bg-lime/25 text-lime font-bold' : (r.future ? 'text-white/50' : 'bg-lime/15 text-lime');
-      out += '<tr class="' + trCls + '">' +
-        '<td class="sticky left-0 z-10 bg-forest-800 px-2.5 py-1.5 text-left font-bold border-r border-white/10 ' + monthCls + '">' + r.m +
-          (r.current ? ' <span class="inline-block size-1.5 rounded-full bg-lime animate-pulse"></span>' : '') + '</td>' +
-        tds +
-        '<td class="px-2 py-1 border-r border-white/10 ' + (r.current ? 'font-bold text-lime' : 'text-white/70') + '">' + r.adv + '</td>' +
-        '<td class="px-2 py-1 font-bold border-r border-white/10 ' + (r.future ? 'text-white/50' : 'text-white') + '">' + r.bal + '</td>' +
-        '<td class="px-2 py-1"><span class="rounded px-1 py-0.5 text-[10px] ' + signCls + '">' + r.sign + '</span></td>' +
+  // Header
+  var h = '<th scope="col" class="sticky left-0 z-20 bg-forest-800 px-2.5 py-1.5 text-left text-[10px] font-semibold uppercase text-lime border-r border-white/10 min-w-[58px]">Month</th>';
+  for (var d = 1; d <= 31; d++) {
+    h += '<th class="w-7 px-1 py-1 text-[10px] font-medium border-r border-white/5">' + d + '</th>';
+  }
+  h += '<th scope="col" class="px-2 py-1 text-[10px] font-semibold uppercase text-lime border-r border-white/10 min-w-[70px]">Advance</th>';
+  h += '<th scope="col" class="px-2 py-1 text-[10px] font-semibold uppercase text-white border-r border-white/10 min-w-[78px]">Balance</th>';
+  h += '<th scope="col" class="px-2.5 py-1 text-[10px] font-semibold uppercase text-white/80 min-w-[65px]">Sign</th>';
+  head.innerHTML = h;
+
+  // Body
+  var out = '';
+  rows.forEach(function (r) {
+    if (r.summary) {
+      out += '<tr class="bg-white/5">' +
+        '<td class="sticky left-0 z-10 bg-forest-800 px-2.5 py-1 text-left font-bold text-lime border-r border-white/10">' + r.m + '</td>' +
+        '<td colspan="31" class="py-1.5 px-3 text-left text-[11px] text-white/70 border-r border-white/10">' +
+          '<span class="inline-flex items-center gap-1 font-semibold text-lime"><span class="material-symbols-outlined text-[13px]">verified</span>' + r.text + '</span>' +
+        '</td>' +
+        '<td class="px-2 py-1 text-white/70 border-r border-white/10">' + r.adv + '</td>' +
+        '<td class="px-2 py-1 font-bold text-white border-r border-white/10">' + r.bal + '</td>' +
+        '<td class="px-2 py-1"><span class="rounded bg-lime/15 px-1 py-0.5 text-[10px] text-lime">' + r.sign + '</span></td>' +
         '</tr>';
-    });
-    body.innerHTML = out;
-  })();
+      return;
+    }
+    var trCls = r.current ? 'bg-lime/5 font-semibold border-y border-lime/30' : (r.future ? 'opacity-70' : '');
+    var monthCls = r.current ? 'text-lime' : (r.future ? 'text-white/50' : 'text-white');
+    var tds = r.cells.map(function (c, i) {
+      return '<td class="p-1 border-r ' + (i === 30 ? 'border-white/10' : 'border-white/5') + '">' + CELL[c] + '</td>';
+    }).join('');
+    var signCls = r.current ? 'bg-lime/25 text-lime font-bold' : (r.future ? 'text-white/50' : 'bg-lime/15 text-lime');
+    out += '<tr class="' + trCls + '">' +
+      '<td class="sticky left-0 z-10 bg-forest-800 px-2.5 py-1.5 text-left font-bold border-r border-white/10 ' + monthCls + '">' + r.m +
+        (r.current ? ' <span class="inline-block size-1.5 rounded-full bg-lime animate-pulse"></span>' : '') + '</td>' +
+      tds +
+      '<td class="px-2 py-1 border-r border-white/10 ' + (r.current ? 'font-bold text-lime' : 'text-white/70') + '">' + r.adv + '</td>' +
+      '<td class="px-2 py-1 font-bold border-r border-white/10 ' + (r.future ? 'text-white/50' : 'text-white') + '">' + r.bal + '</td>' +
+      '<td class="px-2 py-1"><span class="rounded px-1 py-0.5 text-[10px] ' + signCls + '">' + r.sign + '</span></td>' +
+      '</tr>';
+  });
+  body.innerHTML = out;
+})();
 </script>
 {% endblock %}
