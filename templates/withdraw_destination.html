@@ -132,11 +132,11 @@
       </div>
     </button>
 
-    <button type="button"
+    <a id="link-new" href="/accounts/link"
       class="w-full rounded-3xl bg-white/5 hover:bg-white/10 py-3.5 flex items-center justify-center gap-2 text-azure transition-colors">
       <span class="size-7 rounded-full bg-azure/15 flex items-center justify-center"><span class="material-symbols-outlined text-[18px]">add</span></span>
       <span class="text-sm font-medium">Link new bank account or card</span>
-    </button>
+    </a>
   </div>
   <!-- /fragment: withdraw-dest-list -->
 
@@ -188,6 +188,10 @@
   var amtText = '₦' + amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   document.getElementById('amt-text').textContent = amtText;
   document.getElementById('go-label').textContent = 'Review withdrawal (' + amtText + ')';
+
+  /* Come back to this exact step after linking a new account */
+  document.getElementById('link-new').setAttribute('href',
+    '/accounts/link?return=' + encodeURIComponent(location.pathname + location.search));
 
   var cards = document.querySelectorAll('#dest-list .dest');
 
