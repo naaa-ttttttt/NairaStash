@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+
+{% block title %}Activity · NairaStash{% endblock %}
+
+{% block content %}
+<header class="sticky top-0 z-30 flex items-center justify-between gap-2 px-5 h-16 bg-forest-900/50 backdrop-blur-xl">
+  <div class="flex flex-col min-w-0">
+    <span class="text-lg font-semibold tracking-tight text-white truncate">Activity</span>
+    <span class="text-[10px] font-semibold uppercase tracking-widest text-lime">Transaction history</span>
+  </div>
+  <div class="flex items-center gap-2 shrink-0">
+    <button id="export" type="button" aria-label="Export statement"
+      class="size-10 rounded-full glass flex items-center justify-center text-white/80 hover:text-white transition-colors">
+      <span class="material-symbols-outlined text-[20px]">file_download</span>
+    </button>
+    <a href="/notifications" aria-label="Notifications"
+      class="relative size-10 rounded-full glass text-white flex items-center justify-center hover:bg-white/10 transition-colors">
+      <span class="material-symbols-outlined text-[20px]">notifications</span>
+      <span class="absolute top-2.5 right-2.5 size-2 rounded-full bg-lime ring-2 ring-forest-800"></span>
+    </a>
+  </div>
+</header>
+
+<main class="flex-1 flex flex-col gap-4 px-5 pt-2">
+
+  <!-- fragment: activity-summary -->
+  <section class="glass rounded-3xl p-5 flex flex-col gap-4">
+    <div class="flex items-center justify-between">
+      <span class="text-xs text-white/60">October 2026</span>
+      <span class="inline-flex items-center gap-1.5 rounded-full bg-lime/15 px-2.5 py-1 text-[10px] font-semibold uppercase text-lime">
+        <span class="size-1.5 rounded-full bg-lime animate-pulse"></span>Live
+      </span>
+    </div>
+    <div>
+      <p class="text-xs text-white/60">Net savings this month</p>
+      <p id="net" class="mt-1 text-3xl font-semibold tracking-tight text-white"></p>
+    </div>
+    <div class="grid grid-cols-2 gap-2">
+      <div class="rounded-2xl bg-white/5 p-3">
+        <div class="flex items-center gap-1.5 text-[11px] text-white/60"><span class="size-1.5 rounded-full bg-lime"></span>Money in</div>
+        <p id="sum-in" class="mt-1 text-sm font-semibold text-lime"></p>
+      </div>
+      <div class="rounded-2xl bg-white/5 p-3">
+        <div class="flex items-center gap-1.5 text-[11px] text-white/60"><span class="size-1.5 rounded-full bg-azure"></span>Money out</div>
+        <p id="sum-out" class="mt-1 text-sm font-semibold text-white"></p>
+      </div>
+    </div>
+  </section>
+  <!-- /fragment: activity-summary -->
+
+  <!-- fragment: activity-filters -->
+  <div class="relative flex items-center">
+    <span class="material-symbols-outlined absolute left-3.5 text-white/40 text-[20px] pointer-events-none">search</span>
+    <input id="search" type="text" placeholder="Search transactions..."
+      class="w-full h-12 pl-11 pr-4 rounded-2xl bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-lime/60 focus:bg-white/10 transition-all">
+  </div>
+  <div id="chips" class="flex items-center gap-2 overflow-x-auto py-0.5"></div>
+  <!-- /fragment: activity-filters -->
+
+  <!-- fragment: activity-list -->
+  <div id="list" class="flex flex-col gap-5"></div>
+
+  <div id="empty" class="hidden py-8 flex-col items-center text-center">
+    <div class="size-14 rounded-2xl glass flex items-center justify-center text-white/60 mb-3"><span class="material-symbols-outlined text-[28px]">search_off</span></div>
+    <h3 class="text-base font-semibold text-white">No transactions found</h3>
+    <p class="text-xs text-white/60 mt-1">Try a different search or filter.</p>
+  </div>
+
+  <button id="more" type="button"
+    class="w-full py-3 rounded-full glass text-xs font-semibold text-white/70 hover:text-white flex items-center justify-center gap-1.5 transition-all">
+    Load earlier transactions<span class="material-symbols-outlined text-[16px]">expand_more</span>
+  </button>
+  <!-- /fragment: activity-list -->
+</main>
+
+<div id="toast" class="fixed bottom-28 left-0 right-0 z-50 max-w-md mx-auto px-5 pointer-events-none opacity-0 translate-y-4 transition-all duration-300">
+  <div class="glass-dark rounded-2xl px-4 py-3 flex items-center gap-2 text-white">
+    <span class="material-symbols-outlined text-lime text-[20px]">check_circle</span>
+    <span id="toast-text" class="text-xs"></span>
+  </div>
+</div>
+
+<script>
+(function () {
+  var TONES = {
+    lime: 'bg-lime/15 text-lime',
+    azure: 'bg-azure/15 text-azure',
+    warn: 'bg-warn/15 text-warn',
+    red: 'bg-red-400/15 text-red-300'
+  };
+  var TX = [
+    { day: 'Today', cat: 'deposit', icon: 'sync_alt', tone: 'lime', title: 'Automatic debit', sub: 'Emergency Liquidity Vault', time: '08:00 AM', amt: 5000, dir: 1, status: 'settled', ref: '#SET-1029', via: 'GTBank •• 4920' },
+    { day: 'Today', cat: 'deposit', icon: 'sync_alt', tone: 'lime', title: 'Automatic debit', sub: 'Real Estate Buffer', time: '08:00 AM', amt: 7500, dir: 1, status: 'settled', ref: '#SET-1030', via: 'GTBank •• 4920' },
+    { day: 'Today', cat: 'loan', icon: 'autorenew', tone: 'azure', title: 'Loan repayment', sub: 'Server Cluster Scale', time: '08:00 AM', amt: 1000, dir: -1, status: 'settled', ref: '#LN-7742', via: 'GTBank •• 4920' },
+    { day: 'Today', cat: 'group', icon: 'diversity_3', tone: 'azure', title: 'Group contribution', sub: 'Founders Tech Stash', time: '04:00 AM', amt: 2500, dir: 1, status: 'settled', ref: '#GRP-5521', via: 'Auto-collected' },
+    { day: 'Yesterday', cat: 'deposit', icon: 'bolt', tone: 'lime', title: 'Manual top-up', sub: 'Emergency Liquidity Vault', time: '06:18 PM', amt: 25000, dir: 1, status: 'settled', ref: '#TOP-3318', via: 'Bank transfer' },
+    { day: 'Yesterday', cat: 'deposit', icon: 'warning', tone: 'red', title: 'Missed daily deposit', sub: 'Family Health Reserve', time: '08:05 AM', amt: 2000, dir: 0, status: 'failed', ref: '#SET-1022', via: 'Balance too low' },
+    { day: 'Yesterday', cat: 'withdraw', icon: 'hourglass_top', tone: 'warn', title: 'Withdrawal request', sub: 'Founders Tech Stash (my share)', time: '10:42 AM', amt: 30000, dir: -1, status: 'pending', ref: '#WRQ-3301', via: 'Waiting for group admin' },
+    { day: 'Oct 15', cat: 'withdraw', icon: 'arrow_outward', tone: 'warn', title: 'Withdrawal cleared', sub: 'Real Estate Buffer', time: '07:22 AM', amt: 120000, dir: -1, status: 'settled', ref: '#WTH-9021', via: 'To GTBank •• 4920' },
+    { day: 'Oct 15', cat: 'deposit', icon: 'sync_alt', tone: 'lime', title: 'Automatic debit', sub: 'Emergency Liquidity Vault', time: '08:00 AM', amt: 5000, dir: 1, status: 'settled', ref: '#SET-1011', via: 'GTBank •• 4920' },
+    { day: 'Oct 12', cat: 'group', icon: 'payments', tone: 'lime', title: 'Group payout received', sub: 'Founders Tech Stash • round 4', time: '09:00 AM', amt: 420000, dir: 1, status: 'settled', ref: '#PAY-0042', via: 'Credited to your share' },
+    { day: 'Oct 10', cat: 'deposit', icon: 'bolt', tone: 'lime', title: 'Boost deposit', sub: 'Tech Hardware Refresh', time: '02:15 PM', amt: 15000, dir: 1, status: 'settled', ref: '#TOP-3290', via: 'Bank transfer' }
+  ];
+  var CHIPS = [['all', 'All'], ['deposit', 'Deposits'], ['withdraw', 'Withdrawals'], ['loan', 'Loans'], ['group', 'Groups']];
+  var filter = 'all', openIdx = -1;
+
+  function el(id) { return document.getElementById(id); }
+  function naira(n) { return '₦' + n.toLocaleString('en-US'); }
+
+  var timer;
+  function toast(msg) {
+    var t = el('toast');
+    el('toast-text').textContent = msg;
+    t.classList.remove('opacity-0', 'translate-y-4');
+    clearTimeout(timer);
+    timer = setTimeout(function () { t.classList.add('opacity-0', 'translate-y-4'); }, 2600);
+  }
+
+  function totals() {
+    var inn = 0, out = 0;
+    TX.forEach(function (t) {
+      if (t.status !== 'settled') return;
+      if (t.dir > 0) inn += t.amt;
+      if (t.dir < 0) out += t.amt;
+    });
+    el('sum-in').textContent = '+' + naira(inn);
+    el('sum-out').textContent = '-' + naira(out);
+    el('net').textContent = (inn - out < 0 ? '-' : '+') + naira(Math.abs(inn - out));
+  }
+
+  function visible() {
+    var term = el('search').value.toLowerCase().trim();
+    return TX.map(function (t, i) { t.i = i; return t; }).filter(function (t) {
+      var okCat = filter === 'all' || t.cat === filter;
+      var okTerm = !term || (t.title + ' ' + t.sub).toLowerCase().indexOf(term) !== -1;
+      return okCat && okTerm;
+    });
+  }
+
+  function amountHtml(t) {
+    if (t.status === 'failed') return '<p class="text-sm font-semibold text-red-300">' + naira(t.amt) + '</p>';
+    if (t.dir > 0) return '<p class="text-sm font-semibold text-lime">+' + naira(t.amt) + '</p>';
+    return '<p class="text-sm font-semibold text-white">-' + naira(t.amt) + '</p>';
+  }
+
+  function statusHtml(t) {
+    if (t.status === 'pending') return '<p class="text-[10px] font-semibold text-warn">Pending</p>';
+    if (t.status === 'failed') return '<p class="text-[10px] font-semibold text-red-300">Failed</p>';
+    return '<p class="text-[10px] text-white/50">Settled</p>';
+  }
+
+  function row(t) {
+    var open = openIdx === t.i;
+    return '<div class="px-4 py-3.5">' +
+      '<button type="button" data-i="' + t.i + '" class="tx w-full flex items-center gap-3 text-left">' +
+      '<div class="size-10 shrink-0 rounded-full ' + TONES[t.tone] + ' flex items-center justify-center"><span class="material-symbols-outlined text-[18px]">' + t.icon + '</span></div>' +
+      '<div class="flex-1 min-w-0"><p class="text-sm font-semibold text-white truncate">' + t.title + '</p>' +
+      '<p class="text-xs text-white/60 truncate">' + t.time + ' · ' + t.sub + '</p></div>' +
+      '<div class="text-right shrink-0">' + amountHtml(t) + statusHtml(t) + '</div></button>' +
+      (open ? '<div class="mt-3 rounded-2xl bg-black/20 p-3 grid grid-cols-2 gap-2 text-[11px]">' +
+        '<div><p class="text-white/50 uppercase">Reference</p><p class="text-white font-medium">' + t.ref + '</p></div>' +
+        '<div><p class="text-white/50 uppercase">Details</p><p class="text-white font-medium">' + t.via + '</p></div></div>' : '') +
+      '</div>';
+  }
+
+  function render() {
+    el('chips').innerHTML = CHIPS.map(function (c) {
+      var on = filter === c[0];
+      var n = TX.filter(function (t) { return c[0] === 'all' || t.cat === c[0]; }).length;
+      return '<button type="button" data-f="' + c[0] + '" class="chip shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold flex items-center gap-1.5 transition-all ' +
+        (on ? 'bg-lime text-lime-ink' : 'glass text-white/70') + '">' + c[1] +
+        '<span class="rounded-full ' + (on ? 'bg-black/10' : 'bg-white/10') + ' px-1.5 text-[10px]">' + n + '</span></button>';
+    }).join('');
+
+    var list = visible();
+    var days = [], map = {};
+    list.forEach(function (t) {
+      if (!map[t.day]) { map[t.day] = []; days.push(t.day); }
+      map[t.day].push(t);
+    });
+    el('list').innerHTML = days.map(function (d) {
+      return '<section class="flex flex-col gap-2"><h2 class="px-1 text-xs font-semibold uppercase tracking-wider text-white/60">' + d + '</h2>' +
+        '<div class="glass rounded-3xl divide-y divide-white/10 overflow-hidden">' + map[d].map(row).join('') + '</div></section>';
+    }).join('');
+    el('empty').classList.toggle('hidden', list.length !== 0);
+    el('empty').classList.toggle('flex', list.length === 0);
+
+    document.querySelectorAll('.chip').forEach(function (b) {
+      b.addEventListener('click', function () { filter = b.getAttribute('data-f'); openIdx = -1; render(); });
+    });
+    document.querySelectorAll('.tx').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var i = parseInt(b.getAttribute('data-i'), 10);
+        openIdx = openIdx === i ? -1 : i;
+        render();
+      });
+    });
+  }
+
+  el('search').addEventListener('input', function () { openIdx = -1; render(); });
+  el('export').addEventListener('click', function () { toast('Statement for October 2026 exported as PDF'); });
+  el('more').addEventListener('click', function () { toast('No earlier transactions to load yet'); });
+
+  totals();
+  render();
+})();
+</script>
+{% endblock %}
