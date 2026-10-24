@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+
+{% block title %}Link account · NairaStash{% endblock %}
+
+{% block body_class %}pb-10{% endblock %}
+
+{% block nav %}{% endblock %}
+
+{% block content %}
+<header class="sticky top-0 z-30 flex items-center justify-between gap-2 px-5 h-16 bg-forest-900/50 backdrop-blur-xl">
+  <button type="button" onclick="history.back()" aria-label="Go back"
+    class="size-11 -ml-2 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 active:scale-95 transition-all">
+    <span class="material-symbols-outlined text-[22px]">arrow_back</span>
+  </button>
+  <div class="flex flex-col items-center min-w-0">
+    <span class="text-[10px] font-semibold uppercase tracking-widest text-lime">Payout accounts</span>
+    <h1 class="text-base font-semibold tracking-tight text-white truncate">Link account</h1>
+  </div>
+  <span class="size-11"></span>
+</header>
+
+<main class="flex-1 flex flex-col gap-4 px-5 pt-2">
+
+  <div id="form-area" class="flex flex-col gap-4">
+
+    <!-- fragment: link-existing -->
+    <section class="glass rounded-3xl p-4 flex flex-col gap-3">
+      <div class="flex items-center justify-between">
+        <h2 class="text-base font-semibold text-white">Linked accounts</h2>
+        <span class="text-[10px] uppercase text-white/50">3 linked</span>
+      </div>
+      <div class="flex items-center gap-3 rounded-2xl bg-white/5 p-3">
+        <div class="size-9 rounded-xl bg-white/10 text-lime flex items-center justify-center"><span class="material-symbols-outlined text-[20px]">account_balance</span></div>
+        <div class="flex-1 min-w-0"><p class="text-sm font-medium text-white truncate">GTBank Savings</p><p class="text-[11px] text-white/50">•••• 4920</p></div>
+        <span class="rounded bg-lime/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase text-lime">Primary</span>
+      </div>
+      <div class="flex items-center gap-3 rounded-2xl bg-white/5 p-3">
+        <div class="size-9 rounded-xl bg-white/10 text-azure flex items-center justify-center"><span class="material-symbols-outlined text-[20px]">savings</span></div>
+        <div class="flex-1 min-w-0"><p class="text-sm font-medium text-white truncate">Access Bank Current</p><p class="text-[11px] text-white/50">•••• 8104</p></div>
+      </div>
+      <div class="flex items-center gap-3 rounded-2xl bg-white/5 p-3">
+        <div class="size-9 rounded-xl bg-white/10 text-warn flex items-center justify-center"><span class="material-symbols-outlined text-[20px]">credit_card</span></div>
+        <div class="flex-1 min-w-0"><p class="text-sm font-medium text-white truncate">Verve debit card</p><p class="text-[11px] text-white/50">•••• 3319</p></div>
+      </div>
+    </section>
+    <!-- /fragment: link-existing -->
+
+    <div class="flex items-center gap-1 rounded-full glass p-1" role="tablist">
+      <button type="button" data-tab="bank" role="tab"
+        class="l-tab flex-1 rounded-full py-2 text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors bg-white/15 text-white">
+        <span class="material-symbols-outlined text-[16px] text-lime">account_balance</span>Bank account
+      </button>
+      <button type="button" data-tab="card" role="tab"
+        class="l-tab flex-1 rounded-full py-2 text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors text-white/60">
+        <span class="material-symbols-outlined text-[16px] text-warn">credit_card</span>Debit card
+      </button>
+    </div>
+
+    <!-- fragment: link-bank -->
+    <section id="panel-bank" class="l-panel glass rounded-3xl p-4 flex flex-col gap-3">
+      <div class="flex flex-col gap-1.5">
+        <label for="b-bank" class="text-xs text-white/60">Bank</label>
+        <select id="b-bank"
+          class="w-full rounded-2xl bg-white/5 border border-white/10 px-4 py-3 text-sm text-white focus:outline-none focus:border-lime/60 transition-all">
+          <option class="text-black" value="">Select your bank</option>
+          <option class="text-black">Access Bank</option>
+          <option class="text-black">First Bank</option>
+          <option class="text-black">GTBank</option>
+          <option class="text-black">Kuda</option>
+          <option class="text-black">Moniepoint</option>
+          <option class="text-black">Opay</option>
+          <option class="text-black">Palmpay</option>
+          <option class="text-black">UBA</option>
+          <option class="text-black">Zenith Bank</option>
+        </select>
+      </div>
+      <div class="flex flex-col gap-1.5">
+        <label for="b-num" class="text-xs text-white/60">Account number</label>
+        <input id="b-num" type="text" inputmode="numeric" maxlength="10" placeholder="10-digit account number"
+          class="w-full rounded-2xl bg-white/5 border border-white/10 px-4 py-3 text-sm tracking-widest text-white placeholder:tracking-normal placeholder:text-white/40 focus:outline-none focus:border-lime/60 focus:bg-white/10 transition-all">
+      </div>
+      <div id="b-name" class="hidden items-center gap-2 rounded-2xl bg-lime/10 border border-lime/20 px-4 py-3">
+        <span class="material-symbols-outlined fill-1 text-lime text-[18px]">verified</span>
+        <span class="text-sm font-semibold text-white">CHINEDU OKAFOR</span>
+      </div>
+      <p id="b-hint" class="text-[11px] text-white/50">The account name must match the name on your NairaStash profile.</p>
+      <button id="b-save" type="button"
+        class="h-12 rounded-full bg-lime text-lime-ink text-sm font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition opacity-50 pointer-events-none">
+        <span class="material-symbols-outlined text-[20px]">link</span>Link bank account
+      </button>
+    </section>
+    <!-- /fragment: link-bank -->
+
+    <!-- fragment: link-card -->
+    <section id="panel-card" class="l-panel hidden glass rounded-3xl p-4 flex flex-col gap-3">
+      <div class="flex flex-col gap-1.5">
+        <label for="c-num" class="text-xs text-white/60">Card number</label>
+        <input id="c-num" type="text" inputmode="numeric" maxlength="19" placeholder="0000 0000 0000 0000"
+          class="w-full rounded-2xl bg-white/5 border border-white/10 px-4 py-3 text-sm tracking-widest text-white placeholder:tracking-normal placeholder:text-white/40 focus:outline-none focus:border-lime/60 focus:bg-white/10 transition-all">
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="flex flex-col gap-1.5">
+          <label for="c-exp" class="text-xs text-white/60">Expiry</label>
+          <input id="c-exp" type="text" inputmode="numeric" maxlength="5" placeholder="MM/YY"
+            class="w-full rounded-2xl bg-white/5 border border-white/10 px-4 py-3 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-lime/60 focus:bg-white/10 transition-all">
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label for="c-cvv" class="text-xs text-white/60">CVV</label>
+          <input id="c-cvv" type="password" inputmode="numeric" maxlength="3" placeholder="•••"
+            class="w-full rounded-2xl bg-white/5 border border-white/10 px-4 py-3 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-lime/60 focus:bg-white/10 transition-all">
+        </div>
+      </div>
+      <div class="flex items-start gap-2">
+        <span class="material-symbols-outlined text-lime text-[16px] mt-0.5">lock</span>
+        <p class="text-[11px] text-white/50">Card details are handled by our licensed payment partner. NairaStash never stores your full card number or CVV.</p>
+      </div>
+      <button id="c-save" type="button"
+        class="h-12 rounded-full bg-lime text-lime-ink text-sm font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition opacity-50 pointer-events-none">
+        <span class="material-symbols-outlined text-[20px]">link</span>Link card
+      </button>
+    </section>
+    <!-- /fragment: link-card -->
+  </div>
+
+  <!-- fragment: link-success -->
+  <section id="success" class="hidden flex-1 flex-col items-center justify-center text-center gap-4 py-16">
+    <div class="size-20 rounded-full bg-lime text-lime-ink flex items-center justify-center">
+      <span class="material-symbols-outlined fill-1 text-[44px]">check_circle</span>
+    </div>
+    <div>
+      <h2 class="text-2xl font-semibold tracking-tight text-white">Account linked</h2>
+      <p id="s-text" class="text-sm text-white/60 mt-1 max-w-xs"></p>
+    </div>
+    <a id="s-done" href="/profile" class="mt-2 h-12 px-8 rounded-full bg-lime text-lime-ink text-sm font-semibold flex items-center justify-center active:scale-[0.98] transition">Done</a>
+  </section>
+  <!-- /fragment: link-success -->
+</main>
+
+<script>
+(function () {
+  function el(id) { return document.getElementById(id); }
+
+  /* Where to go after linking (only same-site paths are allowed) */
+  var back = new URLSearchParams(location.search).get('return') || '/profile';
+  if (back.charAt(0) !== '/' || back.indexOf('//') === 0) back = '/profile';
+  el('s-done').setAttribute('href', back);
+
+  /* Tabs */
+  var tabs = document.querySelectorAll('.l-tab');
+  var panels = { bank: el('panel-bank'), card: el('panel-card') };
+  tabs.forEach(function (t) {
+    t.addEventListener('click', function () {
+      var name = t.getAttribute('data-tab');
+      tabs.forEach(function (x) {
+        var on = x === t;
+        x.classList.toggle('bg-white/15', on);
+        x.classList.toggle('text-white', on);
+        x.classList.toggle('text-white/60', !on);
+      });
+      Object.keys(panels).forEach(function (k) { panels[k].classList.toggle('hidden', k !== name); });
+    });
+  });
+
+  function enable(btn, ok) {
+    btn.classList.toggle('opacity-50', !ok);
+    btn.classList.toggle('pointer-events-none', !ok);
+  }
+
+  /* Bank: resolve the account name once 10 digits are typed (mock) */
+  var bank = el('b-bank'), num = el('b-num'), resolved = false;
+  function checkBank() {
+    var digits = num.value.replace(/[^0-9]/g, '');
+    num.value = digits;
+    var ready = bank.value !== '' && digits.length === 10;
+    resolved = ready;
+    el('b-name').classList.toggle('hidden', !ready);
+    el('b-name').classList.toggle('flex', ready);
+    el('b-hint').classList.toggle('hidden', ready);
+    enable(el('b-save'), ready);
+  }
+  bank.addEventListener('change', checkBank);
+  num.addEventListener('input', checkBank);
+
+  /* Card: format and check */
+  var cn = el('c-num'), ce = el('c-exp'), cv = el('c-cvv');
+  function checkCard() {
+    var d = cn.value.replace(/[^0-9]/g, '').slice(0, 16);
+    cn.value = d.replace(/(.{4})/g, '$1 ').trim();
+    var e = ce.value.replace(/[^0-9]/g, '').slice(0, 4);
+    ce.value = e.length > 2 ? e.slice(0, 2) + '/' + e.slice(2) : e;
+    cv.value = cv.value.replace(/[^0-9]/g, '');
+    enable(el('c-save'), d.length >= 16 && e.length === 4 && cv.value.length === 3);
+  }
+  [cn, ce, cv].forEach(function (i) { i.addEventListener('input', checkCard); });
+
+  function done(text) {
+    el('form-area').classList.add('hidden');
+    var s = el('success');
+    s.classList.remove('hidden');
+    s.classList.add('flex');
+    el('s-text').textContent = text;
+    window.scrollTo(0, 0);
+  }
+  el('b-save').addEventListener('click', function () {
+    if (!resolved) return;
+    done(bank.value + ' account ending ' + num.value.slice(-4) + ' is now linked and can receive withdrawals.');
+  });
+  el('c-save').addEventListener('click', function () {
+    done('Your card ending ' + cn.value.slice(-4) + ' is now linked for instant payouts.');
+  });
+})();
+</script>
+{% endblock %}
