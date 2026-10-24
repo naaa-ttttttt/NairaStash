@@ -1,6 +1,7 @@
 use askama::Template;
 use axum::{
     extract::Path,
+    http::StatusCode,
     response::{Html, Redirect},
     routing::get,
     Router,
@@ -38,6 +39,12 @@ struct GroupsTemplate {
 }
 
 #[derive(Template)]
+#[template(path = "new_group.html")]
+struct NewGroupTemplate {
+    active: &'static str,
+}
+
+#[derive(Template)]
 #[template(path = "group_detail.html")]
 struct GroupDetailTemplate {
     active: &'static str,
@@ -64,6 +71,24 @@ struct ProfileTemplate {
 #[derive(Template)]
 #[template(path = "notifications.html")]
 struct NotificationsTemplate {
+    active: &'static str,
+}
+
+#[derive(Template)]
+#[template(path = "activity.html")]
+struct ActivityTemplate {
+    active: &'static str,
+}
+
+#[derive(Template)]
+#[template(path = "link_account.html")]
+struct LinkAccountTemplate {
+    active: &'static str,
+}
+
+#[derive(Template)]
+#[template(path = "not_found.html")]
+struct NotFoundTemplate {
     active: &'static str,
 }
 
@@ -146,14 +171,19 @@ async fn groups_handler() -> Html<String> {
     Html(GroupsTemplate { active: "groups" }.render().unwrap())
 }
 
+// Create / join group screen
+async fn new_group_handler() -> Html<String> {
+    Html(NewGroupTemplate { active: "groups" }.render().unwrap())
+}
+
+// Stub: replace with Form<NewGroup> + SQLx insert later
+async fn create_group_handler() -> Redirect {
+    Redirect::to("/groups")
+}
+
 // group details page, the id is ignored until we have real data from SQLx
 async fn group_detail_handler(Path(_id): Path<String>) -> Html<String> {
     Html(GroupDetailTemplate { active: "groups" }.render().unwrap())
-}
-
-// Stub: the "New group" button lands here until its screen is designed
-async fn new_group_handler() -> Redirect {
-    Redirect::to("/groups")
 }
 
 async fn deposit_handler() -> Html<String> {
@@ -185,6 +215,24 @@ async fn profile_handler() -> Html<String> {
 
 async fn notifications_handler() -> Html<String> {
     Html(NotificationsTemplate { active: "profile" }.render().unwrap())
+}
+
+// Activity = full transaction history (bottom nav tab)
+async fn activity_handler() -> Html<String> {
+    Html(ActivityTemplate { active: "activity" }.render().unwrap())
+}
+
+// Link a bank account or card (used by the withdraw flow and profile)
+async fn link_account_handler() -> Html<String> {
+    Html(LinkAccountTemplate { active: "profile" }.render().unwrap())
+}
+
+// Any unknown URL lands here
+async fn not_found_handler() -> (StatusCode, Html<String>) {
+    (
+        StatusCode::NOT_FOUND,
+        Html(NotFoundTemplate { active: "" }.render().unwrap()),
+    )
 }
 
 // Withdrawal flow: plan -> amount -> destination -> review.
@@ -238,7 +286,7 @@ async fn main() {
         // axum 0.8 wants "/plans/{id}" instead
         .route("/plans/:id", get(plan_detail_handler))
         .route("/groups", get(groups_handler))
-        .route("/groups/new", get(new_group_handler))
+        .route("/groups/new", get(new_group_handler).post(create_group_handler))
         // axum 0.8 wants "/groups/{id}" instead
         .route("/groups/:id", get(group_detail_handler))
         .route("/deposit", get(deposit_handler))
@@ -251,8 +299,11 @@ async fn main() {
         .route("/loans/detail", get(loan_detail_handler))
         .route("/rules", get(group_rules_handler))
         .route("/approvals", get(group_approvals_handler))
+        .route("/activity", get(activity_handler))
+        .route("/accounts/link", get(link_account_handler))
         .route("/profile", get(profile_handler))
-        .route("/notifications", get(notifications_handler));
+        .route("/notifications", get(notifications_handler))
+        .fallback(not_found_handler);
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:3000").await.unwrap();
     println!("Server running at http://127.0.0.1:3000");
