@@ -1,0 +1,279 @@
+{% extends "base.html" %}
+
+{% block title %}New group · NairaStash{% endblock %}
+
+{% block content %}
+<header class="sticky top-0 z-30 flex items-center justify-between gap-2 px-5 h-16 bg-forest-900/50 backdrop-blur-xl">
+  <a href="/groups" aria-label="Back to groups"
+    class="size-10 rounded-full glass flex items-center justify-center text-white/80 hover:text-white transition-colors">
+    <span class="material-symbols-outlined text-[20px]">arrow_back</span>
+  </a>
+  <div class="flex flex-col items-center min-w-0">
+    <span class="text-[10px] font-semibold uppercase tracking-widest text-lime">Community groups</span>
+    <h1 class="text-base font-semibold tracking-tight text-white truncate">New group</h1>
+  </div>
+  <span class="size-10"></span>
+</header>
+
+<main class="flex-1 flex flex-col gap-4 px-5 pt-2">
+
+  <!-- fragment: new-group-tabs -->
+  <div class="flex items-center gap-1 rounded-full glass p-1" role="tablist">
+    <button type="button" data-tab="create" role="tab"
+      class="g-tab flex-1 rounded-full py-2 text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors bg-white/15 text-white">
+      <span class="material-symbols-outlined text-[16px] text-lime">add_circle</span>Create
+    </button>
+    <button type="button" data-tab="join" role="tab"
+      class="g-tab flex-1 rounded-full py-2 text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors text-white/60">
+      <span class="material-symbols-outlined text-[16px] text-azure">login</span>Join with code
+    </button>
+  </div>
+  <!-- /fragment: new-group-tabs -->
+
+  <!-- fragment: new-group-create -->
+  <form id="panel-create" method="post" action="/groups/new" class="g-panel flex flex-col gap-4">
+    <section class="glass rounded-3xl p-4 flex flex-col gap-3">
+      <h2 class="text-base font-semibold text-white">Group details</h2>
+      <div class="flex flex-col gap-1.5">
+        <label for="g-name" class="text-xs text-white/60">Group name</label>
+        <input id="g-name" name="name" type="text" required minlength="3" maxlength="40" placeholder="e.g. Lagos Traders Circle"
+          class="w-full rounded-2xl bg-white/5 border border-white/10 px-4 py-3 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-lime/60 focus:bg-white/10 transition-all">
+      </div>
+      <div class="flex flex-col gap-1.5">
+        <label for="g-desc" class="text-xs text-white/60">What is this group for?</label>
+        <textarea id="g-desc" name="description" rows="3" maxlength="160" placeholder="A short description members will see..."
+          class="w-full rounded-2xl bg-white/5 border border-white/10 px-4 py-3 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-lime/60 focus:bg-white/10 transition-all resize-none"></textarea>
+      </div>
+    </section>
+
+    <section class="glass rounded-3xl p-4 flex flex-col gap-4">
+      <h2 class="text-base font-semibold text-white">Members and contribution</h2>
+
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-white">Number of members</p>
+          <p class="text-[11px] text-white/50">Between 3 and 20 people</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <button id="m-minus" type="button" aria-label="Fewer members" class="size-9 rounded-full glass text-white flex items-center justify-center active:scale-95 transition-all"><span class="material-symbols-outlined text-[18px]">remove</span></button>
+          <span id="m-val" class="w-8 text-center text-lg font-semibold text-white">8</span>
+          <button id="m-plus" type="button" aria-label="More members" class="size-9 rounded-full glass text-white flex items-center justify-center active:scale-95 transition-all"><span class="material-symbols-outlined text-[18px]">add</span></button>
+        </div>
+      </div>
+      <input id="f-members" type="hidden" name="members" value="8">
+
+      <div class="flex flex-col gap-2">
+        <label for="g-daily" class="text-sm font-medium text-white">Daily contribution per member</label>
+        <div class="rounded-2xl bg-black/20 px-4 py-3 flex items-center focus-within:ring-2 focus-within:ring-lime/60 transition-all">
+          <span class="text-2xl font-light text-white/40 mr-1">₦</span>
+          <input id="g-daily" name="daily" type="text" inputmode="numeric" value="2,500"
+            class="w-full bg-transparent text-right text-2xl font-semibold tracking-tight text-white focus:outline-none">
+        </div>
+        <div class="grid grid-cols-4 gap-2">
+          <button type="button" data-d="1000" class="d-chip rounded-xl bg-white/10 py-2 text-xs font-semibold text-white active:scale-95 transition-all">₦1,000</button>
+          <button type="button" data-d="2500" class="d-chip rounded-xl bg-white/10 py-2 text-xs font-semibold text-white active:scale-95 transition-all">₦2,500</button>
+          <button type="button" data-d="5000" class="d-chip rounded-xl bg-white/10 py-2 text-xs font-semibold text-white active:scale-95 transition-all">₦5,000</button>
+          <button type="button" data-d="10000" class="d-chip rounded-xl bg-white/10 py-2 text-xs font-semibold text-white active:scale-95 transition-all">₦10,000</button>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <p class="text-sm font-medium text-white">Round length</p>
+        <div class="grid grid-cols-4 gap-2">
+          <button type="button" data-r="7" class="r-chip rounded-xl bg-white/10 py-2 text-xs font-semibold text-white active:scale-95 transition-all">7 days</button>
+          <button type="button" data-r="14" class="r-chip rounded-xl bg-white/10 py-2 text-xs font-semibold text-white active:scale-95 transition-all">14 days</button>
+          <button type="button" data-r="21" class="r-chip rounded-xl bg-white/10 py-2 text-xs font-semibold text-white active:scale-95 transition-all">21 days</button>
+          <button type="button" data-r="30" class="r-chip rounded-xl bg-white/10 py-2 text-xs font-semibold text-white active:scale-95 transition-all">30 days</button>
+        </div>
+        <p class="text-[11px] text-white/50">One member receives the full pot at the end of each round.</p>
+      </div>
+      <input id="f-round" type="hidden" name="round" value="21">
+
+      <div class="flex flex-col gap-2">
+        <p class="text-sm font-medium text-white">Payout order</p>
+        <label class="flex items-center gap-3 rounded-2xl bg-white/5 p-3 cursor-pointer">
+          <input type="radio" name="order" value="random" checked class="accent-[#D8F13A]">
+          <div><p class="text-sm font-medium text-white">Random draw</p><p class="text-[11px] text-white/50">The order is picked fairly once the group is full</p></div>
+        </label>
+        <label class="flex items-center gap-3 rounded-2xl bg-white/5 p-3 cursor-pointer">
+          <input type="radio" name="order" value="joining" class="accent-[#D8F13A]">
+          <div><p class="text-sm font-medium text-white">Order of joining</p><p class="text-[11px] text-white/50">First to join is paid first</p></div>
+        </label>
+      </div>
+    </section>
+
+    <section class="glass rounded-3xl p-4 flex flex-col gap-3">
+      <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined fill-1 text-lime text-[20px]">insights</span>
+        <h2 class="text-base font-semibold text-white">Summary</h2>
+        <span class="text-[10px] font-semibold uppercase tracking-wider text-lime">Calculated live</span>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <div class="rounded-2xl bg-white/5 p-3">
+          <span class="text-[10px] uppercase text-white/50">Pot per round</span>
+          <p id="s-pot" class="mt-0.5 text-sm font-semibold text-lime"></p>
+        </div>
+        <div class="rounded-2xl bg-white/5 p-3">
+          <span class="text-[10px] uppercase text-white/50">You put in per round</span>
+          <p id="s-mine" class="mt-0.5 text-sm font-semibold text-white"></p>
+        </div>
+        <div class="rounded-2xl bg-white/5 p-3">
+          <span class="text-[10px] uppercase text-white/50">Whole cycle</span>
+          <p id="s-cycle" class="mt-0.5 text-sm font-semibold text-white"></p>
+        </div>
+        <div class="rounded-2xl bg-white/5 p-3">
+          <span class="text-[10px] uppercase text-white/50">Group collects</span>
+          <p id="s-day" class="mt-0.5 text-sm font-semibold text-white"></p>
+        </div>
+      </div>
+      <div class="flex items-start gap-2 rounded-2xl bg-white/5 p-3">
+        <span class="material-symbols-outlined text-warn text-[18px] shrink-0 mt-0.5">admin_panel_settings</span>
+        <p class="text-xs text-white/70 leading-snug">You become the first group admin. Withdrawals and loans from the group need an admin to approve them. You can set the rules and add more admins after the group is created.</p>
+      </div>
+    </section>
+
+    <button type="submit"
+      class="h-12 rounded-full bg-lime text-lime-ink text-sm font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition">
+      <span class="material-symbols-outlined text-[20px]">check</span>Create group
+    </button>
+    <p class="text-center text-[11px] text-white/50">An invite code is created for you once the group is saved.</p>
+  </form>
+  <!-- /fragment: new-group-create -->
+
+  <!-- fragment: new-group-join -->
+  <section id="panel-join" class="g-panel hidden flex flex-col gap-4">
+    <div class="glass rounded-3xl p-4 flex flex-col gap-3">
+      <h2 class="text-base font-semibold text-white">Join a group</h2>
+      <p class="text-xs text-white/60">Ask a group admin for their invite code, then enter it below.</p>
+      <div class="flex flex-col gap-1.5">
+        <label for="j-code" class="text-xs text-white/60">Invite code</label>
+        <div class="relative flex items-center">
+          <span class="material-symbols-outlined absolute left-3.5 text-white/40 text-[20px]">tag</span>
+          <input id="j-code" type="text" placeholder="TRADERS-K42" autocapitalize="characters"
+            class="w-full py-3 pl-11 pr-4 rounded-2xl bg-white/5 border border-white/10 text-sm uppercase text-white placeholder:text-white/40 focus:outline-none focus:border-lime/60 focus:bg-white/10 transition-all">
+        </div>
+        <p id="j-err" class="hidden text-xs font-semibold text-red-300">We could not find a group with that code.</p>
+        <p class="text-[11px] text-white/40">Demo code: TRADERS-K42</p>
+      </div>
+      <button id="j-find" type="button"
+        class="h-12 rounded-full bg-azure text-white text-sm font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition">
+        <span class="material-symbols-outlined text-[20px]">search</span>Find group
+      </button>
+    </div>
+
+    <div id="j-card" class="hidden glass rounded-3xl p-4 flex flex-col gap-3">
+      <div class="flex items-start justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="size-11 rounded-2xl bg-azure text-white flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[24px]">diversity_3</span></div>
+          <div class="min-w-0">
+            <p class="text-sm font-semibold text-white truncate">Lagos Traders Circle</p>
+            <p class="text-[10px] uppercase tracking-wider text-white/50"># TRADERS-K42</p>
+          </div>
+        </div>
+        <span class="shrink-0 rounded-full bg-warn/15 px-2.5 py-1 text-[10px] font-semibold uppercase text-warn">Forming</span>
+      </div>
+      <div class="grid grid-cols-3 gap-2 text-center">
+        <div class="rounded-2xl bg-white/5 p-2.5"><p class="text-sm font-semibold text-white">6/10</p><p class="text-[10px] uppercase text-white/50">Members</p></div>
+        <div class="rounded-2xl bg-white/5 p-2.5"><p class="text-sm font-semibold text-lime">₦5,000</p><p class="text-[10px] uppercase text-white/50">Per day</p></div>
+        <div class="rounded-2xl bg-white/5 p-2.5"><p class="text-sm font-semibold text-white">14 days</p><p class="text-[10px] uppercase text-white/50">Round</p></div>
+      </div>
+      <p class="text-xs text-white/60">Pot per round: <span class="font-semibold text-white">₦700,000</span> · Admin: Tunde Bello</p>
+      <button id="j-join" type="button"
+        class="h-12 rounded-full bg-lime text-lime-ink text-sm font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition">
+        <span class="material-symbols-outlined text-[20px]">send</span>Ask to join
+      </button>
+    </div>
+
+    <div id="j-done" class="hidden glass rounded-3xl p-6 flex flex-col items-center text-center gap-3">
+      <div class="size-16 rounded-full bg-warn text-lime-ink flex items-center justify-center"><span class="material-symbols-outlined fill-1 text-[36px]">hourglass_top</span></div>
+      <h3 class="text-lg font-semibold text-white">Request sent</h3>
+      <p class="text-sm text-white/60 max-w-xs">The group admin will review your request. You will be notified once you are in.</p>
+      <a href="/groups" class="mt-1 h-11 px-6 rounded-full bg-lime text-lime-ink text-sm font-semibold flex items-center justify-center active:scale-[0.98] transition">Back to groups</a>
+    </div>
+  </section>
+  <!-- /fragment: new-group-join -->
+</main>
+
+<script>
+(function () {
+  var members = 8, daily = 2500, round = 21;
+  function el(id) { return document.getElementById(id); }
+  function naira(n) { return '₦' + Math.round(n).toLocaleString('en-US'); }
+
+  /* Tabs */
+  var tabs = document.querySelectorAll('.g-tab');
+  var panels = { create: el('panel-create'), join: el('panel-join') };
+  tabs.forEach(function (t) {
+    t.addEventListener('click', function () {
+      var name = t.getAttribute('data-tab');
+      tabs.forEach(function (x) {
+        var on = x === t;
+        x.classList.toggle('bg-white/15', on);
+        x.classList.toggle('text-white', on);
+        x.classList.toggle('text-white/60', !on);
+      });
+      Object.keys(panels).forEach(function (k) { panels[k].classList.toggle('hidden', k !== name); });
+    });
+  });
+
+  /* Create: live summary */
+  function update() {
+    el('m-val').textContent = members;
+    el('f-members').value = members;
+    el('f-round').value = round;
+    el('s-pot').textContent = naira(members * daily * round);
+    el('s-mine').textContent = naira(daily * round);
+    el('s-cycle').textContent = (members * round) + ' days';
+    el('s-day').textContent = naira(members * daily) + ' / day';
+    document.querySelectorAll('.d-chip').forEach(function (c) {
+      var on = parseInt(c.getAttribute('data-d'), 10) === daily;
+      c.classList.toggle('bg-lime/20', on); c.classList.toggle('ring-1', on);
+      c.classList.toggle('ring-lime/60', on); c.classList.toggle('bg-white/10', !on);
+    });
+    document.querySelectorAll('.r-chip').forEach(function (c) {
+      var on = parseInt(c.getAttribute('data-r'), 10) === round;
+      c.classList.toggle('bg-lime/20', on); c.classList.toggle('ring-1', on);
+      c.classList.toggle('ring-lime/60', on); c.classList.toggle('bg-white/10', !on);
+    });
+  }
+  el('m-minus').addEventListener('click', function () { members = Math.max(3, members - 1); update(); });
+  el('m-plus').addEventListener('click', function () { members = Math.min(20, members + 1); update(); });
+  document.querySelectorAll('.d-chip').forEach(function (c) {
+    c.addEventListener('click', function () {
+      daily = parseInt(c.getAttribute('data-d'), 10);
+      el('g-daily').value = daily.toLocaleString('en-US');
+      update();
+    });
+  });
+  document.querySelectorAll('.r-chip').forEach(function (c) {
+    c.addEventListener('click', function () { round = parseInt(c.getAttribute('data-r'), 10); update(); });
+  });
+  el('g-daily').addEventListener('input', function () {
+    var n = parseInt(el('g-daily').value.replace(/[^0-9]/g, ''), 10);
+    daily = isNaN(n) ? 0 : n;
+    update();
+  });
+  el('g-daily').addEventListener('blur', function () {
+    if (daily < 500) daily = 500;
+    el('g-daily').value = daily.toLocaleString('en-US');
+    update();
+  });
+  update();
+
+  /* Join with code (mock lookup) */
+  el('j-find').addEventListener('click', function () {
+    var code = el('j-code').value.replace(/[#\s]/g, '').toUpperCase();
+    var ok = code === 'TRADERS-K42';
+    el('j-err').classList.toggle('hidden', ok);
+    el('j-card').classList.toggle('hidden', !ok);
+    el('j-card').classList.toggle('flex', ok);
+  });
+  el('j-join').addEventListener('click', function () {
+    el('j-card').classList.add('hidden');
+    el('j-card').classList.remove('flex');
+    el('j-done').classList.remove('hidden');
+    el('j-done').classList.add('flex');
+  });
+})();
+</script>
+{% endblock %}
