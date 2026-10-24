@@ -57,7 +57,7 @@
       <span class="text-[10px] font-semibold uppercase tracking-widest text-lime">Step 1 of 4</span>
     </div>
     <h2 class="text-2xl font-semibold tracking-tight text-white">Select source plan</h2>
-    <p class="text-sm text-white/60 mt-1">Choose the savings plan you want to withdraw from.</p>
+    <p class="text-sm text-white/60 mt-1">Choose the savings plan or group share you want to withdraw from.</p>
   </section>
   <!-- /fragment: withdraw-plan-intro -->
 
@@ -80,8 +80,8 @@
       <span class="material-symbols-outlined text-[20px]">verified_user</span>
     </div>
     <div>
-      <p class="text-[10px] font-semibold uppercase tracking-wider text-white/60">No penalty policy</p>
-      <p class="text-xs text-white/60 mt-0.5 leading-relaxed">Flexible plans can be withdrawn from at any time with no early-withdrawal fee.</p>
+      <p class="text-[10px] font-semibold uppercase tracking-wider text-white/60">How withdrawals work</p>
+      <p class="text-xs text-white/60 mt-0.5 leading-relaxed">Personal plans are paid out instantly with no early-withdrawal fee. Group shares need approval from a group admin first.</p>
     </div>
   </div>
   <!-- /fragment: withdraw-plan-policy -->
@@ -113,10 +113,11 @@
 <script>
 (function () {
   var plans = [
-    { id: 'emergency', name: 'Emergency Liquidity Vault', icon: 'security', daily: 5000, avail: 1420000, tone: 'ahead', note: '5 days ahead' },
-    { id: 'real-estate', name: 'Real Estate Buffer', icon: 'domain', daily: 7500, avail: 845000, tone: 'ok', note: 'Up to date' },
-    { id: 'family-health', name: 'Family Health Reserve', icon: 'favorite', daily: 2000, avail: 220000, tone: 'behind', note: '1 day behind (₦2,000 due)' },
-    { id: 'tech-hardware', name: 'Tech Hardware Refresh', icon: 'devices', daily: 1500, avail: 165000, tone: 'ahead', note: '3 days ahead' }
+    { id: 'emergency', name: 'Emergency Liquidity Vault', icon: 'security', kind: 'Daily savings', daily: 5000, avail: 1420000, tone: 'ahead', note: '5 days ahead' },
+    { id: 'real-estate', name: 'Real Estate Buffer', icon: 'domain', kind: 'Daily savings', daily: 7500, avail: 845000, tone: 'ok', note: 'Up to date' },
+    { id: 'family-health', name: 'Family Health Reserve', icon: 'favorite', kind: 'Daily savings', daily: 2000, avail: 220000, tone: 'behind', note: '1 day behind (₦2,000 due)' },
+    { id: 'tech-hardware', name: 'Tech Hardware Refresh', icon: 'devices', kind: 'Daily savings', daily: 1500, avail: 165000, tone: 'ahead', note: '3 days ahead' },
+    { id: 'founders', name: 'Founders Tech Stash (my share)', icon: 'diversity_3', kind: 'Group share', daily: 2500, avail: 155000, tone: 'ahead', note: 'Admin approval', group: true }
   ];
   var tones = {
     ahead: 'bg-lime/15 text-lime',
@@ -135,6 +136,7 @@
 
   function card(p) {
     var on = p.id === selected.id;
+    var noteTone = p.group ? 'bg-warn/15 text-warn' : tones[p.tone];
     return '<button type="button" data-id="' + p.id + '" class="plan glass w-full text-left rounded-3xl p-4 transition-all ' +
       (on ? 'ring-2 ring-lime/70' : 'hover:bg-white/10') + '">' +
       '<div class="flex items-start gap-3">' +
@@ -143,13 +145,13 @@
         '<div class="flex-1 min-w-0">' +
           '<div class="flex items-start justify-between gap-2">' +
             '<div class="min-w-0"><h3 class="text-sm font-semibold text-white truncate">' + p.name + '</h3>' +
-            '<p class="text-[11px] text-white/50 mt-0.5">Daily savings • ₦' + p.daily.toLocaleString('en-US') + ' / day</p></div>' +
+            '<p class="text-[11px] text-white/50 mt-0.5">' + p.kind + ' • ₦' + p.daily.toLocaleString('en-US') + ' / day</p></div>' +
             (on ? '<span class="shrink-0 rounded-full bg-lime text-lime-ink px-2 py-0.5 text-[10px] font-semibold uppercase flex items-center gap-1"><span class="material-symbols-outlined fill-1 text-[13px]">check_circle</span>Selected</span>' : '') +
           '</div>' +
           '<div class="mt-3 flex items-end justify-between gap-2">' +
             '<div><p class="text-[10px] uppercase text-white/50">Available</p>' +
             '<p class="text-lg font-semibold tracking-tight ' + (on ? 'text-lime' : 'text-white') + '">' + money(p.avail) + '</p></div>' +
-            '<span class="rounded-md px-2 py-1 text-[10px] font-semibold ' + tones[p.tone] + '">' + p.note + '</span>' +
+            '<span class="rounded-md px-2 py-1 text-[10px] font-semibold ' + noteTone + '">' + p.note + '</span>' +
           '</div>' +
         '</div>' +
       '</div></button>';
