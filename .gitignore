@@ -3,3 +3,4 @@ i*.swp
 *.swo
 .env
 /target
+*.swp
