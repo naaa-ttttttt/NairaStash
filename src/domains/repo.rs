@@ -35,16 +35,17 @@ pub async fn create_pending_deposits(
     amount: i64,
     deposit_type: DepositTpye,
 ) -> Result<DepositRecord, sqlx::Error> {
-    
-
-
-
-
-
-
-
-
-
-
-
+    sqlx::query_as::<_, DepositRecord>(
+        r#"
+        INSERT INTO deposits (user_id, plan_id, amount, deposit_type, status)
+        VALUES ($1, $2, $3, $4, 'pending')
+        RETURNING deposit_id, user_id, plan_id, amount, status, create_at, deposit_type
+        "#
+    )    
+    .bind(user_id)
+    .bind(plan_id)
+    .bind(amount)
+    .bind(deposit_type)
+    .fetch_one(pool)
+    .await?
 }
