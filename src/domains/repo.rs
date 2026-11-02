@@ -49,3 +49,20 @@ pub async fn create_pending_deposits(
     .fetch_one(pool)
     .await?
 }
+
+pub async fn get_deposit_by_reference(
+    pool: &Pool<Postgres>,
+    reference_id: &str,
+) -> Result<Option<DepositRecord, sqlx::Error>> {
+    sqlx::query_as::<_, DepositRecord>(
+        r#"
+        SELECT deposit_id, user_id, plan_id, amount, status, create_at, deposit_type
+        FROM deposits   
+        WHERE reference = $1
+        "#
+    )
+
+    .bind(reference_id)
+    .fetch_optional(pool)
+    .await?
+}
