@@ -52,7 +52,7 @@ pub async fn create_pending_deposits(
 
 pub async fn get_deposit_by_reference(
     pool: &Pool<Postgres>,
-    reference_id: &str,
+    reference: &str,
 ) -> Result<Option<DepositRecord, sqlx::Error>> {
     sqlx::query_as::<_, DepositRecord>(
         r#"
@@ -62,7 +62,28 @@ pub async fn get_deposit_by_reference(
         "#
     )
 
-    .bind(reference_id)
+    .bind(reference)
     .fetch_optional(pool)
     .await?
 }
+
+
+pub async fn update_deposits_status(
+    pool: &Pool<Postgres>,
+    reference: &str,
+) -> Result<DepositRecord, sqlx::Error> {
+    sqlx::query_as::<_, DepositRecord>(
+        r#"
+        UPDATE deposits 
+        SET status = $1 
+        WHERE reference = $2
+        RETURNING deposit_id, user_id, plan_id, amount, status, create_at, deposit_type
+        "#
+    )
+
+    .bind(status)
+    .bind(reference)
+    .fetch_one(pool)
+    .await?
+}
+
