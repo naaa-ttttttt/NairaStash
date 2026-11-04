@@ -60,10 +60,22 @@ pub async fn initialize_payment(
 }
 
 
-pub async fn verify__paystack_signature(
+pub fn verify__paystack_signature(
     payload_bytes: &[u8],
     header_signature: &str,
     secret_key: &str,
 ) -> bool {
-    
+   type HmacSha512 = Hmac<Sha512>;
+
+   let mut mac = HmacSha512::new_from_slice(secret_key.as_bytes()).expect("Hmac can take key of any size");
+
+   mac.update(payload_bytes);
+   let result = mac.finalize();
+   let code_bytes = result.into_bytes();
+   
+   let my_hex_string = hex::encode(code_bytes);
+
+   let equality_check = my_hex_string.as_bytes().ct_eq(header_signature.as_bytes());
+   equality_check.into()
+
 }
