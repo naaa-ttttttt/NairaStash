@@ -59,3 +59,11 @@ pub async fn initialize_payment(
     Ok(parsed_response.data.authorization_url)
 }
 
+
+pub async fn verify__paystack_signature(
+    payload_bytes: &[u8],
+    header_signature: &str,
+    secret_key: &str,
+) -> bool {
+    
+}
