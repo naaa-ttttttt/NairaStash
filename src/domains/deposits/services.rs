@@ -9,6 +9,12 @@ pub enum DepositError {
    DatabaseError(sqlx::Error),
 }
 
+impl From<sqlx::Error> for DepositError {
+    fn from(err: sqlx::Error) -> Self {
+        DepositError::DatabaseError(err)
+    }
+}
+
 pub async fn process_deposit_webhook(
     pool: &PgPool,
     payload: PaystackWebhook,
