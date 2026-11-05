@@ -51,7 +51,7 @@ pub async fn handle_paystack_webhook(
     }
 
 
-    let payload: super::dto::PaystackWebhook = match serde_json::from_slice(&raw_bytes) {
+    let payload: PaystackWebhook = match serde_json::from_slice(&raw_bytes) {
         Ok(data) => data,
         Err(_) => return StatusCode::BAD_REQUEST.into_response(),
     }
