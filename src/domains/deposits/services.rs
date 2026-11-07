@@ -51,18 +51,32 @@ pub async fn process_deposit_webhook(
 
     match payload.data.status.as_str() {
         "success" => {
+            let mut tx = pool.begin().await?;
+
             update_deposits_status(
-                pool,
+                &mut *tx,
                 &payload.data.reference,
                 TransactionStatus::Successful,
             ).await?;
+            update_wallet_balance(
+                &mut *tx,
+                &deposits.user_id,
+                payload.data.amount,
+            ).await?;
+
+            tx.commit().await?;
         }
         "failed" => {
+
+            let mut tx = pool.begin().await?;
+
             Update_deposits_status(     
                 pool,
                 &payload.data.reference,
                 TransactionStatus::Failed,
             ).await?;
+
+            tx.commit().await?;
         }
         _ => return Err(DepositError::InvalidStatus),
     }
