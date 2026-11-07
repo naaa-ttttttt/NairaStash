@@ -69,7 +69,7 @@ pub async fn get_deposit_by_reference(
 
 
 pub async fn update_deposits_status(
-    pool: &Pool<Postgres>,
+    transaction: &mut sqlx::Transaction<'_, sqlx::Postgres>,
     reference: &str,
     status: TransactionStatus,
 ) -> Result<DepositRecord, sqlx::Error> {
