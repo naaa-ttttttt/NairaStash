@@ -26,17 +26,19 @@ pub async fn process_deposit_webhook(
     }
 
 
-    let deposits = match super::repo::get_deposit_by_reference(pool, &payload.data.id).await? {
+    //idempotency check, for reference
+    let deposits = match super::repo::get_deposit_by_reference(pool, &payload.data.reference).await? {
         Some(record) => record,
         None => return Err(DepositError::NotFound),
     }
 
+    // a check if the idempotency key has been processed or not
     if deposits.status != TransactionStatus::Pending {
         return Ok(());
     }
 
     if payload.data.status != "Success" {
-        return Err("Deposits failes".into());
+        return Err(DepositError::InvalidStatus);
     }
 
     if payload.data.currency != "NGN" {
@@ -47,7 +49,23 @@ pub async fn process_deposit_webhook(
         return Err(DepositError::AmountMismatch)
     }
 
-
-
+    match payload.data.status.as_str() {
+        "success" => {
+            update_deposits_status(
+                pool,
+                &payload.data.reference,
+                TransactionStatus::Successful,
+            ).await?;
+        }
+        "failed" => {
+            Update_deposits_status(     
+                pool,
+                &payload.data.reference,
+                TransactionStatus::Failed,
+            ).await?;
+        }
+        _ => return Err(DepositError::InvalidStatus),
+    }
+    
     Ok(())
 }
