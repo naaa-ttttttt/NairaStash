@@ -88,3 +88,11 @@ pub async fn update_deposits_status(
     .await?
 }
 
+
+update_wallet_balance(
+    transaction:&mut sqlx::Transaction<'_, sqlx::Postgres>,
+    user_id: &uuid::Uuid, 
+    amount_in_kobo: i64,
+) -> Result<(), sqlx::Error> {
+
+}
