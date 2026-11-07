@@ -84,15 +84,26 @@ pub async fn update_deposits_status(
 
     .bind(status)
     .bind(reference)
-    .fetch_one(pool)
+    .fetch_one(transaction)
     .await?
 }
 
 
-update_wallet_balance(
+pub async fn update_wallet_balance(
     transaction:&mut sqlx::Transaction<'_, sqlx::Postgres>,
     user_id: &uuid::Uuid, 
     amount_in_kobo: i64,
 ) -> Result<(), sqlx::Error> {
+    slqx::query(
+    r#"
+        UPDATE wallets SET balance = balance + $1 
+        WHERE user_id = $2
+    "#
 
+    .bind(amount_in_kobo)
+    .bind(user_id)
+    .execute(&mut **transaction)
+    .await?;
+
+    Ok(())
 }
