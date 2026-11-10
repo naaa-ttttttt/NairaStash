@@ -389,29 +389,58 @@
     }
 
     function initiate() {
-      clearError();
-      amount = amountValue();
-      if (amount < 100) return showError('Minimum deposit is ₦100.');
+    clearError();
+    amount = amountValue();
+    if (amount < 100) return showError('Minimum deposit is ₦100.');
 
-      busy = true;
-      $('primary-btn').disabled = true;
-      $('primary-label').textContent = 'Generating…';
-
-      setTimeout(() => {
-        const acct = generateAccount();
-        resetTransfer();
-        $('d-bank').textContent = acct.bank;
-        $('d-acct').textContent = acct.number;
-        $('d-name').textContent = 'THRIFT VAULT / ' + plan().dataset.name.toUpperCase();
-        $('d-amount').textContent = naira(amount);
-        $('d-amount').dataset.raw = String(amount);
-
-        expiresAtMs = Date.now() + WINDOW_SECONDS * 1000;
-        goTo(3);
-        tick();
-        tickTimer = setInterval(tick, 1000);
-      }, 1200);
+    busy = true;
+    const btn = document.getElementById('primary-btn');
+    const label = document.getElementById('primary-label');
+    
+    if (btn && label) {
+        btn.disabled = true;
+        label.textContent = 'Connecting to Paystack...';
     }
+
+    const userEmail = "natty@example.com"; 
+
+    fetch('/api/deposits/initialize', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+            email: userEmail,
+            amount: amount
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Server returned an error status.");
+        }
+        // Read the raw text response body directly (which contains our checkout link)
+        return response.text();
+    })
+    .then(checkoutUrl => {
+        if (checkoutUrl && checkoutUrl.startsWith('http')) {
+            // Success! Manually force the browser window to hop over to the Paystack gateway room
+            window.location.href = checkoutUrl;
+        } else {
+            throw new Error("Invalid URL signature returned from backend server.");
+        }
+    })
+    .catch(err => {
+        busy = false;
+        if (btn && label) {
+            btn.disabled = false;
+            label.textContent = 'Generate account number →';
+        }
+        showError("Could not connect to payment gateway. Please try again.");
+        console.error("Naira Stash Network Handshake Error: ", err);
+    });
+}
+
+
 
     /* ---------- fake "I've made the transfer" ---------- */
     function confirmTransfer() {
