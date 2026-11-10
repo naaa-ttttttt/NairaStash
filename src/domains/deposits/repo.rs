@@ -22,9 +22,10 @@ pub struct DepositRecord {
     pub deposit_id: Uuid,
     pub user_id: Uuid,
     pub plan_id: Uuid,
+    pub reference: String,
     pub amount: i64,
     pub status: TransactionStatus,
-    pub create_at: DateTime<Utc>,
+    pub created_at: DateTime<Utc>,
     pub deposit_type: DepositType,
 }
 
@@ -32,22 +33,28 @@ pub async fn create_pending_deposits(
     pool: &Pool<Postgres>,
     user_id: Uuid,
     plan_id: Uuid,
+    reference: &str,
     amount: i64,
     deposit_type: DepositType,
 ) -> Result<DepositRecord, sqlx::Error> {
+    // the table has no default for deposit_id, so we make it here
+    let deposit_id = Uuid::new_v4();
+
     sqlx::query_as::<_, DepositRecord>(
         r#"
-        INSERT INTO deposits (user_id, plan_id, amount, deposit_type, status)
-        VALUES ($1, $2, $3, $4, 'pending')
-        RETURNING deposit_id, user_id, plan_id, amount, status, create_at, deposit_type
+        INSERT INTO deposits (deposit_id, user_id, plan_id, reference, amount, deposit_type, status)
+        VALUES ($1, $2, $3, $4, $5, $6, 'pending')
+        RETURNING deposit_id, user_id, plan_id, reference, amount, status, created_at, deposit_type
         "#
     )
+    .bind(deposit_id)
     .bind(user_id)
     .bind(plan_id)
+    .bind(reference)
     .bind(amount)
     .bind(deposit_type)
     .fetch_one(pool)
-    .await
+    .await // no semicolon
 }
 
 pub async fn get_deposit_by_reference(
@@ -56,14 +63,14 @@ pub async fn get_deposit_by_reference(
 ) -> Result<Option<DepositRecord>, sqlx::Error> {
     sqlx::query_as::<_, DepositRecord>(
         r#"
-        SELECT deposit_id, user_id, plan_id, amount, status, create_at, deposit_type
+        SELECT deposit_id, user_id, plan_id, reference, amount, status, created_at, deposit_type
         FROM deposits
         WHERE reference = $1
         "#
     )
     .bind(reference)
     .fetch_optional(pool)
-    .await
+    .await // no semicolon
 }
 
 pub async fn update_deposits_status(
@@ -76,13 +83,13 @@ pub async fn update_deposits_status(
         UPDATE deposits
         SET status = $1
         WHERE reference = $2
-        RETURNING deposit_id, user_id, plan_id, amount, status, create_at, deposit_type
+        RETURNING deposit_id, user_id, plan_id, reference, amount, status, created_at, deposit_type
         "#
     )
     .bind(status)
     .bind(reference)
-    .fetch_one(&mut **transaction) // Restored to clean mutable borrow
-    .await
+    .fetch_one(&mut **transaction)
+    .await // no semicolon
 }
 
 pub async fn update_wallet_balance(
@@ -92,16 +99,15 @@ pub async fn update_wallet_balance(
 ) -> Result<(), sqlx::Error> {
     sqlx::query(
         r#"
-        UPDATE wallets 
+        UPDATE wallets
         SET balance = balance + $1
         WHERE user_id = $2
         "#
     )
     .bind(amount_in_kobo)
     .bind(user_id)
-    .execute(&mut **transaction) // Restored to clean mutable borrow
+    .execute(&mut **transaction)
     .await?;
 
-    Ok(())
+    Ok(()) // no semicolon
 }
-
