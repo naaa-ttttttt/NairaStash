@@ -24,27 +24,44 @@ pub struct PaystackResponseData {
     pub authorization_url: String,
 }
 
-// where paystack sends the user's browser after paying
-fn read_callback_url() -> String {
-    let default_url = "http://127.0.0.1:3000/".to_string();
-    env::var("APP_CALLBACK_URL").unwrap_or(default_url) // no semicolon
+#[derive(Clone)]
+pub struct PaystackConfig {
+    pub secret_key: String,
+    pub callback_url: String
 }
+
+pub fn read_required_env(name: &str) -> Result<String, String> {
+    // reading paystack secret key from the env file
+    let raw_value = env::var(name).map_err(|_| format!("{} is not set", name))?;
+    let trimmed_value = raw_value.trim().to_string();
+
+    if trimmed_value.is_empty() {
+        return Err(format!("{} is empty", name));
+    }
+
+    Ok(trimmed_value)
+}
+
+pub fn load_paystack_config() -> Result<PaystackConfig, String> {
+    let secret_key = read_required_env("PAYSTACK_SECRET_KEY")?;
+    let callback_url = read_required_env("APP_CALLBACK_URL")?;
+
+    Ok(PaystackConfig { secret_key, callback_url })
+}
+
 
 pub async fn initialize_payment(
     email: &str,
     amount: i64,
     reference: &str,
+    config: &PaystackConfig,
 ) -> Result<String, reqwest::Error> {
-    let secret_key = env::var("PAYSTACK_SECRET_KEY")
-        .unwrap_or_else(|_| "sk_test_placeholder".to_string());
-
-    let callback_url = read_callback_url();
-
     let payload = InitializePaymentRequest {
         email,
         amount,
         reference,
-        callback_url: &callback_url,
+        callback_url: &config.callback_url,
+
     };
 
     let client = Client::new();
@@ -52,7 +69,7 @@ pub async fn initialize_payment(
     // FIXED API ENDPOINT PATH:
     let response = client
         .post("https://api.paystack.co/transaction/initialize")
-        .header("Authorization", format!("Bearer {}", secret_key))
+        .header("Authorization", format!("Bearer {}", config.secret_key))
         .header("Content-Type", "application/json")
         .json(&payload)
         .send()
