@@ -9,6 +9,7 @@ use uuid::Uuid;
 
 use crate::AppState;
 use super::pay_stack::verify_paystack_signature;
+use super::services::DepositError;
 
 #[derive(Debug, Deserialize)]
 pub struct PaystackWebhook {
@@ -37,6 +38,20 @@ pub struct DepositFormInput {
     pub amount: i64,
 }
 
+// decides what to tell paystack
+// 200 means stop retrying, 500 means try again later
+fn webhook_status_for(error: &DepositError) -> StatusCode {
+    match error {
+        DepositError::DatabaseError(_) | DepositError::WalletNotFound => {
+            StatusCode::INTERNAL_SERVER_ERROR
+        }
+        DepositError::NotFound
+        | DepositError::AmountMismatch
+        | DepositError::InvalidCurrency
+        | DepositError::InvalidStatus => StatusCode::OK,
+    }
+}
+
 pub async fn handle_paystack_webhook(
     State(state): State<AppState>,
     headers: HeaderMap,
@@ -48,10 +63,10 @@ pub async fn handle_paystack_webhook(
         None => return StatusCode::BAD_REQUEST.into_response(),
     };
 
-    let secret_key = std::env::var("PAYSTACK_SECRET_KEY").unwrap_or_else(|_| "".to_string());
+    let secret_key = &state.paystack.secret_key;
 
     // 2. GUARDS
-    let is_valid = verify_paystack_signature(&raw_bytes, header_signature, &secret_key);
+    let is_valid = verify_paystack_signature(&raw_bytes, header_signature, secret_key);
     if !is_valid {
         return StatusCode::UNAUTHORIZED.into_response();
     }
@@ -64,7 +79,7 @@ pub async fn handle_paystack_webhook(
     // 3. TRANSFORMATIONS
     if let Err(err) = super::services::process_deposit_webhook(&state.db, payload).await {
         eprintln!("Webhook processing failed: {:?}", err);
-        return StatusCode::INTERNAL_SERVER_ERROR.into_response();
+        return webhook_status_for(&err).into_response();
     }
 
     // 4. OUTPUTS
@@ -103,8 +118,13 @@ pub async fn initialize_deposit_handler(
     }
 
     // 3. Fire outbound call
-    match super::pay_stack::initialize_payment(&input.email, amount_in_kobo, &tracking_reference)
-        .await
+    match super::pay_stack::initialize_payment(
+        &input.email,
+        amount_in_kobo,
+        &tracking_reference,
+        &state.paystack,
+    )
+    .await
     {
         Ok(checkout_url) => {
             println!("SUCCESS: Paystack Link Generated: {}", checkout_url);
@@ -127,4 +147,3 @@ pub async fn initialize_deposit_handler(
         }
     }
 }
-
