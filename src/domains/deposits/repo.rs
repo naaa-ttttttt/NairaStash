@@ -73,31 +73,34 @@ pub async fn get_deposit_by_reference(
     .await // no semicolon
 }
 
-pub async fn update_deposits_status(
+// moves a deposit out of pending, only if it is still pending
+// gives back None when someone else already settled it
+pub async fn claim_pending_deposit(
     transaction: &mut sqlx::Transaction<'_, Postgres>,
     reference: &str,
-    status: TransactionStatus,
-) -> Result<DepositRecord, sqlx::Error> {
+    new_status: TransactionStatus,
+) -> Result<Option<DepositRecord>, sqlx::Error> {
     sqlx::query_as::<_, DepositRecord>(
         r#"
         UPDATE deposits
         SET status = $1
-        WHERE reference = $2
+        WHERE reference = $2 AND status = 'pending'
         RETURNING deposit_id, user_id, plan_id, reference, amount, status, created_at, deposit_type
         "#
     )
-    .bind(status)
+    .bind(new_status)
     .bind(reference)
-    .fetch_one(&mut **transaction)
+    .fetch_optional(&mut **transaction)
     .await // no semicolon
 }
 
+// adds money to the wallet, gives back true only when exactly one wallet changed
 pub async fn update_wallet_balance(
     transaction: &mut sqlx::Transaction<'_, Postgres>,
     user_id: Uuid,
     amount_in_kobo: i64,
-) -> Result<(), sqlx::Error> {
-    sqlx::query(
+) -> Result<bool, sqlx::Error> {
+    let result = sqlx::query(
         r#"
         UPDATE wallets
         SET balance = balance + $1
@@ -109,5 +112,7 @@ pub async fn update_wallet_balance(
     .execute(&mut **transaction)
     .await?;
 
-    Ok(()) // no semicolon
+    let wallet_was_credited = result.rows_affected() == 1;
+
+    Ok(wallet_was_credited) // no semicolon
 }
