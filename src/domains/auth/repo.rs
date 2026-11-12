@@ -43,7 +43,6 @@ pub async fn create_wallet(
     sqlx::query(
         r#"
         INSERT INTO wallets
-        (wallet_id, user_id)
         VALUES ($1, $2)
         "#
     )
