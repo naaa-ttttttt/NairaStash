@@ -31,12 +31,17 @@ pub fn clean_name(name: &str) -> Result<String, SignupError> {
     Ok(cleaned.to_string())
 }
 
+// function to verify email.
 pub fn clean_email(email: &str) -> Result<String, SignupError> {
-    let trimmed_email = email.trim().to_lowercase();
+    let email = email.trim().to_lowercase();
 
-    if !trimmed_email.contains('@') {
+    let Some((local, domain)) = email.split_once('@') else {
+        return Err(SignupError::InvalidEmail);
+    };
+
+    if local.is_empty() || !domain.contains('.') || domain.starts_with('.') || domain.ends_with('.') {
         return Err(SignupError::InvalidEmail);
     }
 
-    Ok(trimmed_email.to_string)
+    Ok(email)
 }
