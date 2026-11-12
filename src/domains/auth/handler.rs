@@ -17,4 +17,9 @@ pub struct SignupForm {
     password: String,
 }
 
-
+fn signup_handler(
+    State(state): State<AppState>,
+    Form(input): Form<SignupForm>,
+) -> Response {
+    
+}
