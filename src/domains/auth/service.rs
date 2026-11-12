@@ -78,16 +78,28 @@ pub fn normalise_phone(phone: &str) -> Result<String, SignupError> {
 }
 
 // function to validate password
-pub fn check_password(password: &str) -> Result<String, SignupError> {
+pub fn check_password(password: &str) -> Result<(), SignupError> {
     let long_enough = password.chars().count() >= 8;
     let has_upper = password.chars().any(|c| c.is_uppercase());
     let has_lower = password.chars().any(|c| c.is_lowercase());
     let has_symbol = password.chars().any(|c| !c.is_alphanumeric() && !c.is_whitespace());
+    let has_digit = password.chars().any(|c| c.is_ascii_digit());
 
-    if !long_enough || !has_upper || !has_lower || !has_symbol {
+    if !long_enough || !has_upper || !has_lower || !has_symbol || !has_digit {
         return Err(SignupError::WeakPassword);
     }
 
     Ok(())
 }
-} 
+
+// function to hash password
+pub fn hash_password(password: &str) -> Result<String, SignupError> {
+   let salt = SaltString::generate(&mut OsRng);
+
+   let hash = Argon2::default()
+    .hash_password(password.as_bytes(), &salt)
+    .map_err(|_| SignupError::HashingFailed)?
+    .to_string();
+
+    Ok(hash)
+}
