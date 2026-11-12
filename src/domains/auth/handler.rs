@@ -9,6 +9,7 @@ use serde::Deserialize;
 use crate::AppState;
 use super::services::{signup_user, SignupError, SignupInput};
 
+#[derive(Deserialize)]
 pub struct SignupForm {
     name: String, 
     email: String, 
