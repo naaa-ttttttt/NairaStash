@@ -40,5 +40,17 @@ pub async fn create_wallet(
     transaction: &mut sqlx::Transaction<'_, Postgres>,
     new_wallet: NewWallet,
 ) -> Result<(), sqlx::Error> {
+    sqlx::query(
+        r#"
+        INSERT INTO wallets
+        (wallet_id, user_id)
+        VALUES ($1, $2)
+        "#
+    )
+    .bind(new_wallet.wallet_id)
+    .bind(new_wallet.user_id)
+    .execute(&mut **transaction)
+    .await?;
 
+    Ok(())
 }
