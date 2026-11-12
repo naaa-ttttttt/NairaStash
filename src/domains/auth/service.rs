@@ -20,3 +20,13 @@ pub enum SignupError {
     AccountExist,
 }
 
+// function that validates usernames
+pub fn clean_name(name: &str) -> Result<String, SignupError> {
+    let cleaned = name.trim();
+
+    if cleaned.is_empty() || cleaned.len() > 100 {
+        return Err(SignupError::InvalidName);
+    }
+
+    Ok(cleaned.to_string())
+}
