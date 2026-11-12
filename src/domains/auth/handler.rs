@@ -37,3 +37,24 @@ fn signup_handler(
         }    
     }
 }
+
+// function to map errors status to proper messages
+fn error_status_and_message(err: &SignupError) -> (StatusCode, &'static str) {
+    match err {
+        SignupError::InvalidName => (StatusCode::BAD_REQUEST, "Please enter a valid name."),
+        SignupError::InvalidEmail => (StatusCode::BAD_REQUEST, "Please enter a valid email address."),
+        SignupError::InvalidPhone => (StatusCode::BAD_REQUEST, "Please enter a valid Nigerian phone number."),
+        SignupError::WeakPassword => (
+            StatusCode::BAD_REQUEST,
+            "Password must be at least 8 characters with an uppercase letter, a lowercase letter and a symbol.",
+        ),
+        SignupError::AccountExist => (
+            StatusCode::CONFLICT,
+            "An account with this email or phone number already exists.",
+        ),
+        SignupError::HashingFailed | SignupError::DatabaseError => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "Something went wrong. Please try again later.",
+        ),
+    }
+}
