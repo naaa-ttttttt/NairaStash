@@ -18,6 +18,8 @@ pub enum SignupError {
     InvalidPhone,
     WeakPassword,
     AccountExist,
+    HashingFailed,
+    DatabaseError,
 }
 
 // function that validates usernames
