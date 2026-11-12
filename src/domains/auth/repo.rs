@@ -14,9 +14,24 @@ pub struct NewWallet {
     user_id: Uuid,
 }
 
-fn create_user(
+pub async fn create_user(
     transaction: &mut sqlx::Transaction<'_, Postgres>,
     new_user: NewUser,
 ) -> Result<(), sqlx::Error> {
+    sqlx::query(
+        r#"
+        INSERT INTO users 
+        (user_id, name, email, phone, hashed_password)
+        VALUES ($1, $2, $3, $4, $5) 
+        "#
+    )
+    .bind(new_user.user_id)
+    .bind(new_user.name)
+    .bind(new_user.email)
+    .bind(new_user.phone)
+    .bind(new_user.hashed_password)
+    .execute(&mut **transaction)
+    .await?;
 
+    Ok(())
 }
