@@ -35,3 +35,10 @@ pub async fn create_user(
 
     Ok(())
 }
+
+pub async fn create_wallet(
+    transaction: &mut sqlx::Transaction<'_, Postgres>,
+    new_wallet: NewWallet,
+) -> Result<(), sqlx::Error> {
+
+}
