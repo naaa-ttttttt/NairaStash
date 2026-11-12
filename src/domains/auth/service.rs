@@ -76,3 +76,18 @@ pub fn normalise_phone(phone: &str) -> Result<String, SignupError> {
     // 4. return the E.164 format
     Ok(format!("+234{}", national))
 }
+
+// function to validate password
+pub fn check_password(password: &str) -> Result<String, SignupError> {
+    let long_enough = password.chars().count() >= 8;
+    let has_upper = password.chars().any(|c| c.is_uppercase());
+    let has_lower = password.chars().any(|c| c.is_lowercase());
+    let has_symbol = password.chars().any(|c| !c.is_alphanumeric() && !c.is_whitespace());
+
+    if !long_enough || !has_upper || !has_lower || !has_symbol {
+        return Err(SignupError::WeakPassword);
+    }
+
+    Ok(())
+}
+} 
