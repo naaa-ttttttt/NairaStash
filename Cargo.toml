@@ -20,3 +20,4 @@ serde_json = "1.0.154"
 subtle = { version = "2.6.1", features = ["std"] }
 uuid = { version = "1.29.1", features = ["v4"] }
 chrono = { version = "0.4.45", features = ["serde"] }
+argon2 = "0.5"
