@@ -29,6 +29,23 @@ pub struct DepositRecord {
     pub deposit_type: DepositType,
 }
 
+// finds the email of a user, paystack needs it to start a payment
+pub async fn get_user_email(
+    pool: &Pool<Postgres>,
+    user_id: Uuid,
+) -> Result<Option<String>, sqlx::Error> {
+    sqlx::query_scalar::<_, String>(
+        r#"
+        SELECT email
+        FROM users
+        WHERE user_id = $1
+        "#
+    )
+    .bind(user_id)
+    .fetch_optional(pool)
+    .await // no semicolon
+}
+
 pub async fn create_pending_deposits(
     pool: &Pool<Postgres>,
     user_id: Uuid,

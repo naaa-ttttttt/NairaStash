@@ -8,6 +8,7 @@ use serde::Deserialize;
 use uuid::Uuid;
 
 use crate::AppState;
+use crate::domains::auth::handlers::AuthUser;
 use super::pay_stack::verify_paystack_signature;
 use super::services::DepositError;
 
@@ -32,9 +33,9 @@ pub struct WebhookCustomer {
     pub email: String,
 }
 
+// only the amount is read from the form, who is paying comes from the session
 #[derive(serde::Deserialize)]
 pub struct DepositFormInput {
-    pub email: String,
     pub amount: i64,
 }
 
@@ -86,26 +87,42 @@ pub async fn handle_paystack_webhook(
     StatusCode::OK.into_response()
 }
 
+// starts a deposit for the logged in user and gives back the paystack checkout link
 pub async fn initialize_deposit_handler(
+    auth: AuthUser,
     State(state): State<AppState>,
     Form(input): Form<DepositFormInput>,
-) -> impl axum::response::IntoResponse {
-    // 1. Convert Naira to Kobo
-    let amount_in_kobo = input.amount * 100;
-    let temp_user_id = Uuid::parse_str("11111111-1111-1111-1111-111111111111").unwrap();
-    let temp_plan_id = Uuid::nil();
+) -> impl IntoResponse {
+    // 1. INPUTS
+    let user_id = auth.user_id;
 
-    // 2. Generate unique tracking reference
+    // 2. GUARDS
+    if input.amount < 1 {
+        return (StatusCode::BAD_REQUEST, "Amount must be at least 1 naira").into_response();
+    }
+
+    let user_email = match super::repo::get_user_email(&state.db, user_id).await {
+        Ok(Some(email)) => email,
+        Ok(None) => return (StatusCode::UNAUTHORIZED, "User not found").into_response(),
+        Err(e) => {
+            println!("DB Error loading user email: {:?}", e);
+            return (StatusCode::INTERNAL_SERVER_ERROR, "Database error").into_response();
+        }
+    };
+
+    // 3. TRANSFORMATIONS
+    let amount_in_kobo = input.amount * 100;
+    let temp_plan_id = Uuid::nil();
     let tracking_reference = format!("NS-DEP-{}", &Uuid::new_v4().to_string()[..8]);
 
     println!(
         "Attempting Paystack Handshake for Email: {}, Amount: {} Kobo",
-        input.email, amount_in_kobo
+        user_email, amount_in_kobo
     );
 
     if let Err(e) = super::repo::create_pending_deposits(
         &state.db,
-        temp_user_id,
+        user_id,
         temp_plan_id,
         &tracking_reference,
         amount_in_kobo,
@@ -114,12 +131,12 @@ pub async fn initialize_deposit_handler(
     .await
     {
         println!("DB Error creating pending deposit: {:?}", e);
-        return (axum::http::StatusCode::INTERNAL_SERVER_ERROR, "Database error").into_response();
+        return (StatusCode::INTERNAL_SERVER_ERROR, "Database error").into_response();
     }
 
-    // 3. Fire outbound call
+    // 4. OUTPUTS
     match super::pay_stack::initialize_payment(
-        &input.email,
+        &user_email,
         amount_in_kobo,
         &tracking_reference,
         &state.paystack,
@@ -128,7 +145,7 @@ pub async fn initialize_deposit_handler(
     {
         Ok(checkout_url) => {
             println!("SUCCESS: Paystack Link Generated: {}", checkout_url);
-            (axum::http::StatusCode::OK, checkout_url).into_response()
+            (StatusCode::OK, checkout_url).into_response()
         }
         Err(err) => {
             eprintln!("CRITICAL PAYSTACK ERROR LOG: {:?}", err);
@@ -140,7 +157,7 @@ pub async fn initialize_deposit_handler(
             }
 
             (
-                axum::http::StatusCode::INTERNAL_SERVER_ERROR,
+                StatusCode::INTERNAL_SERVER_ERROR,
                 "Failed to connect to Paystack gateway",
             )
                 .into_response()
