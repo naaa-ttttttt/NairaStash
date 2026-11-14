@@ -1,13 +1,21 @@
-use argon2::password_hash::{rand_core::OsRng, SaltString};
-use argon2::{Argon2, PasswordHasher};
+use argon2::password_hash::{rand_core::OsRng, PasswordHash, SaltString};
+use argon2::{Argon2, PasswordHasher, PasswordVerifier};
+use chrono::{Duration, Utc};
+use sha2::{Digest, Sha256};
 use sqlx::PgPool;
 use uuid::Uuid;
 
-use super::repo::{create_user, create_wallet, NewUser, NewWallet};
+use super::repo::{
+    create_session, create_user, create_wallet, delete_session, find_active_session_user,
+    find_user_by_email, NewSession, NewUser, NewWallet,
+};
 
 const PASSWORD_MIN_LENGTH: usize = 8;
 const PASSWORD_MAX_LENGTH: usize = 128;
 const NAME_MAX_LENGTH: usize = 100;
+
+// how long a login lasts before the user has to log in again
+pub const SESSION_DAYS: i64 = 7;
 
 // the raw values from the signup form, no debug derive so a password can never be printed
 pub struct SignupInput {
@@ -15,6 +23,8 @@ pub struct SignupInput {
     pub email: String,
     pub phone: String,
     pub password: String,
+    pub confirm_password: String,
+    pub terms_accepted: bool,
 }
 
 #[derive(Debug)]
@@ -23,6 +33,8 @@ pub enum SignupError {
     InvalidEmail,
     InvalidPhone,
     WeakPassword,
+    PasswordMismatch,
+    TermsNotAccepted,
     AccountExist,
     HashingFailed,
     DatabaseError,
@@ -87,7 +99,10 @@ pub fn normalise_phone(phone: &str) -> Result<String, SignupError> {
 
     // 3. validate: exactly 10 digits, starting with 7, 8 or 9
     let has_ten_digits = national.len() == 10 && national.chars().all(|c| c.is_ascii_digit());
-    let starts_correctly = matches!(national.as_bytes().first(), Some(b'7') | Some(b'8') | Some(b'9'));
+    let starts_correctly = matches!(
+        national.as_bytes().first(),
+        Some(b'7') | Some(b'8') | Some(b'9')
+    );
 
     if !has_ten_digits || !starts_correctly {
         return Err(SignupError::InvalidPhone);
@@ -137,6 +152,15 @@ pub async fn signup_user(pool: &PgPool, input: SignupInput) -> Result<(), Signup
     let name = clean_name(&input.name)?;
     let email = clean_email(&input.email)?;
     let phone = normalise_phone(&input.phone)?;
+
+    if !input.terms_accepted {
+        return Err(SignupError::TermsNotAccepted);
+    }
+
+    if input.password != input.confirm_password {
+        return Err(SignupError::PasswordMismatch);
+    }
+
     check_password(&input.password)?;
     let hashed_password = hash_password(&input.password)?;
 
@@ -173,4 +197,98 @@ pub async fn signup_user(pool: &PgPool, input: SignupInput) -> Result<(), Signup
     tx.commit().await.map_err(database_error)?;
 
     Ok(()) // no semicolon
+}
+
+// ---------------------------------------------------------------- login
+
+// the raw values from the login form, no debug derive so a password can never be printed
+pub struct LoginInput {
+    pub email: String,
+    pub password: String,
+}
+
+#[derive(Debug)]
+pub enum LoginError {
+    InvalidCredentials,
+    NotLoggedIn,
+    DatabaseError,
+}
+
+// logs the real database error, then gives back our own error
+fn login_database_error(err: sqlx::Error) -> LoginError {
+    eprintln!("Login database error: {:?}", err);
+    LoginError::DatabaseError // no semicolon
+}
+
+
+fn generate_token() -> String {
+    format!("{}{}", Uuid::new_v4().simple(), Uuid::new_v4().simple())
+}
+
+// the database only ever sees this hash, never the token the browser holds
+fn hash_token(token: &str) -> String {
+    hex::encode(Sha256::digest(token.as_bytes()))
+}
+
+// compares the typed password to the stored argon2 hash
+fn password_matches(password: &str, stored_hash: &str) -> bool {
+    match PasswordHash::new(stored_hash) {
+        Ok(parsed) => Argon2::default()
+            .verify_password(password.as_bytes(), &parsed)
+            .is_ok(),
+        Err(_) => false,
+    }
+}
+
+// checks who the user is, then opens a session and gives back the raw token for the cookie
+pub async fn login_user(pool: &PgPool, input: LoginInput) -> Result<String, LoginError> {
+    // a badly shaped email cannot belong to anyone, so it gets the same error
+    let email = clean_email(&input.email).map_err(|_| LoginError::InvalidCredentials)?;
+
+    // an empty or huge password is never worth hashing
+    if input.password.is_empty() || input.password.chars().count() > PASSWORD_MAX_LENGTH {
+        return Err(LoginError::InvalidCredentials);
+    }
+
+    // no user and wrong password give the same error, so nobody can probe which accounts exist
+    let user = find_user_by_email(pool, &email)
+        .await
+        .map_err(login_database_error)?
+        .ok_or(LoginError::InvalidCredentials)?;
+
+    if !password_matches(&input.password, &user.hashed_password) {
+        return Err(LoginError::InvalidCredentials);
+    }
+
+    let token = generate_token();
+
+    let new_session = NewSession {
+        session_id: Uuid::new_v4(),
+        user_id: user.user_id,
+        token_hash: hash_token(&token),
+        expires_at: Utc::now() + Duration::days(SESSION_DAYS),
+    };
+
+    create_session(pool, new_session)
+        .await
+        .map_err(login_database_error)?;
+
+    Ok(token) // no semicolon
+}
+
+// ends the session for this token
+pub async fn logout_user(pool: &PgPool, token: &str) -> Result<(), LoginError> {
+    delete_session(pool, &hash_token(token))
+        .await
+        .map_err(login_database_error)?;
+
+    Ok(()) // no semicolon
+}
+
+// turns a cookie token into the user it belongs to, this is the guard for protected pages
+pub async fn authenticate_session(pool: &PgPool, token: &str) -> Result<Uuid, LoginError> {
+    find_active_session_user(pool, &hash_token(token))
+        .await
+        .map_err(login_database_error)?
+        .ok_or(LoginError::NotLoggedIn)
 }

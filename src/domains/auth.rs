@@ -1,27 +1,49 @@
-use axum::{routing::get, response::{Html, Redirect}, Router};
 use askama::Template;
-use crate::AppState;
+use axum::{
+    http::StatusCode,
+    response::{Html, IntoResponse, Response},
+};
 
+pub mod handlers;
+pub mod repo;
+pub mod routes;
+pub mod services;
+
+pub use routes::routes;
+
+// one page for both tabs, active is "login" or "signup"
 #[derive(Template)]
 #[template(path = "login.html")]
-pub struct LoginTemplate { pub active: &'static str }
-
-pub fn routes(state: AppState) -> Router {
-    Router::new()
-        .route("/login", get(login_handler).post(login_submit_handler))
-        .route("/signup", get(signup_handler).post(signup_submit_handler))
-        .with_state(state)
+pub struct LoginTemplate {
+    pub active: &'static str,
+    pub error: Option<String>,
+    pub identifier: String,
+    pub name: String,
+    pub email: String,
+    pub phone: String,
 }
 
-pub async fn login_handler() -> Html<String> {
-    Html(LoginTemplate { active: "" }.render().unwrap())
+impl LoginTemplate {
+    // a blank page with no error and no refilled values
+    fn new(active: &'static str) -> Self {
+        Self {
+            active,
+            error: None,
+            identifier: String::new(),
+            name: String::new(),
+            email: String::new(),
+            phone: String::new(),
+        }
+    }
 }
 
-pub async fn login_submit_handler() -> Redirect { Redirect::to("/") }
-
-pub async fn signup_handler() -> Html<String> {
-    Html(LoginTemplate { active: "" }.render().unwrap())
+// renders a template with a status code, logs and returns 500 if rendering fails
+fn render(template: LoginTemplate, status: StatusCode) -> Response {
+    match template.render() {
+        Ok(html) => (status, Html(html)).into_response(),
+        Err(e) => {
+            eprintln!("template render failed: {e:?}");
+            StatusCode::INTERNAL_SERVER_ERROR.into_response()
+        }
+    }
 }
-
-pub async fn signup_submit_handler() -> Redirect { Redirect::to("/") }
-
