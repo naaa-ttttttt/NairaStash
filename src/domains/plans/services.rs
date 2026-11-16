@@ -50,3 +50,19 @@ fn clean_name(name: &str) -> Result<String, PlanError> {
 }
 
 const MAX_NAME_LENGTH: usize = 60;
+
+// the amount per frequency must be more than zero
+fn check_amount(amount: i64) -> Result<(), PlanError> {
+    if amount <= 0 {
+        return Err(PlanError::InvalidAmount);
+    }
+    Ok(()) // no semicolon
+}
+
+// the target is optional, but if it is there it must be more than zero
+fn check_target(target: Option<i64>) -> Result<(), PlanError> {
+    match target {
+        Some(value) if value <= 0 => Err(PlanError::InvalidTarget),
+        _ => Ok(()), // no semicolon
+    }
+}
