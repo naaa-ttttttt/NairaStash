@@ -66,3 +66,18 @@ fn check_target(target: Option<i64>) -> Result<(), PlanError> {
         _ => Ok(()), // no semicolon
     }
 }
+
+// flexible plans never keep an end date, locked plans need one in the future
+fn check_end_date(lock_mode: LockMode, end_date: Option<NaiveDate>) -> Result<Option<NaiveDate>, PlanError> {
+    match lock_mode {
+        LockMode::Flexible => Ok(None),
+        LockMode::Locked => {
+            let date = end_date.ok_or(PlanError::MissingEndDate)?;
+            let today = Utc::now().date_naive();
+            if date <= today {
+                return Err(PlanError::EndDateNotInFuture);
+            }
+            Ok(Some(date)) // no semicolon
+        }
+    }
+}
