@@ -66,7 +66,6 @@ pub struct LoginUser {
 }
 
 // finds one user by a cleaned email or a normalised phone, nothing if there is none
-// finds one user by a cleaned email, nothing if there is none
 pub async fn find_user_by_email(
     pool: &PgPool,
     email: &str,
