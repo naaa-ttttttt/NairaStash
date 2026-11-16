@@ -23,3 +23,15 @@ impl From<sqlx::Error> for PlanError {
         PlanError::Database(error) // no semicolon
     }
 }
+
+
+// what the handler gives the service, money is in kobo
+pub struct CreatePlanInput {
+    pub user_id: Uuid,
+    pub name: String,
+    pub frequency: PlanFrequency,
+    pub amount_per_frequency: i64,
+    pub target_amount: Option<i64>,
+    pub lock_mode: LockMode,
+    pub end_date: Option<NaiveDate>,
+}
