@@ -35,3 +35,18 @@ pub struct CreatePlanInput {
     pub lock_mode: LockMode,
     pub end_date: Option<NaiveDate>,
 }
+
+// trim the name and make sure it is not empty or too long
+fn clean_name(name: &str) -> Result<String, PlanError> {
+    let trimmed_name = name.trim();
+    if trimmed_name.is_empty() {
+        return Err(PlanError::EmptyName);
+    }
+    if trimmed_name.chars().count() > MAX_NAME_LENGTH {
+        return Err(PlanError::NameTooLong);
+    }
+    let cleaned_name = trimmed_name.to_string();
+    Ok(cleaned_name) // no semicolon
+}
+
+const MAX_NAME_LENGTH: usize = 60;
