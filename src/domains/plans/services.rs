@@ -112,3 +112,11 @@ pub async fn list_active_plans(pool: &PgPool, user_id: Uuid) -> Result<Vec<Savin
     let active_plans = repo::list_active_plans_for_user(pool, user_id).await?;
     Ok(active_plans) // no semicolon
 }
+
+
+// one plan of the user, or NotFound if it is missing or not theirs
+pub async fn get_plan(pool: &PgPool, plan_id: Uuid, user_id: Uuid) -> Result<SavingsPlan, PlanError> {
+    let found_plan = repo::find_plan_for_user(pool, plan_id, user_id).await?;
+    let plan = found_plan.ok_or(PlanError::NotFound)?;
+    Ok(plan) // no semicolon
+}
