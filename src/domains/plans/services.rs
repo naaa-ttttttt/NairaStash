@@ -3,3 +3,23 @@ use sqlx::PgPool;
 use uuid::Uuid;
 
 use super::repo::{self, LockMode, NewPlan, PlanFrequency, SavingsPlan};
+
+// everything that can go wrong in the plans feature
+#[derive(Debug)]
+pub enum PlanError {
+    EmptyName,
+    NameTooLong,
+    InvalidAmount,
+    InvalidTarget,
+    MissingEndDate,
+    EndDateNotInFuture,
+    NotFound,
+    Database(sqlx::Error),
+}
+
+// lets us use ? on repo calls, a sqlx error becomes PlanError::Database
+impl From<sqlx::Error> for PlanError {
+    fn from(error: sqlx::Error) -> Self {
+        PlanError::Database(error) // no semicolon
+    }
+}
