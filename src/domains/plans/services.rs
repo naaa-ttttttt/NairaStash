@@ -100,3 +100,15 @@ pub async fn create_plan(pool: &PgPool, input: CreatePlanInput) -> Result<Saving
     let created_plan = repo::create_plan(pool, &new_plan).await?;
     Ok(created_plan) // no semicolon
 }
+
+// all plans of the user, for the plans page
+pub async fn list_plans(pool: &PgPool, user_id: Uuid) -> Result<Vec<SavingsPlan>, PlanError> {
+    let plans = repo::list_plans_for_user(pool, user_id).await?;
+    Ok(plans) // no semicolon
+}
+
+// only active plans, for the dashboard
+pub async fn list_active_plans(pool: &PgPool, user_id: Uuid) -> Result<Vec<SavingsPlan>, PlanError> {
+    let active_plans = repo::list_active_plans_for_user(pool, user_id).await?;
+    Ok(active_plans) // no semicolon
+}
