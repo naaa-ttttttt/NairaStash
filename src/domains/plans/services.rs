@@ -81,3 +81,22 @@ fn check_end_date(lock_mode: LockMode, end_date: Option<NaiveDate>) -> Result<Op
         }
     }
 }
+
+// check everything, then save the plan through the repo
+pub async fn create_plan(pool: &PgPool, input: CreatePlanInput) -> Result<SavingsPlan, PlanError> {
+    let name = clean_name(&input.name)?;
+    check_amount(input.amount_per_frequency)?;
+    check_target(input.target_amount)?;
+    let end_date = check_end_date(input.lock_mode, input.end_date)?;
+    let new_plan = NewPlan {
+        user_id: input.user_id,
+        name,
+        frequency: input.frequency,
+        amount_per_frequency: input.amount_per_frequency,
+        target_amount: input.target_amount,
+        lock_mode: input.lock_mode,
+        end_date,
+    };
+    let created_plan = repo::create_plan(pool, &new_plan).await?;
+    Ok(created_plan) // no semicolon
+}
