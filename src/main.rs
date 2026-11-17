@@ -6,6 +6,7 @@ use crate::domains::deposits::pay_stack::PaystackConfig;
 
 // Register the domains module folder
 mod domains;
+mod shared;
 // The shared global toolkit structure
 #[derive(Clone)]
 pub struct AppState {
