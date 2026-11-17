@@ -109,19 +109,25 @@ pub async fn create_session(pool: &PgPool, new_session: NewSession) -> Result<()
     Ok(()) // no semicolon
 }
 
-// gives back the owner of a session, but only if the session has not expired
+// gives back the owner of a session and marks it as just used
+// a session that has expired, or sat idle too long, gives back nothing
 pub async fn find_active_session_user(
     pool: &PgPool,
     token_hash: &str,
+    idle_minutes: i32,
 ) -> Result<Option<Uuid>, sqlx::Error> {
     let user_id = sqlx::query_scalar::<_, Uuid>(
         r#"
-        SELECT user_id
-        FROM sessions
-        WHERE token_hash = $1 AND expires_at > now()
+        UPDATE sessions
+        SET last_seen_at = now()
+        WHERE token_hash = $1
+          AND expires_at > now()
+          AND last_seen_at > now() - ($2 * INTERVAL '1 minute')
+        RETURNING user_id
         "#,
     )
     .bind(token_hash)
+    .bind(idle_minutes)
     .fetch_optional(pool)
     .await?;
 
