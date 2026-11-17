@@ -15,7 +15,9 @@ const PASSWORD_MAX_LENGTH: usize = 128;
 const NAME_MAX_LENGTH: usize = 100;
 
 // how long a login lasts before the user has to log in again
-pub const SESSION_DAYS: i64 = 7;
+pub const SESSION_DAYS: i64 = 1;
+// a session that sat unused this long is dead, even if it has days left
+pub const IDLE_MINUTES: i32 = 20;
 
 // the raw values from the signup form, no debug derive so a password can never be printed
 pub struct SignupInput {
@@ -287,7 +289,7 @@ pub async fn logout_user(pool: &PgPool, token: &str) -> Result<(), LoginError> {
 
 // turns a cookie token into the user it belongs to, this is the guard for protected pages
 pub async fn authenticate_session(pool: &PgPool, token: &str) -> Result<Uuid, LoginError> {
-    find_active_session_user(pool, &hash_token(token))
+    find_active_session_user(pool, &hash_token(token), IDLE_MINUTES)
         .await
         .map_err(login_database_error)?
         .ok_or(LoginError::NotLoggedIn)
