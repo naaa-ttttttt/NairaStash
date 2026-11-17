@@ -61,6 +61,16 @@
     ::-webkit-scrollbar { display: none; }
     ::view-transition-old(root), ::view-transition-new(root) { animation-duration: .15s; }
   </style>
+  
+    <script>
+    // htmx skips 4xx responses by default, this lets a 400 form error page show up
+    document.addEventListener('htmx:beforeSwap', function (event) {
+      if (event.detail.xhr.status === 400) {
+        event.detail.shouldSwap = true;
+        event.detail.isError = false;
+      }
+    });
+  </script>
 </head>
 
 <body hx-boost="true" class="text-white antialiased {% block body_class %}pb-28{% endblock %}">
