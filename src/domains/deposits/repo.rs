@@ -1,9 +1,9 @@
-use sqlx::{Pool, Postgres, FromRow};
-use uuid::Uuid;
 use chrono::{DateTime, Utc};
+use sqlx::{FromRow, Pool, Postgres};
+use uuid::Uuid;
 
 #[derive(Debug, sqlx::Type, serde::Serialize, serde::Deserialize, PartialEq)]
-#[sqlx(type_name = "deposit_type", rename_all = "lowercase")]
+#[sqlx(type_name = "deposit_type", rename_all = "snake_case")]
 pub enum DepositType {
     AutoDebit,
     Manual,
@@ -17,11 +17,11 @@ pub enum TransactionStatus {
     Failed,
 }
 
+// one row of the deposits table, money is in kobo
 #[derive(Debug, FromRow)]
 pub struct DepositRecord {
     pub deposit_id: Uuid,
     pub user_id: Uuid,
-    pub plan_id: Uuid,
     pub reference: String,
     pub amount: i64,
     pub status: TransactionStatus,
@@ -39,7 +39,7 @@ pub async fn get_user_email(
         SELECT email
         FROM users
         WHERE user_id = $1
-        "#
+        "#,
     )
     .bind(user_id)
     .fetch_optional(pool)
@@ -49,7 +49,6 @@ pub async fn get_user_email(
 pub async fn create_pending_deposits(
     pool: &Pool<Postgres>,
     user_id: Uuid,
-    plan_id: Uuid,
     reference: &str,
     amount: i64,
     deposit_type: DepositType,
@@ -59,14 +58,13 @@ pub async fn create_pending_deposits(
 
     sqlx::query_as::<_, DepositRecord>(
         r#"
-        INSERT INTO deposits (deposit_id, user_id, plan_id, reference, amount, deposit_type, status)
-        VALUES ($1, $2, $3, $4, $5, $6, 'pending')
-        RETURNING deposit_id, user_id, plan_id, reference, amount, status, created_at, deposit_type
-        "#
+        INSERT INTO deposits (deposit_id, user_id, reference, amount, deposit_type, status)
+        VALUES ($1, $2, $3, $4, $5, 'pending')
+        RETURNING deposit_id, user_id, reference, amount, status, created_at, deposit_type
+        "#,
     )
     .bind(deposit_id)
     .bind(user_id)
-    .bind(plan_id)
     .bind(reference)
     .bind(amount)
     .bind(deposit_type)
@@ -80,10 +78,10 @@ pub async fn get_deposit_by_reference(
 ) -> Result<Option<DepositRecord>, sqlx::Error> {
     sqlx::query_as::<_, DepositRecord>(
         r#"
-        SELECT deposit_id, user_id, plan_id, reference, amount, status, created_at, deposit_type
+        SELECT deposit_id, user_id, reference, amount, status, created_at, deposit_type
         FROM deposits
         WHERE reference = $1
-        "#
+        "#,
     )
     .bind(reference)
     .fetch_optional(pool)
@@ -102,8 +100,8 @@ pub async fn claim_pending_deposit(
         UPDATE deposits
         SET status = $1
         WHERE reference = $2 AND status = 'pending'
-        RETURNING deposit_id, user_id, plan_id, reference, amount, status, created_at, deposit_type
-        "#
+        RETURNING deposit_id, user_id, reference, amount, status, created_at, deposit_type
+        "#,
     )
     .bind(new_status)
     .bind(reference)
@@ -122,7 +120,7 @@ pub async fn update_wallet_balance(
         UPDATE wallets
         SET balance = balance + $1
         WHERE user_id = $2
-        "#
+        "#,
     )
     .bind(amount_in_kobo)
     .bind(user_id)
