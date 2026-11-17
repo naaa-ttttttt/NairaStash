@@ -3,3 +3,5 @@ pub mod handlers;
 pub mod repo;
 pub mod routes;
 pub mod services;
+
+pub use routes::routes;
