@@ -1,9 +1,17 @@
 use askama::Template;
-use axum::{extract::State, http::StatusCode, response::Html, routing::get, Router};
+use axum::{
+    extract::State,
+    http::StatusCode,
+    response::{IntoResponse, Response},
+    routing::get,
+    Router,
+};
 use sqlx::PgPool;
 use uuid::Uuid;
 
 use crate::domains::auth::handlers::AuthUser;
+use crate::shared::money::format_kobo_as_naira;
+use crate::shared::render::render_page;
 use crate::AppState;
 
 #[derive(Template)]
@@ -17,6 +25,7 @@ pub struct DashboardTemplate {
 #[template(path = "deposit.html")]
 pub struct DepositTemplate {
     pub active: &'static str,
+    pub wallet_balance: String,
 }
 
 #[derive(Template)]
@@ -43,7 +52,7 @@ pub struct NotFoundTemplate {
     pub active: &'static str,
 }
 
-// the profile page now lives in profile.rs, so there is no profile route here
+// the profile page lives in profile.rs, so there is no profile route here
 pub fn routes(state: AppState) -> Router {
     Router::new()
         .route("/", get(dashboard_handler))
@@ -54,77 +63,65 @@ pub fn routes(state: AppState) -> Router {
         .with_state(state)
 }
 
-// reads the wallet balance in kobo, gives 0 if there is no wallet or the query fails
-async fn fetch_wallet_balance_in_kobo(db: &PgPool, user_id: Uuid) -> i64 {
-    let query_result =
-        sqlx::query_scalar::<_, i64>("SELECT balance FROM wallets WHERE user_id = $1")
-            .bind(user_id)
-            .fetch_optional(db)
-            .await;
+// reads the wallet balance in kobo, 0 only when the user has no wallet row
+async fn fetch_wallet_balance_in_kobo(db: &PgPool, user_id: Uuid) -> Result<i64, sqlx::Error> {
+    let balance = sqlx::query_scalar::<_, i64>("SELECT balance FROM wallets WHERE user_id = $1")
+        .bind(user_id)
+        .fetch_optional(db)
+        .await?;
 
-    match query_result {
-        Ok(Some(balance)) => balance,
-        Ok(None) => 0,
-        Err(err) => {
-            eprintln!("Could not read wallet balance: {:?}", err);
-            0
-        }
-    }
-}
-
-// 19000000 kobo becomes "190,000.00", 0 becomes "0.00"
-fn format_kobo_as_naira(kobo: i64) -> String {
-    let naira = kobo / 100;
-    let remainder = kobo % 100;
-
-    let digits = naira.to_string();
-    let mut with_commas = String::new();
-
-    for (position, digit) in digits.chars().enumerate() {
-        let digits_left = digits.len() - position;
-        if position > 0 && digits_left % 3 == 0 {
-            with_commas.push(',');
-        }
-        with_commas.push(digit);
-    }
-
-    format!("{}.{:02}", with_commas, remainder) // no semicolon
+    Ok(balance.unwrap_or(0)) // no semicolon
 }
 
 // AuthUser is the guard: no valid session sends the visitor to /login
-pub async fn dashboard_handler(auth: AuthUser, State(state): State<AppState>) -> Html<String> {
-    let balance_in_kobo = fetch_wallet_balance_in_kobo(&state.db, auth.user_id).await;
-    let total_balance = format_kobo_as_naira(balance_in_kobo);
-
-    Html(
-        DashboardTemplate {
-            active: "dashboard",
-            total_balance,
+pub async fn dashboard_handler(auth: AuthUser, State(state): State<AppState>) -> Response {
+    // a failed read is an error page, never a fake zero balance
+    let balance_in_kobo = match fetch_wallet_balance_in_kobo(&state.db, auth.user_id).await {
+        Ok(balance) => balance,
+        Err(err) => {
+            eprintln!("Could not read wallet balance: {:?}", err);
+            return StatusCode::INTERNAL_SERVER_ERROR.into_response();
         }
-        .render()
-        .unwrap(),
-    )
+    };
+
+    let page = DashboardTemplate {
+        active: "home", // the nav bar calls this tab "home"
+        total_balance: format_kobo_as_naira(balance_in_kobo),
+    };
+
+    render_page(page, StatusCode::OK)
 }
 
-pub async fn deposit_page_handler(_auth: AuthUser) -> Html<String> {
-    Html(DepositTemplate { active: "deposit" }.render().unwrap())
+// the page that adds money to the wallet, it shows the current wallet balance
+pub async fn deposit_page_handler(auth: AuthUser, State(state): State<AppState>) -> Response {
+    let balance_in_kobo = match fetch_wallet_balance_in_kobo(&state.db, auth.user_id).await {
+        Ok(balance) => balance,
+        Err(err) => {
+            eprintln!("Could not read wallet balance: {:?}", err);
+            return StatusCode::INTERNAL_SERVER_ERROR.into_response();
+        }
+    };
+
+    let page = DepositTemplate {
+        active: "deposit",
+        wallet_balance: format_kobo_as_naira(balance_in_kobo),
+    };
+
+    render_page(page, StatusCode::OK)
 }
 
-pub async fn activity_handler(_auth: AuthUser) -> Html<String> {
-    Html(ActivityTemplate { active: "activity" }.render().unwrap())
+pub async fn activity_handler(_auth: AuthUser) -> Response {
+    render_page(ActivityTemplate { active: "activity" }, StatusCode::OK)
 }
 
-pub async fn link_account_handler(_auth: AuthUser) -> Html<String> {
-    Html(LinkAccountTemplate { active: "profile" }.render().unwrap())
+pub async fn link_account_handler(_auth: AuthUser) -> Response {
+    render_page(LinkAccountTemplate { active: "profile" }, StatusCode::OK)
 }
 
-pub async fn notifications_handler(_auth: AuthUser) -> Html<String> {
-    Html(NotificationsTemplate { active: "profile" }.render().unwrap())
+pub async fn notifications_handler(_auth: AuthUser) -> Response {
+    render_page(NotificationsTemplate { active: "profile" }, StatusCode::OK)
 }
 
-pub async fn not_found_handler() -> (StatusCode, Html<String>) {
-    (
-        StatusCode::NOT_FOUND,
-        Html(NotFoundTemplate { active: "" }.render().unwrap()),
-    )
+pub async fn not_found_handler() -> Response {
+    render_page(NotFoundTemplate { active: "" }, StatusCode::NOT_FOUND)
 }
