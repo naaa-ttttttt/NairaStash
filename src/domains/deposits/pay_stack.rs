@@ -51,6 +51,7 @@ pub fn load_paystack_config() -> Result<PaystackConfig, String> {
 
 
 pub async fn initialize_payment(
+    client: &Client,
     email: &str,
     amount: i64,
     reference: &str,
@@ -61,12 +62,8 @@ pub async fn initialize_payment(
         amount,
         reference,
         callback_url: &config.callback_url,
-
     };
 
-    let client = Client::new();
-
-    // FIXED API ENDPOINT PATH:
     let response = client
         .post("https://api.paystack.co/transaction/initialize")
         .header("Authorization", format!("Bearer {}", config.secret_key))
