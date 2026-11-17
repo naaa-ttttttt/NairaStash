@@ -2,15 +2,16 @@ use axum::{
     body::Bytes,
     extract::{Form, State},
     http::{HeaderMap, StatusCode},
-    response::IntoResponse,
+    response::{IntoResponse, Response},
 };
 use serde::Deserialize;
-use uuid::Uuid;
 
-use crate::AppState;
-use crate::domains::auth::handlers::AuthUser;
 use super::pay_stack::verify_paystack_signature;
-use super::services::DepositError;
+use super::services::{
+    process_deposit_webhook, start_deposit, DepositError, StartDepositError, WebhookFacts,
+};
+use crate::domains::auth::handlers::AuthUser;
+use crate::AppState;
 
 #[derive(Debug, Deserialize)]
 pub struct PaystackWebhook {
@@ -34,7 +35,7 @@ pub struct WebhookCustomer {
 }
 
 // only the amount is read from the form, who is paying comes from the session
-#[derive(serde::Deserialize)]
+#[derive(Deserialize)]
 pub struct DepositFormInput {
     pub amount: i64,
 }
@@ -57,28 +58,35 @@ pub async fn handle_paystack_webhook(
     State(state): State<AppState>,
     headers: HeaderMap,
     raw_bytes: Bytes,
-) -> impl IntoResponse {
+) -> Response {
     // 1. INPUTS
+    // syntax to extract the header from the webhook
     let header_signature = match headers.get("x-paystack-signature") {
         Some(header_value) => header_value.to_str().unwrap_or(""),
         None => return StatusCode::BAD_REQUEST.into_response(),
     };
 
-    let secret_key = &state.paystack.secret_key;
-
     // 2. GUARDS
-    let is_valid = verify_paystack_signature(&raw_bytes, header_signature, secret_key);
-    if !is_valid {
+    if !verify_paystack_signature(&raw_bytes, header_signature, &state.paystack.secret_key) {
         return StatusCode::UNAUTHORIZED.into_response();
     }
 
+    // extracting the body of the webhook.
     let payload: PaystackWebhook = match serde_json::from_slice(&raw_bytes) {
         Ok(data) => data,
         Err(_) => return StatusCode::BAD_REQUEST.into_response(),
     };
 
-    // 3. TRANSFORMATIONS
-    if let Err(err) = super::services::process_deposit_webhook(&state.db, payload).await {
+    // 3. TRANSFORMATIONS: hand the service plain values, not http types
+    let facts = WebhookFacts {
+        event: payload.event,
+        status: payload.data.status,
+        reference: payload.data.reference,
+        amount: payload.data.amount,
+        currency: payload.data.currency,
+    };
+
+    if let Err(err) = process_deposit_webhook(&state.db, facts).await {
         eprintln!("Webhook processing failed: {:?}", err);
         return webhook_status_for(&err).into_response();
     }
@@ -87,73 +95,27 @@ pub async fn handle_paystack_webhook(
     StatusCode::OK.into_response()
 }
 
-// starts a deposit for the logged in user and gives back the paystack checkout link
-pub async fn initialize_deposit_handler(
-    auth: AuthUser,
-    State(state): State<AppState>,
-    Form(input): Form<DepositFormInput>,
-) -> impl IntoResponse {
-    // 1. INPUTS
-    let user_id = auth.user_id;
-
-    // 2. GUARDS
-    if input.amount < 1 {
-        return (StatusCode::BAD_REQUEST, "Amount must be at least 1 naira").into_response();
-    }
-
-    let user_email = match super::repo::get_user_email(&state.db, user_id).await {
-        Ok(Some(email)) => email,
-        Ok(None) => return (StatusCode::UNAUTHORIZED, "User not found").into_response(),
-        Err(e) => {
-            println!("DB Error loading user email: {:?}", e);
-            return (StatusCode::INTERNAL_SERVER_ERROR, "Database error").into_response();
+// picks the status and the message for each way starting a deposit can fail
+fn start_error_response(err: &StartDepositError) -> Response {
+    match err {
+        StartDepositError::AmountTooSmall => {
+            (StatusCode::BAD_REQUEST, "Amount must be at least 1 naira").into_response()
         }
-    };
-
-    // 3. TRANSFORMATIONS
-    let amount_in_kobo = input.amount * 100;
-    let temp_plan_id = Uuid::nil();
-    let tracking_reference = format!("NS-DEP-{}", &Uuid::new_v4().to_string()[..8]);
-
-    println!(
-        "Attempting Paystack Handshake for Email: {}, Amount: {} Kobo",
-        user_email, amount_in_kobo
-    );
-
-    if let Err(e) = super::repo::create_pending_deposits(
-        &state.db,
-        user_id,
-        temp_plan_id,
-        &tracking_reference,
-        amount_in_kobo,
-        super::repo::DepositType::Manual,
-    )
-    .await
-    {
-        println!("DB Error creating pending deposit: {:?}", e);
-        return (StatusCode::INTERNAL_SERVER_ERROR, "Database error").into_response();
-    }
-
-    // 4. OUTPUTS
-    match super::pay_stack::initialize_payment(
-        &user_email,
-        amount_in_kobo,
-        &tracking_reference,
-        &state.paystack,
-    )
-    .await
-    {
-        Ok(checkout_url) => {
-            println!("SUCCESS: Paystack Link Generated: {}", checkout_url);
-            (StatusCode::OK, checkout_url).into_response()
+        StartDepositError::AmountTooLarge => {
+            (StatusCode::BAD_REQUEST, "That amount is too large").into_response()
         }
-        Err(err) => {
-            eprintln!("CRITICAL PAYSTACK ERROR LOG: {:?}", err);
+        StartDepositError::UserNotFound => {
+            (StatusCode::UNAUTHORIZED, "User not found").into_response()
+        }
+        StartDepositError::Database(e) => {
+            eprintln!("Deposit database error: {:?}", e);
+            (StatusCode::INTERNAL_SERVER_ERROR, "Database error").into_response()
+        }
+        StartDepositError::Paystack(e) => {
+            eprintln!("Paystack error: {:?}", e);
 
-            if let Some(status) = err.status() {
-                if status == reqwest::StatusCode::UNAUTHORIZED {
-                    eprintln!("WARNING: Your PAYSTACK_SECRET_KEY in your .env file is being rejected by Paystack's servers! Double check that it has no typos and starts with sk_test_");
-                }
+            if e.status() == Some(reqwest::StatusCode::UNAUTHORIZED) {
+                eprintln!("WARNING: Paystack rejected PAYSTACK_SECRET_KEY, check .env for typos");
             }
 
             (
@@ -162,5 +124,25 @@ pub async fn initialize_deposit_handler(
             )
                 .into_response()
         }
+    }
+}
+
+// starts a deposit for the logged in user and gives back the paystack checkout link
+pub async fn initialize_deposit_handler(
+    auth: AuthUser,
+    State(state): State<AppState>,
+    Form(input): Form<DepositFormInput>,
+) -> Response {
+    match start_deposit(
+        &state.db,
+        &state.http_client,
+        &state.paystack,
+        auth.user_id,
+        input.amount,
+    )
+    .await
+    {
+        Ok(checkout_url) => (StatusCode::OK, checkout_url).into_response(),
+        Err(err) => start_error_response(&err),
     }
 }
