@@ -1,9 +1,65 @@
-use super::handlers::PaystackWebhook;
-use super::repo::{
-    claim_pending_deposit, get_deposit_by_reference, update_wallet_balance,
-    DepositRecord, TransactionStatus,
-};
+use reqwest::Client;
 use sqlx::PgPool;
+use uuid::Uuid;
+
+use super::pay_stack::{initialize_payment, PaystackConfig};
+use super::repo::{
+    claim_pending_deposit, create_pending_deposits, get_deposit_by_reference, get_user_email,
+    update_wallet_balance, DepositRecord, DepositType, TransactionStatus,
+};
+
+const MIN_DEPOSIT_NAIRA: i64 = 100;
+
+// ---------------------------------------------------------------- starting a deposit
+
+#[derive(Debug)]
+pub enum StartDepositError {
+    AmountTooSmall,
+    AmountTooLarge,
+    UserNotFound,
+    Database(sqlx::Error),
+    Paystack(reqwest::Error),
+}
+
+impl From<sqlx::Error> for StartDepositError {
+    fn from(err: sqlx::Error) -> Self {
+        StartDepositError::Database(err)
+    }
+}
+
+// checks the amount, saves a pending deposit, asks paystack for a checkout link
+pub async fn start_deposit(
+    pool: &PgPool,
+    client: &Client,
+    paystack: &PaystackConfig,
+    user_id: Uuid,
+    amount_in_naira: i64,
+) -> Result<String, StartDepositError> {
+    if amount_in_naira < MIN_DEPOSIT_NAIRA {
+        return Err(StartDepositError::AmountTooSmall);
+    }
+
+    // checked_mul so a huge number cannot overflow
+    let amount_in_kobo = amount_in_naira
+        .checked_mul(100)
+        .ok_or(StartDepositError::AmountTooLarge)?;
+
+    let email = get_user_email(pool, user_id)
+        .await?
+        .ok_or(StartDepositError::UserNotFound)?;
+
+    let reference = format!("NS-DEP-{}", &Uuid::new_v4().to_string()[..8]);
+
+    create_pending_deposits(pool, user_id, &reference, amount_in_kobo, DepositType::Manual).await?;
+
+    let checkout_url = initialize_payment(client, &email, amount_in_kobo, &reference, paystack)
+        .await
+        .map_err(StartDepositError::Paystack)?;
+
+    Ok(checkout_url) // no semicolon
+}
+
+// ---------------------------------------------------------------- settling a deposit
 
 #[derive(Debug)]
 pub enum DepositError {
@@ -21,6 +77,15 @@ impl From<sqlx::Error> for DepositError {
     }
 }
 
+// the facts of a paystack webhook that the rules care about, no http types in here
+pub struct WebhookFacts {
+    pub event: String,
+    pub status: String,
+    pub reference: String,
+    pub amount: i64,
+    pub currency: String,
+}
+
 // finds the deposit this webhook is about, or says it does not exist
 async fn load_deposit(pool: &PgPool, reference: &str) -> Result<DepositRecord, DepositError> {
     let found_deposit = get_deposit_by_reference(pool, reference).await?;
@@ -32,15 +97,15 @@ async fn load_deposit(pool: &PgPool, reference: &str) -> Result<DepositRecord, D
 }
 
 // checks that what paystack says matches what we saved
-fn check_payload_matches_deposit(
-    payload: &PaystackWebhook,
+fn check_facts_match_deposit(
+    facts: &WebhookFacts,
     deposit: &DepositRecord,
 ) -> Result<(), DepositError> {
-    if payload.data.currency != "NGN" {
+    if facts.currency != "NGN" {
         return Err(DepositError::InvalidCurrency);
     }
 
-    if payload.data.amount != deposit.amount {
+    if facts.amount != deposit.amount {
         return Err(DepositError::AmountMismatch);
     }
 
@@ -76,25 +141,25 @@ async fn settle_successful_deposit(pool: &PgPool, reference: &str) -> Result<(),
 
 pub async fn process_deposit_webhook(
     pool: &PgPool,
-    payload: PaystackWebhook,
+    facts: WebhookFacts,
 ) -> Result<(), DepositError> {
     // only successful charges matter here
-    if payload.event != "charge.success" {
+    if facts.event != "charge.success" {
         return Ok(());
     }
 
-    if payload.data.status != "success" {
+    if facts.status != "success" {
         return Err(DepositError::InvalidStatus);
     }
 
-    let deposit = load_deposit(pool, &payload.data.reference).await?;
+    let deposit = load_deposit(pool, &facts.reference).await?;
 
     // quick exit for a repeated webhook, the real guard is inside settle_successful_deposit
     if deposit.status != TransactionStatus::Pending {
         return Ok(());
     }
 
-    check_payload_matches_deposit(&payload, &deposit)?;
+    check_facts_match_deposit(&facts, &deposit)?;
 
     settle_successful_deposit(pool, &deposit.reference).await // no semicolon
 }
