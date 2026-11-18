@@ -151,3 +151,38 @@ pub async fn record_transaction(
     repo::save_transaction(tx, &new_entry).await?;
     Ok(()) // no semicolon
 }
+
+
+// the latest transactions of one user, for the activity page
+pub async fn get_user_activity(
+    pool: &PgPool,
+    user_id: Uuid,
+    limit: i64,
+) -> Result<Vec<TransactionView>, LedgerError> {
+    let entries = repo::list_user_transactions(pool, user_id, limit).await?;
+    let views = entries.iter().map(build_view).collect();
+    Ok(views) // no semicolon
+}
+
+// the latest transactions of one plan, for the plan page
+pub async fn get_plan_history(
+    pool: &PgPool,
+    plan_id: Uuid,
+    user_id: Uuid,
+    limit: i64,
+) -> Result<Vec<TransactionView>, LedgerError> {
+    let entries = repo::list_plan_transactions(pool, plan_id, user_id, limit).await?;
+    let views = entries.iter().map(build_view).collect();
+    Ok(views) // no semicolon
+}
+
+// one transaction of the user, or NotFound if it is missing or not theirs
+pub async fn get_transaction_details(
+    pool: &PgPool,
+    entry_id: Uuid,
+    user_id: Uuid,
+) -> Result<TransactionView, LedgerError> {
+    let found = repo::get_transaction_details(pool, entry_id, user_id).await?;
+    let entry = found.ok_or(LedgerError::NotFound)?;
+    Ok(build_view(&entry)) // no semicolon
+}
