@@ -75,14 +75,36 @@
   <!-- fragment: dashboard-inflows -->
   <section class="flex flex-col gap-3">
     <div class="flex items-center justify-between">
-      <h2 class="text-base font-semibold text-white">Recent inflows</h2>
+      <h2 class="text-base font-semibold text-white">Recent activity</h2>
       <a href="/activity" class="text-xs font-semibold text-lime">View all activity</a>
     </div>
+
+    {% if recent_transactions.is_empty() %}
     <div class="glass rounded-3xl p-6 flex flex-col items-center text-center gap-2">
       <span class="material-symbols-outlined text-white/50 text-[28px]">receipt_long</span>
       <p class="text-sm font-semibold text-white">No activity yet</p>
-      <p class="text-xs text-white/60">Your deposits will show up here.</p>
+      <p class="text-xs text-white/60">Your deposits and plan contributions will show up here.</p>
     </div>
+    {% else %}
+    <div class="glass rounded-3xl divide-y divide-white/10 overflow-hidden">
+      {% for transaction in recent_transactions %}
+      <a href="/activity/{{ transaction.entry_id }}"
+        class="flex items-center gap-3 px-4 py-3.5 hover:bg-white/5 transition-colors">
+        <div class="size-10 shrink-0 rounded-full flex items-center justify-center {% if transaction.is_credit %}bg-lime/15 text-lime{% else %}bg-azure/15 text-azure{% endif %}">
+          <span class="material-symbols-outlined text-[18px]">{% if transaction.is_credit %}south_west{% else %}north_east{% endif %}</span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-semibold text-white truncate">{{ transaction.label }}</p>
+          <p class="text-xs text-white/60 truncate">{{ transaction.date }}</p>
+        </div>
+        <div class="text-right shrink-0">
+          <p class="text-sm font-semibold {% if transaction.is_credit %}text-lime{% else %}text-white{% endif %}">{{ transaction.sign }}₦{{ transaction.amount }}</p>
+          <p class="text-[10px] text-white/50">Successful</p>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+    {% endif %}
   </section>
   <!-- /fragment: dashboard-inflows -->
 
