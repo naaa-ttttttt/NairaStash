@@ -109,25 +109,25 @@ pub async fn claim_pending_deposit(
     .await // no semicolon
 }
 
-// adds money to the wallet, gives back true only when exactly one wallet changed
+
+// adds money to the wallet and gives back the new balance, nothing if the user has no wallet
 pub async fn update_wallet_balance(
     transaction: &mut sqlx::Transaction<'_, Postgres>,
     user_id: Uuid,
     amount_in_kobo: i64,
-) -> Result<bool, sqlx::Error> {
-    let result = sqlx::query(
+) -> Result<Option<i64>, sqlx::Error> {
+    let new_balance = sqlx::query_scalar::<_, i64>(
         r#"
         UPDATE wallets
         SET balance = balance + $1
         WHERE user_id = $2
+        RETURNING balance
         "#,
     )
     .bind(amount_in_kobo)
     .bind(user_id)
-    .execute(&mut **transaction)
+    .fetch_optional(&mut **transaction)
     .await?;
 
-    let wallet_was_credited = result.rows_affected() == 1;
-
-    Ok(wallet_was_credited) // no semicolon
+    Ok(new_balance) // no semicolon
 }
