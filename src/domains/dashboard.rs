@@ -14,6 +14,8 @@ use crate::domains::ledger::services::{get_user_activity, TransactionView};
 use crate::shared::money::format_kobo_as_naira;
 use crate::shared::render::render_page;
 use crate::AppState;
+use crate::domains::plans::handlers::{plan_view, PlanView};
+use crate::domains::plans::services::list_active_plans;
 
 #[derive(Template)]
 #[template(path = "dashboard.html")]
