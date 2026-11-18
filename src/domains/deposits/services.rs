@@ -8,6 +8,9 @@ use super::repo::{
     update_wallet_balance, DepositRecord, DepositType, TransactionStatus,
 };
 
+use crate::domains::ledger::repo::{LedgerEntryType, NewLedgerEntry};
+use crate::domains::ledger::services::{record_transaction, LedgerError};
+
 const MIN_DEPOSIT_NAIRA: i64 = 100;
 
 // ---------------------------------------------------------------- starting a deposit
@@ -18,12 +21,20 @@ pub enum StartDepositError {
     AmountTooLarge,
     UserNotFound,
     Database(sqlx::Error),
+    Ledger(LedgerError),
     Paystack(reqwest::Error),
 }
 
 impl From<sqlx::Error> for StartDepositError {
     fn from(err: sqlx::Error) -> Self {
         StartDepositError::Database(err)
+    }
+}
+
+// lets us use ? on ledger calls, a LedgerError becomes DepositError::Ledger
+impl From<LedgerError> for DepositError {
+    fn from(err: LedgerError) -> Self {
+        DepositError::Ledger(err)
     }
 }
 
