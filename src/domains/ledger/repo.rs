@@ -23,6 +23,7 @@ pub struct LedgerEntry {
     pub remark: Option<String>,
     pub reference: String,
     pub created_at: DateTime<Utc>,
+    pub wallet_balance_after: i64,
 }
 
 // what we need to write one new row, the id and the time are set when it is saved
@@ -34,6 +35,7 @@ pub struct NewLedgerEntry {
     pub plan_id: Option<Uuid>,
     pub remark: Option<String>,
     pub reference: String,
+    pub wallet_balance_after: i64,
 }
 
 // saves one transaction on the database transaction it is given (tx)
@@ -52,6 +54,7 @@ pub async fn save_transaction(
         .bind(new_entry.plan_id)
         .bind(&new_entry.remark)
         .bind(&new_entry.reference)
+        .bind(new_entry.wallet_balance_after)
         .execute(&mut **tx)
         .await?;
     Ok(()) // no semicolon
@@ -109,23 +112,23 @@ pub async fn count_plan_contributions(pool: &PgPool, plan_id: Uuid) -> Result<i6
 
 const SAVE_TRANSACTION_SQL: &str = "
     INSERT INTO ledger_entries
-        (entry_id, user_id, entry_type, amount, plan_id, remark, reference)
-    VALUES ($1, $2, $3, $4, $5, $6, $7)";
+        (entry_id, user_id, entry_type, amount, plan_id, remark, reference, wallet_balance_after)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)";
 
 const GET_TRANSACTION_SQL: &str = "
-    SELECT entry_id, user_id, entry_type, amount, plan_id, remark, reference, created_at
+    SELECT entry_id, user_id, entry_type, amount, plan_id, remark, reference, wallet_balance_after, created_at
     FROM ledger_entries
     WHERE entry_id = $1 AND user_id = $2";
 
 const LIST_USER_TRANSACTIONS_SQL: &str = "
-    SELECT entry_id, user_id, entry_type, amount, plan_id, remark, reference, created_at
+    SELECT entry_id, user_id, entry_type, amount, plan_id, remark, reference, wallet_balance_after, created_at
     FROM ledger_entries
     WHERE user_id = $1
     ORDER BY created_at DESC
     LIMIT $2";
 
 const LIST_PLAN_TRANSACTIONS_SQL: &str = "
-    SELECT entry_id, user_id, entry_type, amount, plan_id, remark, reference, created_at
+    SELECT entry_id, user_id, entry_type, amount, plan_id, remark, reference, wallet_balance_after, created_at
     FROM ledger_entries
     WHERE plan_id = $1 AND user_id = $2
     ORDER BY created_at DESC
