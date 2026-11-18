@@ -10,6 +10,7 @@ use sqlx::PgPool;
 use uuid::Uuid;
 
 use crate::domains::auth::handlers::AuthUser;
+use crate::domains::ledger::services::{get_user_activity, TransactionView};
 use crate::shared::money::format_kobo_as_naira;
 use crate::shared::render::render_page;
 use crate::AppState;
