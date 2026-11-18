@@ -123,7 +123,7 @@ fn check_facts_match_deposit(
     Ok(()) // no semicolon
 }
 
-// marks the deposit successful and credits the wallet, all in one transaction
+// marks the deposit successful, credits the wallet and writes the ledger row, all in one transaction
 async fn settle_successful_deposit(pool: &PgPool, reference: &str) -> Result<(), DepositError> {
     let mut tx = pool.begin().await?;
 
@@ -136,14 +136,26 @@ async fn settle_successful_deposit(pool: &PgPool, reference: &str) -> Result<(),
     };
 
     // the amount comes from our own row, not from the payload
-    let wallet_was_credited =
+    let new_balance =
         update_wallet_balance(&mut tx, claimed_deposit.user_id, claimed_deposit.amount).await?;
 
     // no wallet means no credit, so the whole transaction is thrown away
     // and the deposit stays pending, so a retry can work once the wallet exists
-    if !wallet_was_credited {
+    let Some(wallet_balance_after) = new_balance else {
         return Err(DepositError::WalletNotFound);
-    }
+    };
+
+    // the ledger row is written on the same tx, so it is saved only if the credit is
+    let ledger_row = NewLedgerEntry {
+        user_id: claimed_deposit.user_id,
+        entry_type: LedgerEntryType::Deposit,
+        amount: claimed_deposit.amount,
+        plan_id: None,
+        remark: None,
+        reference: claimed_deposit.reference.clone(),
+        wallet_balance_after,
+    };
+    record_transaction(&mut tx, ledger_row).await?;
 
     tx.commit().await?;
 
