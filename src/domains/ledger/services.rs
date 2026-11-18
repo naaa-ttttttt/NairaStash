@@ -89,3 +89,65 @@ fn build_view(entry: &LedgerEntry) -> TransactionView {
         balance_after: format_kobo_as_naira(entry.wallet_balance_after),
     }
 }
+
+
+// the amount must be more than zero
+fn check_amount(amount: i64) -> Result<(), LedgerError> {
+    if amount <= 0 {
+        return Err(LedgerError::InvalidAmount);
+    }
+    Ok(()) // no semicolon
+}
+
+// the wallet can never hold a negative balance
+fn check_balance(balance: i64) -> Result<(), LedgerError> {
+    if balance < 0 {
+        return Err(LedgerError::InvalidBalance);
+    }
+    Ok(()) // no semicolon
+}
+
+// plan movements need a plan, wallet movements must not have one
+fn check_plan_matches_type(
+    entry_type: LedgerEntryType,
+    plan_id: Option<Uuid>,
+) -> Result<(), LedgerError> {
+    match (entry_type, plan_id) {
+        (LedgerEntryType::PlanContribution | LedgerEntryType::PlanWithdrawal, None) => {
+            Err(LedgerError::PlanRequired)
+        }
+        (LedgerEntryType::Deposit | LedgerEntryType::Payout, Some(_)) => {
+            Err(LedgerError::PlanNotAllowed)
+        }
+        _ => Ok(()), // no semicolon
+    }
+}
+
+// trims the remark, an empty one becomes nothing, a long one is refused
+fn clean_remark(remark: Option<String>) -> Result<Option<String>, LedgerError> {
+    let Some(text) = remark else {
+        return Ok(None);
+    };
+    let trimmed = text.trim();
+    if trimmed.is_empty() {
+        return Ok(None);
+    }
+    if trimmed.chars().count() > MAX_REMARK_LENGTH {
+        return Err(LedgerError::RemarkTooLong);
+    }
+    Ok(Some(trimmed.to_string())) // no semicolon
+}
+
+// checks every rule, then saves the transaction on the database transaction it is given (tx)
+// deposits and plans both call this, so the rules live in one place
+pub async fn record_transaction(
+    tx: &mut Transaction<'_, Postgres>,
+    mut new_entry: NewLedgerEntry,
+) -> Result<(), LedgerError> {
+    check_amount(new_entry.amount)?;
+    check_balance(new_entry.wallet_balance_after)?;
+    check_plan_matches_type(new_entry.entry_type, new_entry.plan_id)?;
+    new_entry.remark = clean_remark(new_entry.remark)?;
+    repo::save_transaction(tx, &new_entry).await?;
+    Ok(()) // no semicolon
+}
