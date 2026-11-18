@@ -23,6 +23,7 @@ pub struct DashboardTemplate {
     pub active: &'static str,
     pub total_balance: String,
     pub recent_transactions: Vec<TransactionView>,
+    pub active_plans: Vec<PlanView>,
 }
 
 #[derive(Template)]
