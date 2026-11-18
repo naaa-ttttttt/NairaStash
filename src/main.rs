@@ -52,6 +52,7 @@ async fn main() {
         .merge(domains::groups::routes(shared_state.clone()))
         .merge(domains::withdrawals::routes(shared_state.clone()))
         .merge(domains::profile::routes(shared_state.clone()))
+        .merge(domains::ledger::routes(shared_state.clone()))
 
         // Nest your Paystack deposit engine slice under a clean API prefix
         .nest("/api/deposits", domains::deposits::routes::deposit_routes(shared_state.clone()))
