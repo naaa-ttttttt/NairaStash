@@ -51,6 +51,9 @@ fn webhook_status_for(error: &DepositError) -> StatusCode {
         | DepositError::AmountMismatch
         | DepositError::InvalidCurrency
         | DepositError::InvalidStatus => StatusCode::OK,
+        DepositError::DatabaseError(_) | DepositError::WalletNotFound | DepositError::Ledger(_) => {
+            StatusCode::INTERNAL_SERVER_ERROR
+        }
     }
 }
 
