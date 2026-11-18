@@ -20,6 +20,7 @@ use crate::AppState;
 pub struct DashboardTemplate {
     pub active: &'static str,
     pub total_balance: String,
+    pub recent_transactions: Vec<TransactionView>,
 }
 
 #[derive(Template)]
