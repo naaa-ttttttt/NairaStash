@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Transaction · NairaStash{% endblock %}
+
+{% block content %}
+<header class="sticky top-0 z-30 flex items-center gap-3 px-5 h-16 bg-forest-900/50 backdrop-blur-xl">
+  <a href="/activity" aria-label="Back to activity"
+    class="size-10 rounded-full glass text-white flex items-center justify-center hover:bg-white/10 transition-colors">
+    <span class="material-symbols-outlined text-[20px]">arrow_back</span>
+  </a>
+  <div class="leading-tight">
+    <h1 class="text-base font-semibold text-white">Transaction details</h1>
+    <p class="text-[11px] text-white/60">{{ transaction.type_label }}</p>
+  </div>
+</header>
+
+<main class="flex-1 flex flex-col gap-4 px-5 pt-4 pb-6">
+
+  <section class="glass rounded-3xl p-6 flex flex-col items-center text-center gap-2">
+    <div class="size-14 rounded-full bg-lime/15 text-lime flex items-center justify-center">
+      <span class="material-symbols-outlined text-[28px]">check_circle</span>
+    </div>
+    <p class="text-sm text-white/70">{{ transaction.label }}</p>
+    <p class="text-3xl font-semibold tracking-tight {% if transaction.is_credit %}text-lime{% else %}text-white{% endif %}">{{ transaction.sign }}₦{{ transaction.amount }}</p>
+    <span class="rounded-full bg-lime/15 text-lime px-3 py-1 text-xs font-semibold">Successful</span>
+  </section>
+
+  <section class="glass rounded-3xl divide-y divide-white/10 overflow-hidden">
+    <div class="px-4 py-3.5">
+      <p class="text-[11px] text-white/60 uppercase tracking-wider">Type</p>
+      <p class="mt-0.5 text-sm font-semibold text-white">{{ transaction.type_label }}</p>
+    </div>
+    <div class="px-4 py-3.5">
+      <p class="text-[11px] text-white/60 uppercase tracking-wider">Date</p>
+      <p class="mt-0.5 text-sm font-semibold text-white">{{ transaction.date }}</p>
+    </div>
+    {% if let Some(plan_id) = transaction.plan_id %}
+    <div class="px-4 py-3.5">
+      <p class="text-[11px] text-white/60 uppercase tracking-wider">Plan</p>
+      <a href="/plans/{{ plan_id }}" class="mt-0.5 text-sm font-semibold text-lime">{{ transaction.plan_name }}</a>
+    </div>
+    {% endif %}
+    {% if let Some(remark) = transaction.remark %}
+    <div class="px-4 py-3.5">
+      <p class="text-[11px] text-white/60 uppercase tracking-wider">Remark</p>
+      <p class="mt-0.5 text-sm text-white">{{ remark }}</p>
+    </div>
+    {% endif %}
+    <div class="px-4 py-3.5">
+      <p class="text-[11px] text-white/60 uppercase tracking-wider">Reference</p>
+      <p class="mt-0.5 text-sm font-semibold text-white break-all">{{ transaction.reference }}</p>
+    </div>
+    <div class="px-4 py-3.5">
+      <p class="text-[11px] text-white/60 uppercase tracking-wider">Wallet balance after</p>
+      <p class="mt-0.5 text-sm font-semibold text-white">₦{{ transaction.balance_after }}</p>
+    </div>
+  </section>
+
+</main>
+{% endblock %}
