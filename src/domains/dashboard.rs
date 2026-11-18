@@ -68,6 +68,9 @@ async fn fetch_wallet_balance_in_kobo(db: &PgPool, user_id: Uuid) -> Result<i64,
     Ok(balance.unwrap_or(0)) // no semicolon
 }
 
+// how many transactions the dashboard shows
+const RECENT_ACTIVITY_LIMIT: i64 = 5;
+
 // AuthUser is the guard: no valid session sends the visitor to /login
 pub async fn dashboard_handler(auth: AuthUser, State(state): State<AppState>) -> Response {
     // a failed read is an error page, never a fake zero balance
@@ -79,14 +82,25 @@ pub async fn dashboard_handler(auth: AuthUser, State(state): State<AppState>) ->
         }
     };
 
+        // a failed read is an error page, never a fake empty list
+    let recent_transactions =
+        match get_user_activity(&state.db, auth.user_id, RECENT_ACTIVITY_LIMIT).await {
+            Ok(transactions) => transactions,
+            Err(err) => {
+                eprintln!("Could not read recent activity: {:?}", err);
+                return StatusCode::INTERNAL_SERVER_ERROR.into_response();
+            }
+        };
+
     let page = DashboardTemplate {
         active: "home", // the nav bar calls this tab "home"
         total_balance: format_kobo_as_naira(balance_in_kobo),
+        recent_transactions,
     };
 
     render_page(page, StatusCode::OK)
 }
-
+    
 // the page that adds money to the wallet, it shows the current wallet balance
 pub async fn deposit_page_handler(auth: AuthUser, State(state): State<AppState>) -> Response {
     let balance_in_kobo = match fetch_wallet_balance_in_kobo(&state.db, auth.user_id).await {
