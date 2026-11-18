@@ -21,7 +21,6 @@ pub enum StartDepositError {
     AmountTooLarge,
     UserNotFound,
     Database(sqlx::Error),
-    Ledger(LedgerError),
     Paystack(reqwest::Error),
 }
 
@@ -80,6 +79,7 @@ pub enum DepositError {
     InvalidStatus,
     WalletNotFound,
     DatabaseError(sqlx::Error),
+    Ledger(LedgerError),
 }
 
 impl From<sqlx::Error> for DepositError {
