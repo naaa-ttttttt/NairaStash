@@ -111,12 +111,18 @@ pub async fn count_plan_contributions(pool: &PgPool, plan_id: Uuid) -> Result<i6
     Ok(count) // no semicolon
 }
 
+const SAVE_TRANSACTION_SQL: &str = "
+    INSERT INTO ledger_entries
+        (entry_id, user_id, entry_type, amount, plan_id, remark, reference, wallet_balance_after)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)";
+
 const GET_TRANSACTION_SQL: &str = "
     SELECT e.entry_id, e.user_id, e.entry_type, e.amount, e.plan_id, p.name AS plan_name,
            e.remark, e.reference, e.wallet_balance_after, e.created_at
     FROM ledger_entries e
     LEFT JOIN savings_plans p ON p.plan_id = e.plan_id
     WHERE e.entry_id = $1 AND e.user_id = $2";
+
 
 const LIST_USER_TRANSACTIONS_SQL: &str = "
     SELECT e.entry_id, e.user_id, e.entry_type, e.amount, e.plan_id, p.name AS plan_name,
