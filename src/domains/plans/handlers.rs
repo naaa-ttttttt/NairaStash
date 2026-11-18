@@ -72,7 +72,7 @@ pub struct NewPlanForm {
 // ---------------------------------------------------------------- helpers
 
 // turns a saved plan into display strings
-fn plan_view(plan: &SavingsPlan) -> PlanView {
+pub fn plan_view(plan: &SavingsPlan) -> PlanView {
     // i128 so balance * 100 can never overflow, capped at 100 percent
     let progress_percent = match plan.target_amount {
         Some(target) if target > 0 => {
