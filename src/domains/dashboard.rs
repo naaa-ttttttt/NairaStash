@@ -35,12 +35,6 @@ pub struct NotificationsTemplate {
 }
 
 #[derive(Template)]
-#[template(path = "activity.html")]
-pub struct ActivityTemplate {
-    pub active: &'static str,
-}
-
-#[derive(Template)]
 #[template(path = "link_account.html")]
 pub struct LinkAccountTemplate {
     pub active: &'static str,
@@ -52,12 +46,11 @@ pub struct NotFoundTemplate {
     pub active: &'static str,
 }
 
-// the profile page lives in profile.rs, so there is no profile route here
+// the profile page lives in profile.rs and the activity pages live in the ledger feature
 pub fn routes(state: AppState) -> Router {
     Router::new()
         .route("/", get(dashboard_handler))
         .route("/deposit", get(deposit_page_handler))
-        .route("/activity", get(activity_handler))
         .route("/accounts/link", get(link_account_handler))
         .route("/notifications", get(notifications_handler))
         .with_state(state)
@@ -108,10 +101,6 @@ pub async fn deposit_page_handler(auth: AuthUser, State(state): State<AppState>)
     };
 
     render_page(page, StatusCode::OK)
-}
-
-pub async fn activity_handler(_auth: AuthUser) -> Response {
-    render_page(ActivityTemplate { active: "activity" }, StatusCode::OK)
 }
 
 pub async fn link_account_handler(_auth: AuthUser) -> Response {
