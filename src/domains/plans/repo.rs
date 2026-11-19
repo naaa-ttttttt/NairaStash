@@ -10,7 +10,7 @@ pub enum PlanFrequency {
     Monthly,
 }
 
-// locked plans have an end date, flexible plans do not
+// locked plans pay nothing out before the end date, flexible plans allow early withdrawal with a fee
 #[derive(Debug, Clone, Copy, PartialEq, Eq, sqlx::Type)]
 #[sqlx(type_name = "lock_mode", rename_all = "lowercase")]
 pub enum LockMode {
@@ -27,6 +27,7 @@ pub enum PlanStatus {
 }
 
 // one row of the savings_plans table, money is in kobo
+// every plan has an end date and a target, the target is always amount x number of periods
 #[derive(Debug, Clone, FromRow)]
 pub struct SavingsPlan {
     pub plan_id: Uuid,
@@ -34,15 +35,15 @@ pub struct SavingsPlan {
     pub name: String,
     pub frequency: PlanFrequency,
     pub amount_per_frequency: i64,
-    pub target_amount: Option<i64>,
+    pub target_amount: i64,
     pub lock_mode: LockMode,
-    pub end_date: Option<NaiveDate>,
+    pub end_date: NaiveDate,
     pub balance: i64,
     pub status: PlanStatus,
     pub created_at: DateTime<Utc>,
 }
 
-// what we need from the user to create a plan
+// what we need to create a plan
 // balance, status and created_at are set by the database defaults
 #[derive(Debug, Clone)]
 pub struct NewPlan {
@@ -50,9 +51,9 @@ pub struct NewPlan {
     pub name: String,
     pub frequency: PlanFrequency,
     pub amount_per_frequency: i64,
-    pub target_amount: Option<i64>,
+    pub target_amount: i64,
     pub lock_mode: LockMode,
-    pub end_date: Option<NaiveDate>,
+    pub end_date: NaiveDate,
 }
 
 // create a plan and give back the saved row
