@@ -43,3 +43,25 @@ pub async fn lock_plan_for_update(
     .fetch_optional(&mut **tx)
     .await // no semicolon
 }
+
+
+// takes money out of the wallet only if the wallet has enough
+// gives back the new wallet balance, or None when the wallet is too low
+pub async fn debit_wallet_if_enough(
+    tx: &mut Transaction<'_, Postgres>,
+    user_id: Uuid,
+    amount_in_kobo: i64,
+) -> Result<Option<i64>, sqlx::Error> {
+    sqlx::query_scalar::<_, i64>(
+        r#"
+        UPDATE wallets
+        SET balance = balance - $1
+        WHERE user_id = $2 AND balance >= $1
+        RETURNING balance
+        "#,
+    )
+    .bind(amount_in_kobo)
+    .bind(user_id)
+    .fetch_optional(&mut **tx)
+    .await // no semicolon
+}
