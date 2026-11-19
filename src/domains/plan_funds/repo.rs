@@ -131,3 +131,22 @@ pub async fn subtract_from_plan_balance(
     .fetch_optional(&mut **tx)
     .await // no semicolon
 }
+
+// marks the plan as closed, used by liquidate and by the payout job later
+pub async fn close_plan(
+    tx: &mut Transaction<'_, Postgres>,
+    plan_id: Uuid,
+) -> Result<(), sqlx::Error> {
+    sqlx::query(
+        r#"
+        UPDATE savings_plans
+        SET status = 'closed'
+        WHERE plan_id = $1
+        "#,
+    )
+    .bind(plan_id)
+    .execute(&mut **tx)
+    .await?;
+
+    Ok(()) // no semicolon
+}
