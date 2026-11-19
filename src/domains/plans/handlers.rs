@@ -9,7 +9,7 @@ use serde::Deserialize;
 use uuid::Uuid;
 
 use super::repo::{LockMode, PlanFrequency, PlanStatus, SavingsPlan};
-use super::services::{self, CreatePlanInput, PlanError};
+use super::services::{self, CreatePlanInput, PlanAmountInput, PlanError};
 use crate::domains::auth::handlers::AuthUser;
 use crate::domains::dashboard::not_found_handler;
 use crate::shared::money::{format_kobo_as_naira, parse_naira_to_kobo};
@@ -34,6 +34,46 @@ pub struct PlanView {
     pub is_active: bool,
 }
 
+// what the form shows, so it can be filled again after an error
+#[derive(Clone)]
+pub struct NewPlanValues {
+    pub name: String,
+    pub frequency: String,
+    pub amount: String,
+    pub lock_mode: String,
+    pub end_date: String,
+    pub has_target: bool,
+    pub target: String,
+}
+
+impl NewPlanValues {
+    // the first visit: nothing typed, daily and flexible pre-picked
+    fn empty() -> Self {
+        NewPlanValues {
+            name: String::new(),
+            frequency: "daily".to_string(),
+            amount: String::new(),
+            lock_mode: "flexible".to_string(),
+            end_date: String::new(),
+            has_target: false,
+            target: String::new(),
+        }
+    }
+
+    // copies what the user typed, so we can show it again if something is wrong
+    fn from_form(form: &NewPlanForm) -> Self {
+        NewPlanValues {
+            name: form.name.clone(),
+            frequency: form.frequency.clone(),
+            amount: form.amount.clone().unwrap_or_default(),
+            lock_mode: form.lock_mode.clone(),
+            end_date: form.end_date.clone().unwrap_or_default(),
+            has_target: form.has_target.is_some(),
+            target: form.target.clone().unwrap_or_default(),
+        }
+    }
+}
+
 #[derive(Template)]
 #[template(path = "plans.html")]
 pub struct PlansTemplate {
@@ -48,6 +88,7 @@ pub struct PlansTemplate {
 pub struct NewPlanTemplate {
     pub active: &'static str,
     pub error: Option<String>,
+    pub form: NewPlanValues,
 }
 
 #[derive(Template)]
@@ -61,12 +102,12 @@ pub struct PlanDetailTemplate {
 #[derive(Deserialize)]
 pub struct NewPlanForm {
     name: String,
-    frequency: String,           // "daily", "weekly" or "monthly"
-    amount: String,              // naira text like "2,000.50"
-    lock_mode: String,           // "flexible" or "locked"
-    end_date: Option<String>,    // "2027-03-01", only used when locked
-    has_target: Option<String>,  // a checked checkbox sends "on", unchecked sends nothing
-    target: Option<String>,      // naira text, only used when has_target is on
+    frequency: String,          // "daily", "weekly" or "monthly"
+    amount: Option<String>,     // naira text, not sent when the target switch is on
+    lock_mode: String,          // "flexible" or "locked"
+    end_date: Option<String>,   // "2027-03-01", required
+    has_target: Option<String>, // a checked checkbox sends "on", unchecked sends nothing
+    target: Option<String>,     // naira text, used when has_target is on
 }
 
 // ---------------------------------------------------------------- helpers
@@ -74,12 +115,11 @@ pub struct NewPlanForm {
 // turns a saved plan into display strings
 pub fn plan_view(plan: &SavingsPlan) -> PlanView {
     // i128 so balance * 100 can never overflow, capped at 100 percent
-    let progress_percent = match plan.target_amount {
-        Some(target) if target > 0 => {
-            let percent = (plan.balance as i128) * 100 / (target as i128);
-            percent.min(100) as i64
-        }
-        _ => 0,
+    let progress_percent = if plan.target_amount > 0 {
+        let percent = (plan.balance as i128) * 100 / (plan.target_amount as i128);
+        percent.min(100) as i64
+    } else {
+        0
     };
 
     let frequency_label = match plan.frequency {
@@ -106,10 +146,10 @@ pub fn plan_view(plan: &SavingsPlan) -> PlanView {
         unit,
         amount: format_kobo_as_naira(plan.amount_per_frequency),
         balance: format_kobo_as_naira(plan.balance),
-        target: plan.target_amount.map(format_kobo_as_naira),
+        target: Some(format_kobo_as_naira(plan.target_amount)),
         progress_percent,
         lock_label,
-        end_date: plan.end_date.map(|date| date.format("%b %d, %Y").to_string()),
+        end_date: Some(plan.end_date.format("%b %d, %Y").to_string()),
         created_on: plan.created_at.format("%b %d, %Y").to_string(),
         is_active: plan.status == PlanStatus::Active,
     }
@@ -130,41 +170,32 @@ fn build_create_input(user_id: Uuid, form: NewPlanForm) -> Result<CreatePlanInpu
         _ => return Err(PlanError::InvalidLockMode),
     };
 
-    let amount_per_frequency =
-        parse_naira_to_kobo(&form.amount).ok_or(PlanError::InvalidAmount)?;
+    // every plan needs an end date, the service checks it is in the future
+    let end_date_text = form.end_date.unwrap_or_default();
+    if end_date_text.trim().is_empty() {
+        return Err(PlanError::MissingEndDate);
+    }
+    let end_date = NaiveDate::parse_from_str(end_date_text.trim(), "%Y-%m-%d")
+        .map_err(|_| PlanError::InvalidEndDate)?;
 
-    // only a locked plan has an end date, the service checks it is in the future
-    let end_date = match lock_mode {
-        LockMode::Flexible => None,
-        LockMode::Locked => {
-            let text = form.end_date.unwrap_or_default();
-            if text.trim().is_empty() {
-                return Err(PlanError::MissingEndDate);
-            }
-            let date = NaiveDate::parse_from_str(text.trim(), "%Y-%m-%d")
-                .map_err(|_| PlanError::InvalidEndDate)?;
-            Some(date)
-        }
-    };
-
-    // the target only counts when the box is checked and something is typed
-    let target_text = form.target.unwrap_or_default();
-    let wants_target = form.has_target.is_some() && !target_text.trim().is_empty();
-
-    let target_amount = if wants_target {
-        Some(parse_naira_to_kobo(&target_text).ok_or(PlanError::InvalidTarget)?)
+    // with the target switch on we use the target, otherwise the typed amount
+    let amount = if form.has_target.is_some() {
+        let target_text = form.target.unwrap_or_default();
+        let target = parse_naira_to_kobo(&target_text).ok_or(PlanError::InvalidTarget)?;
+        PlanAmountInput::FromTarget(target)
     } else {
-        None
+        let amount_text = form.amount.unwrap_or_default();
+        let amount = parse_naira_to_kobo(&amount_text).ok_or(PlanError::InvalidAmount)?;
+        PlanAmountInput::PerPeriod(amount)
     };
 
     Ok(CreatePlanInput {
         user_id,
         name: form.name,
         frequency,
-        amount_per_frequency,
-        target_amount,
         lock_mode,
         end_date,
+        amount,
     }) // no semicolon
 }
 
@@ -192,7 +223,7 @@ fn plan_error_message(err: &PlanError) -> (StatusCode, &'static str) {
         PlanError::InvalidEndDate => (StatusCode::BAD_REQUEST, "Please pick a valid end date."),
         PlanError::MissingEndDate | PlanError::EndDateNotInFuture => (
             StatusCode::BAD_REQUEST,
-            "Locked plans need an end date in the future.",
+            "Please pick an end date in the future.",
         ),
         PlanError::NotFound => (StatusCode::NOT_FOUND, "We could not find that plan."),
         PlanError::Database(e) => {
@@ -205,12 +236,13 @@ fn plan_error_message(err: &PlanError) -> (StatusCode, &'static str) {
     }
 }
 
-// the new plan page again, with the error shown above the form
-fn new_plan_error_page(err: &PlanError) -> Response {
+// the new plan page again, with the error shown above the form and what the user typed
+fn new_plan_error_page(err: &PlanError, values: NewPlanValues) -> Response {
     let (status, message) = plan_error_message(err);
     let page = NewPlanTemplate {
         active: "plans",
         error: Some(message.to_string()),
+        form: values,
     };
     render_page(page, status)
 }
@@ -254,7 +286,12 @@ pub async fn plans_page_handler(auth: AuthUser, State(state): State<AppState>) -
 
 // GET /plans/new: the empty form
 pub async fn new_plan_page_handler(_auth: AuthUser) -> Response {
-    render_page(NewPlanTemplate { active: "plans", error: None }, StatusCode::OK)
+    let page = NewPlanTemplate {
+        active: "plans",
+        error: None,
+        form: NewPlanValues::empty(),
+    };
+    render_page(page, StatusCode::OK)
 }
 
 // POST /plans/new: validate, save, then redirect so a refresh cannot resubmit
@@ -263,14 +300,17 @@ pub async fn create_plan_handler(
     State(state): State<AppState>,
     Form(form): Form<NewPlanForm>,
 ) -> Response {
+    // copy what was typed first, build_create_input takes the form
+    let values = NewPlanValues::from_form(&form);
+
     let input = match build_create_input(auth.user_id, form) {
         Ok(input) => input,
-        Err(err) => return new_plan_error_page(&err),
+        Err(err) => return new_plan_error_page(&err, values),
     };
 
     match services::create_plan(&state.db, input).await {
         Ok(_) => Redirect::to("/plans").into_response(), // 303 see other
-        Err(err) => new_plan_error_page(&err),
+        Err(err) => new_plan_error_page(&err, values),
     }
 }
 
