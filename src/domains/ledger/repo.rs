@@ -13,12 +13,14 @@ pub enum LedgerEntryType {
 }
 
 // one row of the ledger_entries table, money is in kobo
+// amount always matches the wallet movement, fee is extra information (0 when there is none)
 #[derive(Debug, Clone, FromRow)]
 pub struct LedgerEntry {
     pub entry_id: Uuid,
     pub user_id: Uuid,
     pub entry_type: LedgerEntryType,
     pub amount: i64,
+    pub fee: i64,
     pub plan_id: Option<Uuid>,
     pub plan_name: Option<String>,
     pub remark: Option<String>,
@@ -33,6 +35,7 @@ pub struct NewLedgerEntry {
     pub user_id: Uuid,
     pub entry_type: LedgerEntryType,
     pub amount: i64,
+    pub fee: i64,
     pub plan_id: Option<Uuid>,
     pub remark: Option<String>,
     pub reference: String,
@@ -52,6 +55,7 @@ pub async fn save_transaction(
         .bind(new_entry.user_id)
         .bind(new_entry.entry_type)
         .bind(new_entry.amount)
+        .bind(new_entry.fee)
         .bind(new_entry.plan_id)
         .bind(&new_entry.remark)
         .bind(&new_entry.reference)
@@ -113,19 +117,18 @@ pub async fn count_plan_contributions(pool: &PgPool, plan_id: Uuid) -> Result<i6
 
 const SAVE_TRANSACTION_SQL: &str = "
     INSERT INTO ledger_entries
-        (entry_id, user_id, entry_type, amount, plan_id, remark, reference, wallet_balance_after)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)";
+        (entry_id, user_id, entry_type, amount, fee, plan_id, remark, reference, wallet_balance_after)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)";
 
 const GET_TRANSACTION_SQL: &str = "
-    SELECT e.entry_id, e.user_id, e.entry_type, e.amount, e.plan_id, p.name AS plan_name,
+    SELECT e.entry_id, e.user_id, e.entry_type, e.amount, e.fee, e.plan_id, p.name AS plan_name,
            e.remark, e.reference, e.wallet_balance_after, e.created_at
     FROM ledger_entries e
     LEFT JOIN savings_plans p ON p.plan_id = e.plan_id
     WHERE e.entry_id = $1 AND e.user_id = $2";
 
-
 const LIST_USER_TRANSACTIONS_SQL: &str = "
-    SELECT e.entry_id, e.user_id, e.entry_type, e.amount, e.plan_id, p.name AS plan_name,
+    SELECT e.entry_id, e.user_id, e.entry_type, e.amount, e.fee, e.plan_id, p.name AS plan_name,
            e.remark, e.reference, e.wallet_balance_after, e.created_at
     FROM ledger_entries e
     LEFT JOIN savings_plans p ON p.plan_id = e.plan_id
@@ -134,7 +137,7 @@ const LIST_USER_TRANSACTIONS_SQL: &str = "
     LIMIT $2";
 
 const LIST_PLAN_TRANSACTIONS_SQL: &str = "
-    SELECT e.entry_id, e.user_id, e.entry_type, e.amount, e.plan_id, p.name AS plan_name,
+    SELECT e.entry_id, e.user_id, e.entry_type, e.amount, e.fee, e.plan_id, p.name AS plan_name,
            e.remark, e.reference, e.wallet_balance_after, e.created_at
     FROM ledger_entries e
     LEFT JOIN savings_plans p ON p.plan_id = e.plan_id
