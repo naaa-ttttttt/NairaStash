@@ -43,3 +43,8 @@ pub struct AddMoneyResult {
     pub wallet_balance_after: i64,
     pub plan_balance_after: i64,
 }
+
+// how many whole periods the amount can pay, the leftover is dropped
+fn count_whole_periods(amount: i64, amount_per_frequency: i64) -> i64 {
+    amount / amount_per_frequency // no semicolon
+}
