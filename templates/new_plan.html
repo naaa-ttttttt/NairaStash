@@ -24,36 +24,71 @@
     <!-- Name -->
     <section class="glass rounded-3xl p-5 flex flex-col gap-3">
       <label for="plan-name" class="text-xs font-semibold text-white/80">Plan name</label>
-      <input id="plan-name" name="name" type="text" required maxlength="60"
+      <input id="plan-name" name="name" type="text" required maxlength="60" value="{{ form.name }}"
         placeholder="e.g. Rent, New laptop"
         class="w-full h-12 px-4 rounded-2xl bg-black/25 border border-white/10 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-lime/60 transition-colors">
     </section>
 
-    <!-- Frequency and amount -->
-    <section class="glass rounded-3xl p-5 flex flex-col gap-4">
-      <div>
-        <h2 class="text-xs font-semibold text-white/80">How often</h2>
-        <div class="flex items-center gap-2 mt-2">
-          <label class="cursor-pointer flex-1">
-            <input type="radio" name="frequency" value="daily" class="sr-only peer" checked>
-            <span class="block text-center px-3.5 py-2.5 rounded-full border border-white/10 bg-white/[0.06] text-white/80 text-xs font-medium transition-colors peer-checked:bg-lime peer-checked:border-lime peer-checked:text-lime-ink peer-checked:font-semibold">Daily</span>
-          </label>
-          <label class="cursor-pointer flex-1">
-            <input type="radio" name="frequency" value="weekly" class="sr-only peer">
-            <span class="block text-center px-3.5 py-2.5 rounded-full border border-white/10 bg-white/[0.06] text-white/80 text-xs font-medium transition-colors peer-checked:bg-lime peer-checked:border-lime peer-checked:text-lime-ink peer-checked:font-semibold">Weekly</span>
-          </label>
-          <label class="cursor-pointer flex-1">
-            <input type="radio" name="frequency" value="monthly" class="sr-only peer">
-            <span class="block text-center px-3.5 py-2.5 rounded-full border border-white/10 bg-white/[0.06] text-white/80 text-xs font-medium transition-colors peer-checked:bg-lime peer-checked:border-lime peer-checked:text-lime-ink peer-checked:font-semibold">Monthly</span>
-          </label>
+    <!-- End date -->
+    <section class="glass rounded-3xl p-5 flex flex-col gap-3">
+      <label for="end-date" class="text-xs font-semibold text-white/80">End date</label>
+      <input id="end-date" name="end_date" type="date" required value="{{ form.end_date }}" style="color-scheme: dark;"
+        class="w-full h-12 px-4 rounded-2xl bg-black/25 border border-white/10 text-sm text-white focus:outline-none focus:border-lime/60 transition-colors">
+      <p class="text-xs text-white/60">Every plan has an end date. Your savings are paid to your wallet on that day.</p>
+    </section>
+
+    <!-- Target -->
+    <section class="glass rounded-3xl p-5">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-xs font-semibold text-white/80">Savings target</h2>
+          <p class="text-xs text-white/60">Optional, we work out how much to save each time</p>
         </div>
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input id="target-toggle" name="has_target" type="checkbox" class="sr-only peer" {% if form.has_target %}checked{% endif %}>
+          <div class="w-12 h-7 bg-white/15 rounded-full peer-checked:bg-lime after:content-[''] after:absolute after:top-[3px] after:start-[3px] after:bg-white after:rounded-full after:h-5 after:w-5 after:shadow after:transition-all peer-checked:after:translate-x-5 peer-checked:after:bg-lime-ink"></div>
+        </label>
       </div>
 
+      <div id="target-box" class="hidden mt-4 pt-4 border-t border-white/10">
+        <div class="flex items-center justify-between h-12 px-4 rounded-2xl bg-black/25 border border-white/10">
+          <span class="text-sm text-white/70">Target</span>
+          <div class="flex items-baseline gap-1">
+            <span class="text-sm text-white/50">₦</span>
+            <input id="target-input" name="target" type="text" inputmode="decimal" placeholder="500,000" value="{{ form.target }}"
+              class="w-28 bg-transparent text-sm font-semibold text-white text-right placeholder:text-white/25 focus:outline-none">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Frequency -->
+    <section class="glass rounded-3xl p-5 flex flex-col gap-3">
+      <h2 class="text-xs font-semibold text-white/80">How often</h2>
+      <div class="flex items-center gap-2">
+        <label class="cursor-pointer flex-1">
+          <input type="radio" name="frequency" value="daily" class="sr-only peer" {% if form.frequency == "daily" %}checked{% endif %}>
+          <span class="block text-center px-3.5 py-2.5 rounded-full border border-white/10 bg-white/[0.06] text-white/80 text-xs font-medium transition-colors peer-checked:bg-lime peer-checked:border-lime peer-checked:text-lime-ink peer-checked:font-semibold">Daily</span>
+        </label>
+        <label class="cursor-pointer flex-1">
+          <input type="radio" name="frequency" value="weekly" class="sr-only peer" {% if form.frequency == "weekly" %}checked{% endif %}>
+          <span class="block text-center px-3.5 py-2.5 rounded-full border border-white/10 bg-white/[0.06] text-white/80 text-xs font-medium transition-colors peer-checked:bg-lime peer-checked:border-lime peer-checked:text-lime-ink peer-checked:font-semibold">Weekly</span>
+        </label>
+        <label class="cursor-pointer flex-1">
+          <input type="radio" name="frequency" value="monthly" class="sr-only peer" {% if form.frequency == "monthly" %}checked{% endif %}>
+          <span class="block text-center px-3.5 py-2.5 rounded-full border border-white/10 bg-white/[0.06] text-white/80 text-xs font-medium transition-colors peer-checked:bg-lime peer-checked:border-lime peer-checked:text-lime-ink peer-checked:font-semibold">Monthly</span>
+        </label>
+      </div>
+      <p id="calc-preview" class="hidden text-xs text-white/60"></p>
+    </section>
+
+    <!-- Amount, hidden when a target is used -->
+    <section id="amount-box" class="glass rounded-3xl p-5 flex flex-col gap-4">
       <div>
         <h2 id="amount-label" class="text-xs font-semibold text-white/80">Amount per day</h2>
         <div class="flex items-baseline justify-center gap-1 py-6 mt-2 rounded-2xl bg-black/25 border border-white/10">
           <span class="text-3xl font-medium text-white/50">₦</span>
-          <input id="amount" name="amount" type="text" inputmode="decimal" required placeholder="2,000"
+          <input id="amount" name="amount" type="text" inputmode="decimal" required placeholder="2,000" value="{{ form.amount }}"
             class="w-40 bg-transparent text-4xl font-semibold tracking-tight text-white text-center placeholder:text-white/25 focus:outline-none">
         </div>
       </div>
@@ -65,7 +100,7 @@
         <button type="button" data-val="5000" class="quick-btn py-2.5 rounded-full bg-white/[0.06] text-white/80 border border-white/10 text-xs font-medium hover:bg-white/10 transition-colors text-center">₦5,000</button>
       </div>
 
-      <p class="text-xs text-white/60">In one year you would save <span id="proj-year" class="font-semibold text-lime">₦0.00</span></p>
+      <p class="text-xs text-white/60">By your end date you would save <span id="proj-total" class="font-semibold text-lime">₦0.00</span></p>
     </section>
 
     <!-- Lock mode -->
@@ -73,46 +108,15 @@
       <h2 class="text-xs font-semibold text-white/80">Plan type</h2>
       <div class="flex items-center gap-2">
         <label class="cursor-pointer flex-1">
-          <input type="radio" name="lock_mode" value="flexible" class="sr-only peer" checked>
+          <input type="radio" name="lock_mode" value="flexible" class="sr-only peer" {% if form.lock_mode == "flexible" %}checked{% endif %}>
           <span class="block text-center px-3.5 py-2.5 rounded-full border border-white/10 bg-white/[0.06] text-white/80 text-xs font-medium transition-colors peer-checked:bg-lime peer-checked:border-lime peer-checked:text-lime-ink peer-checked:font-semibold">Flexible</span>
         </label>
         <label class="cursor-pointer flex-1">
-          <input type="radio" name="lock_mode" value="locked" class="sr-only peer">
+          <input type="radio" name="lock_mode" value="locked" class="sr-only peer" {% if form.lock_mode == "locked" %}checked{% endif %}>
           <span class="block text-center px-3.5 py-2.5 rounded-full border border-white/10 bg-white/[0.06] text-white/80 text-xs font-medium transition-colors peer-checked:bg-lime peer-checked:border-lime peer-checked:text-lime-ink peer-checked:font-semibold">Locked</span>
         </label>
       </div>
-      <p class="text-xs text-white/60">Flexible plans have no end date. Locked plans end on a date you choose.</p>
-
-      <div id="end-date-box" class="hidden flex-col gap-2 pt-3 border-t border-white/10">
-        <label for="end-date" class="text-xs font-semibold text-white/80">End date</label>
-        <input id="end-date" name="end_date" type="date" style="color-scheme: dark;"
-          class="w-full h-12 px-4 rounded-2xl bg-black/25 border border-white/10 text-sm text-white focus:outline-none focus:border-lime/60 transition-colors">
-      </div>
-    </section>
-
-    <!-- Target -->
-    <section class="glass rounded-3xl p-5">
-      <div class="flex items-center justify-between">
-        <div>
-          <h2 class="text-xs font-semibold text-white/80">Savings target</h2>
-          <p class="text-xs text-white/60">Optional goal for this plan</p>
-        </div>
-        <label class="relative inline-flex items-center cursor-pointer">
-          <input id="target-toggle" name="has_target" type="checkbox" class="sr-only peer">
-          <div class="w-12 h-7 bg-white/15 rounded-full peer-checked:bg-lime after:content-[''] after:absolute after:top-[3px] after:start-[3px] after:bg-white after:rounded-full after:h-5 after:w-5 after:shadow after:transition-all peer-checked:after:translate-x-5 peer-checked:after:bg-lime-ink"></div>
-        </label>
-      </div>
-
-      <div id="target-box" class="hidden mt-4 pt-4 border-t border-white/10">
-        <div class="flex items-center justify-between h-12 px-4 rounded-2xl bg-black/25 border border-white/10">
-          <span class="text-sm text-white/70">Target</span>
-          <div class="flex items-baseline gap-1">
-            <span class="text-sm text-white/50">₦</span>
-            <input name="target" type="text" inputmode="decimal" placeholder="500,000"
-              class="w-28 bg-transparent text-sm font-semibold text-white text-right placeholder:text-white/25 focus:outline-none">
-          </div>
-        </div>
-      </div>
+      <p class="text-xs text-white/60">Flexible plans can be withdrawn early for a 3% fee. Locked plans pay out only on the end date.</p>
     </section>
   </div>
 
@@ -129,15 +133,17 @@
 <script>
   (function () {
     var amount = document.getElementById('amount');
+    var amountBox = document.getElementById('amount-box');
     var amountLabel = document.getElementById('amount-label');
-    var projYear = document.getElementById('proj-year');
-    var endBox = document.getElementById('end-date-box');
+    var projTotal = document.getElementById('proj-total');
+    var endDate = document.getElementById('end-date');
     var targetToggle = document.getElementById('target-toggle');
     var targetBox = document.getElementById('target-box');
+    var targetInput = document.getElementById('target-input');
+    var preview = document.getElementById('calc-preview');
 
-    // how many saving times fit in a year, and the word for the label
-    var PERIODS = { daily: 365, weekly: 52, monthly: 12 };
     var WORDS = { daily: 'day', weekly: 'week', monthly: 'month' };
+    var DAY_MS = 86400000;
 
     function selected(name) {
       var checked = document.querySelector('input[name="' + name + '"]:checked');
@@ -148,15 +154,75 @@
       return '₦' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
-    // refreshes the label and the one-year total
-    function update() {
-      var freq = selected('frequency') || 'daily';
-      var value = parseFloat((amount.value || '').replace(/,/g, '')) || 0;
-      amountLabel.textContent = 'Amount per ' + WORDS[freq];
-      projYear.textContent = naira(value * PERIODS[freq]);
+    function startOfToday() {
+      var now = new Date();
+      return Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
     }
 
+    // the same day of the month k months later, clamped to the last day of a short month
+    function addMonths(year, month, day, k) {
+      var total = month + k;
+      var newYear = year + Math.floor(total / 12);
+      var newMonth = ((total % 12) + 12) % 12;
+      var daysInMonth = new Date(Date.UTC(newYear, newMonth + 1, 0)).getUTCDate();
+      return Date.UTC(newYear, newMonth, Math.min(day, daysInMonth));
+    }
+
+    // an estimate of how many cells fit, the server does the real count
+    function countPeriods(freq) {
+      if (!endDate.value) { return 0; }
+      var parts = endDate.value.split('-');
+      var end = Date.UTC(+parts[0], +parts[1] - 1, +parts[2]);
+      var start = startOfToday();
+      if (isNaN(end) || end < start) { return 0; }
+      var days = Math.round((end - start) / DAY_MS);
+      if (freq === 'daily') { return days + 1; }
+      if (freq === 'weekly') { return Math.floor(days / 7) + 1; }
+      var s = new Date(start);
+      var e = new Date(end);
+      var months = (e.getUTCFullYear() - s.getUTCFullYear()) * 12 + e.getUTCMonth() - s.getUTCMonth();
+      if (months > 0 && addMonths(s.getUTCFullYear(), s.getUTCMonth(), s.getUTCDate(), months) > end) {
+        months -= 1;
+      }
+      return months + 1;
+    }
+
+    // refreshes the labels, the preview and which box is shown
+    function update() {
+      var freq = selected('frequency') || 'daily';
+      var word = WORDS[freq];
+      var periods = countPeriods(freq);
+      var targetOn = targetToggle.checked;
+
+      targetBox.classList.toggle('hidden', !targetOn);
+      amountBox.classList.toggle('hidden', targetOn);
+      // a disabled input is not sent with the form
+      amount.disabled = targetOn;
+      amount.required = !targetOn;
+      targetInput.required = targetOn;
+
+      amountLabel.textContent = 'Amount per ' + word;
+
+      var value = parseFloat((amount.value || '').replace(/,/g, '')) || 0;
+      projTotal.textContent = naira(value * periods);
+
+      var target = parseFloat((targetInput.value || '').replace(/,/g, '')) || 0;
+      if (targetOn && target > 0 && periods > 0) {
+        var perPeriod = Math.ceil(target / periods);
+        preview.textContent = 'About ' + naira(perPeriod) + ' per ' + word + ', for ' + periods + ' ' + word + (periods === 1 ? '' : 's') + '. The exact amount is worked out when you create the plan.';
+        preview.classList.remove('hidden');
+      } else {
+        preview.classList.add('hidden');
+      }
+    }
+
+    // the end date must be after today
+    endDate.min = new Date(startOfToday() + DAY_MS).toISOString().slice(0, 10);
+
     amount.addEventListener('input', update);
+    endDate.addEventListener('input', update);
+    targetInput.addEventListener('input', update);
+    targetToggle.addEventListener('change', update);
 
     document.querySelectorAll('input[name="frequency"]').forEach(function (radio) {
       radio.addEventListener('change', update);
@@ -169,18 +235,7 @@
       });
     });
 
-    // the end date box only shows for locked plans
-    document.querySelectorAll('input[name="lock_mode"]').forEach(function (radio) {
-      radio.addEventListener('change', function () {
-        endBox.classList.toggle('hidden', selected('lock_mode') !== 'locked');
-        endBox.classList.toggle('flex', selected('lock_mode') === 'locked');
-      });
-    });
-
-    // the target box only shows when the switch is on
-    targetToggle.addEventListener('change', function () {
-      targetBox.classList.toggle('hidden', !targetToggle.checked);
-    });
+    update();
   })();
 </script>
 {% endblock %}
