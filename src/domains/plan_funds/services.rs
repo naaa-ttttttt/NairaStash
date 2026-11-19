@@ -56,3 +56,9 @@ fn count_empty_cells(target_amount: i64, amount_per_frequency: i64, filled_cells
     let total_cells = target_amount / amount_per_frequency;
     total_cells - filled_cells // no semicolon
 }
+
+
+// a fresh unique reference for one ledger row, the reference column must be unique
+fn make_contribution_reference() -> String {
+    format!("PC-{}", Uuid::new_v4().simple()) // no semicolon
+}
