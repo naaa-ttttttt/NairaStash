@@ -34,6 +34,12 @@
       <p class="text-[11px] text-white/60 uppercase tracking-wider">Date</p>
       <p class="mt-0.5 text-sm font-semibold text-white">{{ transaction.date }}</p>
     </div>
+    {% if let Some(fee) = transaction.fee %}
+    <div class="px-4 py-3.5">
+      <p class="text-[11px] text-white/60 uppercase tracking-wider">Early withdrawal fee</p>
+      <p class="mt-0.5 text-sm font-semibold text-white">₦{{ fee }}</p>
+    </div>
+    {% endif %}
     {% if let Some(plan_id) = transaction.plan_id %}
     <div class="px-4 py-3.5">
       <p class="text-[11px] text-white/60 uppercase tracking-wider">Plan</p>
