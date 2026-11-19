@@ -1,12 +1,15 @@
+//importing of external dependencies/libraries/crates
 use sqlx::PgPool;
 use reqwest::Client;
 use axum::Router;
 use crate::domains::deposits::pay_stack::PaystackConfig;
 
 
-// Register the domains module folder
+// Register the domains & shared module folder
 mod domains;
 mod shared;
+
+
 // The shared global toolkit structure
 #[derive(Clone)]
 pub struct AppState {
@@ -21,6 +24,7 @@ async fn main() {
     // loads the env file for use
     dotenvy::dotenv().ok();
 
+    // loads paystack details from beginning of the run of the program, instead of the program crashing during runtime
     let paystack = match domains::deposits::pay_stack::load_paystack_config() {
         Ok(config) => config,
         Err(message) => {
