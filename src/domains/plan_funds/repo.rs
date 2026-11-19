@@ -109,3 +109,25 @@ pub async fn add_to_plan_balance(
     .fetch_one(&mut **tx)
     .await // no semicolon
 }
+
+
+// takes money out of the plan balance only if the plan has enough
+// gives back the new plan balance, or None when the plan is too low
+pub async fn subtract_from_plan_balance(
+    tx: &mut Transaction<'_, Postgres>,
+    plan_id: Uuid,
+    amount_in_kobo: i64,
+) -> Result<Option<i64>, sqlx::Error> {
+    sqlx::query_scalar::<_, i64>(
+        r#"
+        UPDATE savings_plans
+        SET balance = balance - $1
+        WHERE plan_id = $2 AND balance >= $1
+        RETURNING balance
+        "#,
+    )
+    .bind(amount_in_kobo)
+    .bind(plan_id)
+    .fetch_optional(&mut **tx)
+    .await // no semicolon
+}
