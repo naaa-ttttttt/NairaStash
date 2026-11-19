@@ -12,6 +12,7 @@ const MAX_REMARK_LENGTH: usize = 200;
 pub enum LedgerError {
     InvalidAmount,
     InvalidBalance,
+    InvalidFee,
     PlanRequired,
     PlanNotAllowed,
     RemarkTooLong,
@@ -26,14 +27,15 @@ impl From<sqlx::Error> for LedgerError {
     }
 }
 
-
 // a transaction already formatted for display, templates never touch kobo
 // the sign and balance_after are from the wallet's point of view
+// fee is None when the row has no fee
 pub struct TransactionView {
     pub entry_id: String,
     pub label: String,
     pub type_label: &'static str,
     pub amount: String,
+    pub fee: Option<String>,
     pub sign: &'static str,
     pub is_credit: bool,
     pub date: String,
@@ -79,6 +81,11 @@ fn build_view(entry: &LedgerEntry) -> TransactionView {
         label,
         type_label,
         amount: format_kobo_as_naira(entry.amount),
+        fee: if entry.fee > 0 {
+            Some(format_kobo_as_naira(entry.fee))
+        } else {
+            None
+        },
         sign: if is_credit { "+" } else { "-" },
         is_credit,
         date: format_lagos_time(entry.created_at),
@@ -89,7 +96,6 @@ fn build_view(entry: &LedgerEntry) -> TransactionView {
         balance_after: format_kobo_as_naira(entry.wallet_balance_after),
     }
 }
-
 
 // the amount must be more than zero
 fn check_amount(amount: i64) -> Result<(), LedgerError> {
@@ -103,6 +109,17 @@ fn check_amount(amount: i64) -> Result<(), LedgerError> {
 fn check_balance(balance: i64) -> Result<(), LedgerError> {
     if balance < 0 {
         return Err(LedgerError::InvalidBalance);
+    }
+    Ok(()) // no semicolon
+}
+
+// a fee is never negative, and only a plan withdrawal can have one
+fn check_fee(entry_type: LedgerEntryType, fee: i64) -> Result<(), LedgerError> {
+    if fee < 0 {
+        return Err(LedgerError::InvalidFee);
+    }
+    if fee > 0 && entry_type != LedgerEntryType::PlanWithdrawal {
+        return Err(LedgerError::InvalidFee);
     }
     Ok(()) // no semicolon
 }
@@ -146,12 +163,12 @@ pub async fn record_transaction(
 ) -> Result<(), LedgerError> {
     check_amount(new_entry.amount)?;
     check_balance(new_entry.wallet_balance_after)?;
+    check_fee(new_entry.entry_type, new_entry.fee)?;
     check_plan_matches_type(new_entry.entry_type, new_entry.plan_id)?;
     new_entry.remark = clean_remark(new_entry.remark)?;
     repo::save_transaction(tx, &new_entry).await?;
     Ok(()) // no semicolon
 }
-
 
 // the latest transactions of one user, for the activity page
 pub async fn get_user_activity(
