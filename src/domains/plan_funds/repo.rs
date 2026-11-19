@@ -150,3 +150,21 @@ pub async fn close_plan(
 
     Ok(()) // no semicolon
 }
+
+// counts the filled cells of a plan, one plan_contribution row is one cell
+// read it inside the tx, after the lock, so the count cannot go stale
+pub async fn count_plan_contributions_in_tx(
+    tx: &mut Transaction<'_, Postgres>,
+    plan_id: Uuid,
+) -> Result<i64, sqlx::Error> {
+    sqlx::query_scalar::<_, i64>(
+        r#"
+        SELECT COUNT(*)
+        FROM ledger_entries
+        WHERE plan_id = $1 AND entry_type = 'plan_contribution'
+        "#,
+    )
+    .bind(plan_id)
+    .fetch_one(&mut **tx)
+    .await // no semicolon
+}
