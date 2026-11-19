@@ -147,6 +147,7 @@ async fn settle_successful_deposit(pool: &PgPool, reference: &str) -> Result<(),
 
     // the ledger row is written on the same tx, so it is saved only if the credit is
     let ledger_row = NewLedgerEntry {
+        fee: 0,
         user_id: claimed_deposit.user_id,
         entry_type: LedgerEntryType::Deposit,
         amount: claimed_deposit.amount,
