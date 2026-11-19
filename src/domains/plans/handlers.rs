@@ -1,6 +1,6 @@
 use askama::Template;
 use axum::{
-    extract::{Form, Path, State},
+    extract::{Form, Path, Query, State},
     http::StatusCode,
     response::{IntoResponse, Redirect, Response},
 };
@@ -96,6 +96,8 @@ pub struct NewPlanTemplate {
 pub struct PlanDetailTemplate {
     pub active: &'static str,
     pub plan: PlanView,
+    pub message: Option<String>,
+    pub message_is_error: bool,
 }
 
 // the new plan form as the browser sends it
@@ -108,6 +110,14 @@ pub struct NewPlanForm {
     end_date: Option<String>,   // "2027-03-01", required
     has_target: Option<String>, // a checked checkbox sends "on", unchecked sends nothing
     target: Option<String>,     // naira text, used when has_target is on
+}
+
+// the short codes the plan page can get in its url after an action
+// added is how many periods were saved, err is the reason something was refused
+#[derive(Deserialize)]
+pub struct DetailQuery {
+    added: Option<i64>,
+    err: Option<String>,
 }
 
 // ---------------------------------------------------------------- helpers
@@ -153,6 +163,37 @@ pub fn plan_view(plan: &SavingsPlan) -> PlanView {
         created_on: plan.created_at.format("%b %d, %Y").to_string(),
         is_active: plan.status == PlanStatus::Active,
     }
+}
+
+// builds the banner text from the codes in the url, an unknown code shows nothing
+// gives back the text and whether it is an error
+fn detail_message(query: &DetailQuery, plan: &PlanView) -> (Option<String>, bool) {
+    if let Some(periods) = query.added.filter(|periods| *periods > 0) {
+        let word = if periods == 1 {
+            plan.unit.to_string()
+        } else {
+            format!("{}s", plan.unit)
+        };
+        return (Some(format!("Added {periods} {word} to your plan.")), false);
+    }
+
+    let Some(code) = query.err.as_deref() else {
+        return (None, false);
+    };
+
+    let text = match code {
+        "invalid_amount" => "Enter an amount above zero.".to_string(),
+        "below_one_period" => format!("Enter at least ₦{} (one {}).", plan.amount, plan.unit),
+        "not_active" => "This plan is closed, so it cannot receive money.".to_string(),
+        "plan_full" => "This plan has reached its target, there is nothing left to fill.".to_string(),
+        "not_enough_money" => {
+            "Your wallet does not have enough money. Add money to your wallet first.".to_string()
+        }
+        "remark_too_long" => "Your note can be at most 200 characters.".to_string(),
+        "server" => "Something went wrong. Please try again later.".to_string(),
+        _ => return (None, false),
+    };
+    (Some(text), true) // no semicolon
 }
 
 // turns the form text into what the service expects, naira text becomes kobo
@@ -315,10 +356,12 @@ pub async fn create_plan_handler(
 }
 
 // GET /plans/:plan_id: one plan, a bad id or someone else's plan is a 404
+// the url may carry a result code from add money, shown as a banner
 pub async fn plan_detail_handler(
     auth: AuthUser,
     State(state): State<AppState>,
     Path(plan_id): Path<String>,
+    Query(query): Query<DetailQuery>,
 ) -> Response {
     // uuid has no serde feature here, so the id arrives as text and is parsed by hand
     let Ok(plan_id) = Uuid::parse_str(&plan_id) else {
@@ -326,10 +369,19 @@ pub async fn plan_detail_handler(
     };
 
     match services::get_plan(&state.db, plan_id, auth.user_id).await {
-        Ok(plan) => render_page(
-            PlanDetailTemplate { active: "plans", plan: plan_view(&plan) },
-            StatusCode::OK,
-        ),
+        Ok(plan) => {
+            let view = plan_view(&plan);
+            let (message, message_is_error) = detail_message(&query, &view);
+            render_page(
+                PlanDetailTemplate {
+                    active: "plans",
+                    plan: view,
+                    message,
+                    message_is_error,
+                },
+                StatusCode::OK,
+            )
+        }
         Err(err) => plan_error_response(err).await,
     }
 }
