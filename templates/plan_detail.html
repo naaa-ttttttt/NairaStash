@@ -16,6 +16,10 @@
 
 <main class="flex-1 px-5 pt-5 pb-6 space-y-5">
 
+  {% if let Some(text) = message %}
+  <p class="rounded-2xl px-4 py-3 text-sm {% if message_is_error %}bg-warn/15 border border-warn/30 text-warn{% else %}bg-lime/15 border border-lime/30 text-lime{% endif %}" role="status">{{ text }}</p>
+  {% endif %}
+
   <!-- Balance -->
   <section class="glass rounded-3xl p-5 space-y-4">
     <div class="flex items-center justify-between gap-2">
@@ -83,15 +87,39 @@
   <!-- Fund -->
   <section class="space-y-3">
     <h2 class="px-1 text-xs text-white/60 uppercase tracking-wider">Fund this plan</h2>
-    <button type="button" disabled
-      class="w-full rounded-full bg-lime text-lime-ink font-semibold py-4 flex items-center justify-center gap-2 opacity-40 cursor-not-allowed">
-      <span class="material-symbols-outlined text-[20px]">account_balance_wallet</span>
-      Fund from wallet
-    </button>
-    <p class="px-1 text-xs text-white/60">
-      Moving money from your wallet into this plan is coming next. To add money to your wallet, use
-      <a href="/deposit" class="font-semibold text-lime">Add money</a>.
-    </p>
+    {% if plan.is_active %}
+    <form id="add-form" method="post" action="/plans/{{ plan.plan_id }}/add"
+      data-period="{{ plan.amount }}" data-unit="{{ plan.unit }}"
+      class="glass rounded-3xl p-5 space-y-4">
+      <div>
+        <label for="add-amount" class="text-xs font-semibold text-white/80">Amount from your wallet</label>
+        <div class="flex items-baseline justify-center gap-1 py-5 mt-2 rounded-2xl bg-black/25 border border-white/10">
+          <span class="text-2xl font-medium text-white/50">₦</span>
+          <input id="add-amount" name="amount" type="text" inputmode="decimal" required placeholder="5,000"
+            class="w-40 bg-transparent text-3xl font-semibold tracking-tight text-white text-center placeholder:text-white/25 focus:outline-none">
+        </div>
+        <p id="add-preview" class="hidden mt-2 text-xs text-white/60"></p>
+      </div>
+
+      <div>
+        <label for="add-remark" class="text-xs font-semibold text-white/80">Note (optional)</label>
+        <input id="add-remark" name="remark" type="text" maxlength="200" placeholder="e.g. Salary savings"
+          class="mt-2 w-full h-12 px-4 rounded-2xl bg-black/25 border border-white/10 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-lime/60 transition-colors">
+      </div>
+
+      <button id="add-button" type="submit"
+        class="w-full rounded-full bg-lime text-lime-ink font-semibold py-4 flex items-center justify-center gap-2 active:scale-[0.99] transition disabled:opacity-40">
+        <span class="material-symbols-outlined text-[20px]">account_balance_wallet</span>
+        Fund from wallet
+      </button>
+      <p class="text-xs text-white/60">
+        Only whole {{ plan.unit }}s are moved, any leftover stays in your wallet. To add money to your wallet, use
+        <a href="/deposit" class="font-semibold text-lime">Add money</a>.
+      </p>
+    </form>
+    {% else %}
+    <p class="px-1 text-sm text-white/70">This plan is closed, so it cannot receive money.</p>
+    {% endif %}
   </section>
 
   <!-- Ledger -->
@@ -113,4 +141,47 @@
   </section>
 
 </main>
+
+<script>
+  (function () {
+    var form = document.getElementById('add-form');
+    if (!form) { return; }
+
+    var input = document.getElementById('add-amount');
+    var preview = document.getElementById('add-preview');
+    var button = document.getElementById('add-button');
+    var unit = form.dataset.unit;
+
+    // the plan's amount per period in kobo, read from the text the server formatted
+    var perPeriod = Math.round(parseFloat(form.dataset.period.replace(/,/g, '')) * 100);
+
+    function naira(kobo) {
+      return '₦' + (kobo / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    // shows how many whole periods the typed amount pays and what stays in the wallet
+    function update() {
+      var kobo = Math.round((parseFloat((input.value || '').replace(/,/g, '')) || 0) * 100);
+      if (kobo <= 0 || perPeriod <= 0) {
+        preview.classList.add('hidden');
+        return;
+      }
+      var periods = Math.floor(kobo / perPeriod);
+      if (periods === 0) {
+        preview.textContent = 'That is less than one ' + unit + '. Enter at least ' + naira(perPeriod) + '.';
+      } else {
+        var moved = periods * perPeriod;
+        preview.textContent = 'Up to ' + periods + ' ' + unit + (periods === 1 ? '' : 's') + ' (' + naira(moved) + '). ' + naira(kobo - moved) + ' stays in your wallet.';
+      }
+      preview.classList.remove('hidden');
+    }
+
+    input.addEventListener('input', update);
+
+    // stops a double tap from sending the form twice
+    form.addEventListener('submit', function () {
+      button.disabled = true;
+    });
+  })();
+</script>
 {% endblock %}
