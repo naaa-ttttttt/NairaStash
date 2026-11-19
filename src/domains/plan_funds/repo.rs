@@ -65,3 +65,25 @@ pub async fn debit_wallet_if_enough(
     .fetch_optional(&mut **tx)
     .await // no semicolon
 }
+
+
+// puts money into the wallet, gives back the new balance
+// None means the user has no wallet
+pub async fn credit_wallet(
+    tx: &mut Transaction<'_, Postgres>,
+    user_id: Uuid,
+    amount_in_kobo: i64,
+) -> Result<Option<i64>, sqlx::Error> {
+    sqlx::query_scalar::<_, i64>(
+        r#"
+        UPDATE wallets
+        SET balance = balance + $1
+        WHERE user_id = $2
+        RETURNING balance
+        "#,
+    )
+    .bind(amount_in_kobo)
+    .bind(user_id)
+    .fetch_optional(&mut **tx)
+    .await // no semicolon
+}
