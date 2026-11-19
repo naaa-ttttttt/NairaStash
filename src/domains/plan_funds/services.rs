@@ -18,3 +18,10 @@ pub enum PlanFundsError {
     Ledger(LedgerError),
     Database(sqlx::Error),
 }
+
+// lets us use ? on repo calls, a sqlx error becomes PlanFundsError::Database
+impl From<sqlx::Error> for PlanFundsError {
+    fn from(error: sqlx::Error) -> Self {
+        PlanFundsError::Database(error) // no semicolon
+    }
+}
