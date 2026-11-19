@@ -53,6 +53,7 @@ async fn main() {
         .merge(domains::dashboard::routes(shared_state.clone()))
         .merge(domains::auth::routes(shared_state.clone()))
         .merge(domains::plans::routes(shared_state.clone()))
+        .merge(domains::plan_funds::routes(shared_state.clone()))
         .merge(domains::groups::routes(shared_state.clone()))
         .merge(domains::withdrawals::routes(shared_state.clone()))
         .merge(domains::profile::routes(shared_state.clone()))
