@@ -25,3 +25,10 @@ impl From<sqlx::Error> for PlanFundsError {
         PlanFundsError::Database(error) // no semicolon
     }
 }
+
+// lets us use ? on ledger calls, a LedgerError becomes PlanFundsError::Ledger
+impl From<LedgerError> for PlanFundsError {
+    fn from(error: LedgerError) -> Self {
+        PlanFundsError::Ledger(error) // no semicolon
+    }
+}
