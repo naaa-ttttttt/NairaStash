@@ -14,17 +14,17 @@
   </div>
 </header>
 
-<main class="flex-1 px-5 pt-5 pb-6 space-y-5">
+<main class="flex-1 px-5 pt-4 pb-4 space-y-5">
 
   {% if let Some(text) = message %}
   <p class="rounded-2xl px-4 py-3 text-sm {% if message_is_error %}bg-warn/15 border border-warn/30 text-warn{% else %}bg-lime/15 border border-lime/30 text-lime{% endif %}" role="status">{{ text }}</p>
   {% endif %}
 
-  <!-- Balance -->
-  <section class="glass rounded-3xl p-5 space-y-4">
+  <!-- Hero: balance and progress ring -->
+  <section class="glass rounded-3xl p-5">
     <div class="flex items-center justify-between gap-2">
       <span class="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs text-lime">
-        <span class="material-symbols-outlined text-[16px]">event_repeat</span>
+        <span class="material-symbols-outlined text-[16px]">{% if plan.lock_label == "Locked" %}lock{% else %}lock_open{% endif %}</span>
         {{ plan.lock_label }}
       </span>
       {% if plan.is_active %}
@@ -36,90 +36,81 @@
       {% endif %}
     </div>
 
-    <div>
-      <p class="text-xs text-white/60">Plan balance</p>
-      <div class="flex items-baseline gap-2">
-        <span class="text-3xl font-semibold tracking-tight text-white">₦{{ plan.balance }}</span>
-        <span class="text-xs text-white/50">NGN</span>
-      </div>
-      <p class="mt-1 text-xs text-white/60">Saving ₦{{ plan.amount }} every {{ plan.unit }}</p>
-    </div>
-
-    <div class="grid grid-cols-3 gap-2">
-      <div class="rounded-2xl bg-white/5 p-3">
-        <p class="text-xs text-white/60">Amount</p>
-        <p class="mt-1 text-sm font-semibold">₦{{ plan.amount }}</p>
-        <p class="mt-0.5 text-xs text-white/60">per {{ plan.unit }}</p>
-      </div>
-      <div class="rounded-2xl bg-white/5 p-3">
-        <p class="text-xs text-white/60">Frequency</p>
-        <p class="mt-1 text-sm font-semibold">{{ plan.frequency_label }}</p>
-        <p class="mt-0.5 text-xs text-white/60">Since {{ plan.created_on }}</p>
-      </div>
-      <div class="rounded-2xl bg-white/5 p-3">
-        <p class="text-xs text-white/60">Ends</p>
-        {% if let Some(end_date) = plan.end_date %}
-        <p class="mt-1 text-sm font-semibold">{{ end_date }}</p>
-        {% else %}
-        <p class="mt-1 text-sm font-semibold">No end date</p>
-        {% endif %}
-        <p class="mt-0.5 text-xs text-white/60">{{ plan.lock_label }}</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Target -->
-  <section class="glass rounded-3xl p-5 space-y-3">
-    <h2 class="text-xs text-white/60 uppercase tracking-wider">Target</h2>
-    {% if let Some(target) = plan.target %}
-    <div class="h-2 rounded-full bg-white/10 overflow-hidden">
-      <div class="h-full rounded-full bg-lime" style="width: {{ plan.progress_percent }}%;"></div>
-    </div>
-    <div class="flex justify-between text-xs text-white/70">
-      <span>{{ plan.progress_percent }}% saved</span>
-      <span>₦{{ plan.balance }} of ₦{{ target }}</span>
-    </div>
-    {% else %}
-    <p class="text-sm text-white/70">No target set for this plan.</p>
-    {% endif %}
-  </section>
-
-  <!-- Fund -->
-  <section class="space-y-3">
-    <h2 class="px-1 text-xs text-white/60 uppercase tracking-wider">Fund this plan</h2>
-    {% if plan.is_active %}
-    <form id="add-form" method="post" action="/plans/{{ plan.plan_id }}/add"
-      data-period="{{ plan.amount }}" data-unit="{{ plan.unit }}"
-      class="glass rounded-3xl p-5 space-y-4">
-      <div>
-        <label for="add-amount" class="text-xs font-semibold text-white/80">Amount from your wallet</label>
-        <div class="flex items-baseline justify-center gap-1 py-5 mt-2 rounded-2xl bg-black/25 border border-white/10">
-          <span class="text-2xl font-medium text-white/50">₦</span>
-          <input id="add-amount" name="amount" type="text" inputmode="decimal" required placeholder="5,000"
-            class="w-40 bg-transparent text-3xl font-semibold tracking-tight text-white text-center placeholder:text-white/25 focus:outline-none">
+    <div class="mt-5 flex items-center gap-5">
+      <!-- the ring: pathLength 100 makes the dash length equal the percent -->
+      <div class="relative size-28 shrink-0">
+        <svg viewBox="0 0 100 100" class="size-28 -rotate-90" aria-hidden="true">
+          <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" stroke-width="9" class="text-white/10"></circle>
+          <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" stroke-width="9" stroke-linecap="round"
+            pathLength="100" stroke-dasharray="{{ plan.progress_percent }} 100" class="text-lime"></circle>
+        </svg>
+        <div class="absolute inset-0 flex flex-col items-center justify-center">
+          <span class="text-2xl font-semibold tracking-tight text-white">{{ plan.progress_percent }}%</span>
+          <span class="text-[10px] uppercase tracking-wider text-white/50">saved</span>
         </div>
-        <p id="add-preview" class="hidden mt-2 text-xs text-white/60"></p>
       </div>
 
+      <div class="min-w-0">
+        <p class="text-xs text-white/60">Plan balance</p>
+        <p class="text-3xl font-semibold tracking-tight text-white truncate">₦{{ plan.balance }}</p>
+        {% if let Some(target) = plan.target %}
+        <p class="mt-1 text-xs text-white/60">of ₦{{ target }} target</p>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+
+  <!-- Quick facts -->
+  <section class="grid grid-cols-3 gap-2">
+    <div class="glass rounded-2xl p-3">
+      <span class="material-symbols-outlined text-[18px] text-lime">payments</span>
+      <p class="mt-2 text-[11px] text-white/60">You save</p>
+      <p class="text-sm font-semibold">₦{{ plan.amount }}</p>
+      <p class="text-[11px] text-white/50">every {{ plan.unit }}</p>
+    </div>
+    <div class="glass rounded-2xl p-3">
+      <span class="material-symbols-outlined text-[18px] text-lime">event_repeat</span>
+      <p class="mt-2 text-[11px] text-white/60">Frequency</p>
+      <p class="text-sm font-semibold">{{ plan.frequency_label }}</p>
+      <p class="text-[11px] text-white/50">since {{ plan.created_on }}</p>
+    </div>
+    <div class="glass rounded-2xl p-3">
+      <span class="material-symbols-outlined text-[18px] text-lime">flag</span>
+      <p class="mt-2 text-[11px] text-white/60">Ends</p>
+      {% if let Some(end_date) = plan.end_date %}
+      <p class="text-sm font-semibold">{{ end_date }}</p>
+      {% else %}
+      <p class="text-sm font-semibold">No end date</p>
+      {% endif %}
+      <p class="text-[11px] text-white/50">paid to wallet</p>
+    </div>
+  </section>
+
+  <!-- How this plan works -->
+  <section class="glass rounded-3xl p-5 space-y-3">
+    <h2 class="text-xs text-white/60 uppercase tracking-wider">How this plan works</h2>
+    <div class="flex items-start gap-3">
+      <div class="size-9 shrink-0 rounded-2xl bg-lime/15 text-lime flex items-center justify-center">
+        <span class="material-symbols-outlined text-[18px]">{% if plan.lock_label == "Locked" %}lock{% else %}lock_open{% endif %}</span>
+      </div>
       <div>
-        <label for="add-remark" class="text-xs font-semibold text-white/80">Note (optional)</label>
-        <input id="add-remark" name="remark" type="text" maxlength="200" placeholder="e.g. Salary savings"
-          class="mt-2 w-full h-12 px-4 rounded-2xl bg-black/25 border border-white/10 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-lime/60 transition-colors">
+        <p class="text-sm font-semibold">{{ plan.lock_label }} plan</p>
+        {% if plan.lock_label == "Locked" %}
+        <p class="text-xs text-white/60">No withdrawals before the end date. Your savings are paid to your wallet when the plan ends.</p>
+        {% else %}
+        <p class="text-xs text-white/60">You can withdraw early, but an early withdrawal fee applies. Waiting for the end date has no fee.</p>
+        {% endif %}
       </div>
-
-      <button id="add-button" type="submit"
-        class="w-full rounded-full bg-lime text-lime-ink font-semibold py-4 flex items-center justify-center gap-2 active:scale-[0.99] transition disabled:opacity-40">
-        <span class="material-symbols-outlined text-[20px]">account_balance_wallet</span>
-        Fund from wallet
-      </button>
-      <p class="text-xs text-white/60">
-        Only whole {{ plan.unit }}s are moved, any leftover stays in your wallet. To add money to your wallet, use
-        <a href="/deposit" class="font-semibold text-lime">Add money</a>.
-      </p>
-    </form>
-    {% else %}
-    <p class="px-1 text-sm text-white/70">This plan is closed, so it cannot receive money.</p>
-    {% endif %}
+    </div>
+    <div class="flex items-start gap-3">
+      <div class="size-9 shrink-0 rounded-2xl bg-lime/15 text-lime flex items-center justify-center">
+        <span class="material-symbols-outlined text-[18px]">savings</span>
+      </div>
+      <div>
+        <p class="text-sm font-semibold">Whole {{ plan.unit }}s only</p>
+        <p class="text-xs text-white/60">Each time you add money, we fill whole {{ plan.unit }}s of ₦{{ plan.amount }}. Any leftover stays in your wallet.</p>
+      </div>
+    </div>
   </section>
 
   <!-- Ledger -->
@@ -135,21 +126,107 @@
     </div>
     <div class="rounded-2xl bg-black/20 border border-white/10 p-6 flex flex-col items-center text-center gap-2">
       <span class="material-symbols-outlined text-white/50 text-[28px]">receipt_long</span>
-      <p class="text-sm font-semibold text-white">No contributions yet</p>
-      <p class="text-xs text-white/60">Once this plan is funded, each saved {{ plan.unit }} will be ticked off here.</p>
+      <p class="text-sm font-semibold text-white">Your {{ plan.unit }}s will be ticked off here</p>
+      <p class="text-xs text-white/60">See every deposit on the <a href="/activity" class="font-semibold text-lime">Activity</a> page.</p>
     </div>
   </section>
 
 </main>
 
+<!-- Action bar: two big buttons that stay above the bottom menu -->
+{% if plan.is_active %}
+<div class="sticky bottom-24 z-30 px-5 pt-6 pb-1 bg-gradient-to-t from-forest-900 via-forest-900/70 to-transparent">
+  <div class="grid grid-cols-2 gap-3">
+    <button id="open-add" type="button"
+      class="h-14 rounded-full bg-lime text-lime-ink text-sm font-semibold flex items-center justify-center gap-2 shadow-xl active:scale-[0.98] transition">
+      <span class="material-symbols-outlined text-[20px]">add_circle</span>
+      Add money
+    </button>
+    {% if plan.lock_label == "Locked" %}
+    <button type="button" disabled
+      class="h-14 rounded-full glass text-white text-sm font-semibold flex items-center justify-center gap-2 opacity-40 cursor-not-allowed">
+      <span class="material-symbols-outlined text-[20px]">lock</span>
+      Locked
+    </button>
+    {% else %}
+    <button type="button" disabled
+      class="h-14 rounded-full glass text-white text-sm font-semibold flex items-center justify-center gap-2 opacity-40 cursor-not-allowed">
+      <span class="material-symbols-outlined text-[20px]">arrow_circle_down</span>
+      Withdraw
+    </button>
+    {% endif %}
+  </div>
+  {% if plan.lock_label == "Locked" %}
+  <p class="mt-2 text-center text-[11px] text-white/50">Withdrawals open when the plan ends.</p>
+  {% else %}
+  <p class="mt-2 text-center text-[11px] text-white/50">Early withdrawal is coming next.</p>
+  {% endif %}
+</div>
+{% else %}
+<div class="px-5 pb-6">
+  <p class="rounded-2xl glass px-4 py-3 text-center text-sm text-white/70">This plan is closed, so it cannot receive money.</p>
+</div>
+{% endif %}
+
+<!-- Add money sheet: slides up from the bottom -->
+{% if plan.is_active %}
+<div id="add-sheet" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="add-title">
+  <div id="add-backdrop" class="absolute inset-0 bg-black/60"></div>
+  <div id="add-panel"
+    class="absolute inset-x-0 bottom-0 mx-auto w-full max-w-lg translate-y-full transition-transform duration-300 rounded-t-3xl bg-forest-900 border-t border-white/10 px-5 pt-3 pb-8">
+    <div class="mx-auto h-1 w-10 rounded-full bg-white/20"></div>
+
+    <div class="mt-4 flex items-center justify-between">
+      <div>
+        <h2 id="add-title" class="text-base font-semibold text-white">Add money</h2>
+        <p class="text-xs text-white/60">From your wallet into {{ plan.name }}</p>
+      </div>
+      <button id="close-add" type="button" aria-label="Close"
+        class="size-9 rounded-full glass text-white/80 flex items-center justify-center">
+        <span class="material-symbols-outlined text-[18px]">close</span>
+      </button>
+    </div>
+
+    <form id="add-form" method="post" action="/plans/{{ plan.plan_id }}/add"
+      data-period="{{ plan.amount }}" data-unit="{{ plan.unit }}" class="mt-4 space-y-4">
+
+      <div class="flex items-baseline justify-center gap-1 py-5 rounded-2xl bg-black/25 border border-white/10">
+        <span class="text-2xl font-medium text-white/50">₦</span>
+        <input id="add-amount" name="amount" type="text" inputmode="decimal" required placeholder="0"
+          class="w-44 bg-transparent text-4xl font-semibold tracking-tight text-white text-center placeholder:text-white/25 focus:outline-none">
+      </div>
+
+      <div class="grid grid-cols-3 gap-2">
+        <button type="button" data-periods="1" class="chip py-2.5 rounded-full bg-white/[0.06] text-white/80 border border-white/10 text-xs font-medium hover:bg-white/10 transition-colors"></button>
+        <button type="button" data-periods="2" class="chip py-2.5 rounded-full bg-white/[0.06] text-white/80 border border-white/10 text-xs font-medium hover:bg-white/10 transition-colors"></button>
+        <button type="button" data-periods="5" class="chip py-2.5 rounded-full bg-white/[0.06] text-white/80 border border-white/10 text-xs font-medium hover:bg-white/10 transition-colors"></button>
+      </div>
+
+      <p id="add-preview" class="hidden rounded-2xl bg-white/5 px-4 py-3 text-xs text-white/70"></p>
+
+      <input id="add-remark" name="remark" type="text" maxlength="200" placeholder="Add a note (optional)"
+        class="w-full h-12 px-4 rounded-2xl bg-black/25 border border-white/10 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-lime/60 transition-colors">
+
+      <button id="add-button" type="submit"
+        class="w-full h-14 rounded-full bg-lime text-lime-ink text-sm font-semibold flex items-center justify-center gap-2 shadow-xl active:scale-[0.99] transition disabled:opacity-40">
+        <span class="material-symbols-outlined text-[20px]">account_balance_wallet</span>
+        Confirm
+      </button>
+    </form>
+  </div>
+</div>
+
 <script>
   (function () {
+    var sheet = document.getElementById('add-sheet');
+    var panel = document.getElementById('add-panel');
     var form = document.getElementById('add-form');
-    if (!form) { return; }
-
     var input = document.getElementById('add-amount');
     var preview = document.getElementById('add-preview');
     var button = document.getElementById('add-button');
+    var openButton = document.getElementById('open-add');
+    if (!sheet || !form || !openButton) { return; }
+
     var unit = form.dataset.unit;
 
     // the plan's amount per period in kobo, read from the text the server formatted
@@ -157,6 +234,27 @@
 
     function naira(kobo) {
       return '₦' + (kobo / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function word(count) {
+      return count + ' ' + unit + (count === 1 ? '' : 's');
+    }
+
+    // opens the sheet: show it, then slide the panel up on the next tick
+    function openSheet() {
+      sheet.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      setTimeout(function () {
+        panel.classList.remove('translate-y-full');
+        input.focus();
+      }, 20);
+    }
+
+    // closes the sheet: slide the panel down, then hide it
+    function closeSheet() {
+      panel.classList.add('translate-y-full');
+      document.body.style.overflow = '';
+      setTimeout(function () { sheet.classList.add('hidden'); }, 300);
     }
 
     // shows how many whole periods the typed amount pays and what stays in the wallet
@@ -171,10 +269,27 @@
         preview.textContent = 'That is less than one ' + unit + '. Enter at least ' + naira(perPeriod) + '.';
       } else {
         var moved = periods * perPeriod;
-        preview.textContent = 'Up to ' + periods + ' ' + unit + (periods === 1 ? '' : 's') + ' (' + naira(moved) + '). ' + naira(kobo - moved) + ' stays in your wallet.';
+        preview.textContent = 'Up to ' + word(periods) + ' (' + naira(moved) + '). ' + naira(kobo - moved) + ' stays in your wallet.';
       }
       preview.classList.remove('hidden');
     }
+
+    // the quick buttons fill the amount for 1, 2 or 5 periods
+    document.querySelectorAll('#add-form .chip').forEach(function (chip) {
+      var count = parseInt(chip.dataset.periods, 10);
+      chip.textContent = word(count);
+      chip.addEventListener('click', function () {
+        input.value = ((count * perPeriod) / 100).toString();
+        update();
+      });
+    });
+
+    openButton.addEventListener('click', openSheet);
+    document.getElementById('close-add').addEventListener('click', closeSheet);
+    document.getElementById('add-backdrop').addEventListener('click', closeSheet);
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' && !sheet.classList.contains('hidden')) { closeSheet(); }
+    });
 
     input.addEventListener('input', update);
 
@@ -184,4 +299,5 @@
     });
   })();
 </script>
+{% endif %}
 {% endblock %}
