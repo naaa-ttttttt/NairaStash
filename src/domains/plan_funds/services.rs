@@ -118,6 +118,7 @@ pub async fn add_money(
     let wallet_before_debit = wallet_after_debit + amount_to_move;
     for period_number in 1..=periods_to_move {
         let new_entry = NewLedgerEntry {
+            fee: 0,
             user_id,
             entry_type: LedgerEntryType::PlanContribution,
             amount: plan.amount_per_frequency,
