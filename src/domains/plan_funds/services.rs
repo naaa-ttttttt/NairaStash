@@ -48,3 +48,11 @@ pub struct AddMoneyResult {
 fn count_whole_periods(amount: i64, amount_per_frequency: i64) -> i64 {
     amount / amount_per_frequency // no semicolon
 }
+
+
+// how many cells of the streak grid are still empty
+// the target is always a multiple of the period amount, so this divides cleanly
+fn count_empty_cells(target_amount: i64, amount_per_frequency: i64, filled_cells: i64) -> i64 {
+    let total_cells = target_amount / amount_per_frequency;
+    total_cells - filled_cells // no semicolon
+}
