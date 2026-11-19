@@ -87,3 +87,25 @@ pub async fn credit_wallet(
     .fetch_optional(&mut **tx)
     .await // no semicolon
 }
+
+
+// adds money to the plan balance, gives back the new plan balance
+// call it only after lock_plan_for_update in the same tx
+pub async fn add_to_plan_balance(
+    tx: &mut Transaction<'_, Postgres>,
+    plan_id: Uuid,
+    amount_in_kobo: i64,
+) -> Result<i64, sqlx::Error> {
+    sqlx::query_scalar::<_, i64>(
+        r#"
+        UPDATE savings_plans
+        SET balance = balance + $1
+        WHERE plan_id = $2
+        RETURNING balance
+        "#,
+    )
+    .bind(amount_in_kobo)
+    .bind(plan_id)
+    .fetch_one(&mut **tx)
+    .await // no semicolon
+}
