@@ -332,3 +332,176 @@
       <div class="grid grid-cols-2 gap-3">
         <button id="close-cancel" type="button"
           class="h-14 rounded-full glass text-white text-sm font-semibold">Keep plan</button>
+        <button id="close-button" type="submit"
+          class="h-14 rounded-full bg-warn text-lime-ink text-sm font-semibold active:scale-[0.99] transition disabled:opacity-40">Close plan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var data = document.getElementById('plan-data');
+    if (!data) { return; }
+
+    var unit = data.dataset.unit;
+
+    // the early fee percent of this plan, it comes from the server so the page never disagrees with it
+    var feePercent = parseInt(data.dataset.fee, 10);
+
+    // the server formatted these as text like "40,000.00", we turn them into kobo
+    function toKobo(text) {
+      return Math.round(parseFloat(text.replace(/,/g, '')) * 100);
+    }
+    var perPeriod = toKobo(data.dataset.period);
+    var balance = toKobo(data.dataset.balance);
+
+    function naira(kobo) {
+      return '₦' + (kobo / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function word(count) {
+      return count + ' ' + unit + (count === 1 ? '' : 's');
+    }
+
+    // the fee rounded up to a whole kobo, the server does the real calculation
+    function fee(kobo) {
+      return Math.floor((kobo * feePercent + 99) / 100);
+    }
+
+    // the biggest amount the plan can pay when the fee is taken on top
+    function maxWithdraw(total) {
+      if (total <= 0) { return 0; }
+      var amount = Math.floor(total * 100 / (100 + feePercent));
+      while (amount > 0 && amount + fee(amount) > total) { amount--; }
+      while (amount + 1 + fee(amount + 1) <= total) { amount++; }
+      return amount;
+    }
+
+    // typed text to kobo, 0 when it is empty or not a number
+    function typedKobo(input) {
+      return Math.round((parseFloat((input.value || '').replace(/,/g, '')) || 0) * 100);
+    }
+
+    // sets up one sheet: open button, close buttons, backdrop and the Escape key
+    function setupSheet(name, onOpen) {
+      var sheet = document.getElementById(name + '-sheet');
+      var panel = document.getElementById(name + '-panel');
+      var openButton = document.getElementById(name + '-open');
+      if (!sheet || !panel || !openButton) { return; }
+
+      function openSheet() {
+        if (onOpen) { onOpen(); }
+        sheet.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        setTimeout(function () { panel.classList.remove('translate-y-full'); }, 20);
+      }
+
+      function closeSheet() {
+        panel.classList.add('translate-y-full');
+        document.body.style.overflow = '';
+        setTimeout(function () { sheet.classList.add('hidden'); }, 300);
+      }
+
+      openButton.addEventListener('click', openSheet);
+      [name + '-close', name + '-backdrop', name + '-cancel'].forEach(function (id) {
+        var element = document.getElementById(id);
+        if (element) { element.addEventListener('click', closeSheet); }
+      });
+
+      // this listener removes itself once the page has been replaced
+      function onKey(event) {
+        if (!document.body.contains(sheet)) {
+          document.removeEventListener('keydown', onKey);
+          return;
+        }
+        if (event.key === 'Escape' && !sheet.classList.contains('hidden')) { closeSheet(); }
+      }
+      document.addEventListener('keydown', onKey);
+    }
+
+    // stops a double tap from sending a form twice, and gives the page its scroll back
+    function guardForm(formId, buttonId) {
+      var form = document.getElementById(formId);
+      var button = document.getElementById(buttonId);
+      if (!form || !button) { return; }
+      form.addEventListener('submit', function () {
+        button.disabled = true;
+        document.body.style.overflow = '';
+      });
+    }
+
+    // ---------------- add money
+    var addInput = document.getElementById('add-amount');
+    var addPreview = document.getElementById('add-preview');
+    if (addInput) {
+      function updateAdd() {
+        var kobo = typedKobo(addInput);
+        if (kobo <= 0 || perPeriod <= 0) { addPreview.classList.add('hidden'); return; }
+        var periods = Math.floor(kobo / perPeriod);
+        if (periods === 0) {
+          addPreview.textContent = 'That is less than one ' + unit + '. Enter at least ' + naira(perPeriod) + '.';
+        } else {
+          var moved = periods * perPeriod;
+          addPreview.textContent = 'Up to ' + word(periods) + ' (' + naira(moved) + '). ' + naira(kobo - moved) + ' stays in your wallet.';
+        }
+        addPreview.classList.remove('hidden');
+      }
+
+      document.querySelectorAll('.add-chip').forEach(function (chip) {
+        var count = parseInt(chip.dataset.periods, 10);
+        chip.textContent = word(count);
+        chip.addEventListener('click', function () {
+          addInput.value = ((count * perPeriod) / 100).toString();
+          updateAdd();
+        });
+      });
+
+      addInput.addEventListener('input', updateAdd);
+      setupSheet('add', function () { setTimeout(function () { addInput.focus(); }, 320); });
+      guardForm('add-form', 'add-button');
+    }
+
+    // ---------------- withdraw (flexible plans only, the sheet does not exist on locked plans)
+    var withdrawInput = document.getElementById('withdraw-amount');
+    var withdrawPreview = document.getElementById('withdraw-preview');
+    if (withdrawInput) {
+      function updateWithdraw() {
+        var kobo = typedKobo(withdrawInput);
+        if (kobo <= 0) { withdrawPreview.classList.add('hidden'); return; }
+        var feeKobo = fee(kobo);
+        if (kobo + feeKobo > balance) {
+          withdrawPreview.textContent = 'That is more than this plan can pay. The most you can take is ' + naira(maxWithdraw(balance)) + '.';
+        } else {
+          withdrawPreview.textContent = 'Fee ' + naira(feeKobo) + ' (' + feePercent + '%). Your plan loses ' + naira(kobo + feeKobo) + '. You receive ' + naira(kobo) + '.';
+        }
+        withdrawPreview.classList.remove('hidden');
+      }
+
+      document.getElementById('withdraw-max').addEventListener('click', function () {
+        var max = maxWithdraw(balance);
+        withdrawInput.value = max > 0 ? (max / 100).toFixed(2) : '';
+        updateWithdraw();
+      });
+
+      withdrawInput.addEventListener('input', updateWithdraw);
+      setupSheet('withdraw', function () { setTimeout(function () { withdrawInput.focus(); }, 320); });
+      guardForm('withdraw-form', 'withdraw-button');
+    }
+
+    // ---------------- close plan
+    var closeInfo = document.getElementById('close-info');
+    if (closeInfo) {
+      if (balance <= 0) {
+        closeInfo.textContent = 'This plan has no money inside. It will be closed with no fee.';
+      } else {
+        var receive = maxWithdraw(balance);
+        closeInfo.textContent = 'You will receive ' + naira(receive) + ' in your wallet. Early closing fee: ' + naira(balance - receive) + ' (' + feePercent + '%). The plan will be closed.';
+      }
+      setupSheet('close');
+      guardForm('close-form', 'close-button');
+    }
+  })();
+</script>
+{% endif %}
+{% endblock %}
