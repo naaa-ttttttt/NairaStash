@@ -12,7 +12,8 @@ pub enum LedgerEntryType {
     Payout,
 }
 
-// one row of the ledger_entries table, money is in kobo
+// one line of the activity page, money is in kobo
+// it can be one row, or several rows added together when they share a batch_id
 // amount always matches the wallet movement, fee is extra information (0 when there is none)
 #[derive(Debug, Clone, FromRow)]
 pub struct LedgerEntry {
@@ -30,6 +31,7 @@ pub struct LedgerEntry {
 }
 
 // what we need to write one new row, the id and the time are set when it is saved
+// batch_id is the same for every row made by one add money tap, None for everything else
 #[derive(Debug, Clone)]
 pub struct NewLedgerEntry {
     pub user_id: Uuid,
@@ -37,6 +39,7 @@ pub struct NewLedgerEntry {
     pub amount: i64,
     pub fee: i64,
     pub plan_id: Option<Uuid>,
+    pub batch_id: Option<Uuid>,
     pub remark: Option<String>,
     pub reference: String,
     pub wallet_balance_after: i64,
@@ -57,6 +60,7 @@ pub async fn save_transaction(
         .bind(new_entry.amount)
         .bind(new_entry.fee)
         .bind(new_entry.plan_id)
+        .bind(new_entry.batch_id)
         .bind(&new_entry.remark)
         .bind(&new_entry.reference)
         .bind(new_entry.wallet_balance_after)
@@ -65,7 +69,8 @@ pub async fn save_transaction(
     Ok(()) // no semicolon
 }
 
-// one transaction, but only if it belongs to this user (for the detail page)
+// one activity line, but only if it belongs to this user (for the detail page)
+// if the row is part of a batch, the whole batch comes back added together
 pub async fn get_transaction_details(
     pool: &PgPool,
     entry_id: Uuid,
@@ -78,7 +83,8 @@ pub async fn get_transaction_details(
     Ok(found_transaction) // no semicolon
 }
 
-// the latest transactions of one user, newest first (activity page and dashboard)
+// the latest activity lines of one user, newest first (activity page and dashboard)
+// rows with the same batch_id come back as one line
 pub async fn list_user_transactions(
     pool: &PgPool,
     user_id: Uuid,
@@ -92,6 +98,7 @@ pub async fn list_user_transactions(
 }
 
 // the latest transactions of one plan, only if the plan belongs to this user
+// this one stays row by row, it is not grouped
 pub async fn list_plan_transactions(
     pool: &PgPool,
     plan_id: Uuid,
@@ -117,23 +124,47 @@ pub async fn count_plan_contributions(pool: &PgPool, plan_id: Uuid) -> Result<i6
 
 const SAVE_TRANSACTION_SQL: &str = "
     INSERT INTO ledger_entries
-        (entry_id, user_id, entry_type, amount, fee, plan_id, remark, reference, wallet_balance_after)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)";
+        (entry_id, user_id, entry_type, amount, fee, plan_id, batch_id, remark, reference, wallet_balance_after)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)";
 
+// the group key is COALESCE(batch_id, entry_id): a row with no batch is its own group
+// SUM gives bigint back as numeric, so we cast it to BIGINT for i64
+// MIN(wallet_balance_after) is the balance after the last row of a batch, each row lowers it
+// MIN(created_at) is the time of the batch, entry_id is any one row's id so the link works
 const GET_TRANSACTION_SQL: &str = "
-    SELECT e.entry_id, e.user_id, e.entry_type, e.amount, e.fee, e.plan_id, p.name AS plan_name,
-           e.remark, e.reference, e.wallet_balance_after, e.created_at
+    SELECT (array_agg(e.entry_id ORDER BY e.entry_id))[1] AS entry_id,
+           e.user_id, e.entry_type,
+           SUM(e.amount)::BIGINT AS amount,
+           SUM(e.fee)::BIGINT AS fee,
+           e.plan_id, p.name AS plan_name,
+           MIN(e.remark) AS remark,
+           MIN(e.reference) AS reference,
+           MIN(e.wallet_balance_after) AS wallet_balance_after,
+           MIN(e.created_at) AS created_at
     FROM ledger_entries e
     LEFT JOIN savings_plans p ON p.plan_id = e.plan_id
-    WHERE e.entry_id = $1 AND e.user_id = $2";
+    WHERE e.user_id = $2
+      AND COALESCE(e.batch_id, e.entry_id) = (
+          SELECT COALESCE(b.batch_id, b.entry_id)
+          FROM ledger_entries b
+          WHERE b.entry_id = $1 AND b.user_id = $2)
+    GROUP BY COALESCE(e.batch_id, e.entry_id), e.user_id, e.entry_type, e.plan_id, p.name";
 
 const LIST_USER_TRANSACTIONS_SQL: &str = "
-    SELECT e.entry_id, e.user_id, e.entry_type, e.amount, e.fee, e.plan_id, p.name AS plan_name,
-           e.remark, e.reference, e.wallet_balance_after, e.created_at
+    SELECT (array_agg(e.entry_id ORDER BY e.entry_id))[1] AS entry_id,
+           e.user_id, e.entry_type,
+           SUM(e.amount)::BIGINT AS amount,
+           SUM(e.fee)::BIGINT AS fee,
+           e.plan_id, p.name AS plan_name,
+           MIN(e.remark) AS remark,
+           MIN(e.reference) AS reference,
+           MIN(e.wallet_balance_after) AS wallet_balance_after,
+           MIN(e.created_at) AS created_at
     FROM ledger_entries e
     LEFT JOIN savings_plans p ON p.plan_id = e.plan_id
     WHERE e.user_id = $1
-    ORDER BY e.created_at DESC
+    GROUP BY COALESCE(e.batch_id, e.entry_id), e.user_id, e.entry_type, e.plan_id, p.name
+    ORDER BY MIN(e.created_at) DESC
     LIMIT $2";
 
 const LIST_PLAN_TRANSACTIONS_SQL: &str = "
