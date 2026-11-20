@@ -181,6 +181,9 @@ pub async fn add_money(
 
     let plan_balance_after = repo::add_to_plan_balance(&mut tx, plan_id, amount_to_move).await?;
 
+    // one batch id for this whole tap, made once here and shared by every period row
+    let batch_id = Uuid::new_v4();
+
     // one ledger row per period, each row shows the wallet balance right after that period
     let wallet_before_debit = wallet_after_debit + amount_to_move;
     for period_number in 1..=periods_to_move {
@@ -190,6 +193,7 @@ pub async fn add_money(
             amount: plan.amount_per_frequency,
             fee: 0,
             plan_id: Some(plan_id),
+            batch_id: Some(batch_id),
             remark: remark.clone(),
             reference: make_reference("PC"),
             wallet_balance_after: wallet_before_debit
@@ -235,12 +239,14 @@ async fn move_plan_money_to_wallet(
         .await?
         .ok_or(PlanFundsError::WalletNotFound)?;
 
+    // a withdrawal is one single row, so it has no batch
     let new_entry = NewLedgerEntry {
         user_id,
         entry_type: LedgerEntryType::PlanWithdrawal,
         amount,
         fee,
         plan_id: Some(plan_id),
+        batch_id: None,
         remark,
         reference: make_reference("PW"),
         wallet_balance_after,
