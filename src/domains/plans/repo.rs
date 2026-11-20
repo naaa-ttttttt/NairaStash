@@ -108,7 +108,7 @@ const INSERT_PLAN_SQL: &str = "
 
 const LIST_PLANS_SQL: &str = "
     SELECT * FROM savings_plans
-    WHERE user_id = $1
+    WHERE user_id = $1 AND status = 'active'
     ORDER BY created_at DESC";
 
 const LIST_ACTIVE_PLANS_SQL: &str = "
