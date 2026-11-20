@@ -30,29 +30,38 @@
     }
   </script>
   <style>
+    /* the plain colour shows first, the gradient layer below sits on top of it */
     html {
       min-height: 100%;
       background-color: #071A10;
+    }
+
+    /* the gradient lives on its own fixed layer, so scrolling never repaints it */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
       background-image:
         radial-gradient(60% 38% at 92% 4%, rgba(190, 240, 60, .30), transparent 62%),
         radial-gradient(75% 45% at 0% 42%, rgba(34, 139, 70, .60), transparent 66%),
         radial-gradient(80% 45% at 100% 100%, rgba(60, 170, 90, .50), transparent 62%),
         linear-gradient(165deg, #0A2416 0%, #0E3A22 50%, #14592F 100%);
-      background-attachment: fixed;
     }
+
     body { background: transparent; font-variant-numeric: tabular-nums; }
+
+    /* cards have no blur on purpose: it was costly and the background is smooth anyway */
     .glass {
-      background: rgba(255, 255, 255, .06);
+      background: rgba(255, 255, 255, .07);
       border: 1px solid rgba(255, 255, 255, .10);
-      -webkit-backdrop-filter: blur(20px);
-      backdrop-filter: blur(20px);
     }
     .glass-dark {
       background: rgba(0, 0, 0, .28);
       border: 1px solid rgba(255, 255, 255, .08);
-      -webkit-backdrop-filter: blur(20px);
-      backdrop-filter: blur(20px);
     }
+
     .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400; }
     .fill-1 { font-variation-settings: 'FILL' 1, 'wght' 400; }
     input[type=number]::-webkit-inner-spin-button,
@@ -83,7 +92,7 @@
   {% block nav %}
   <!-- Floating nav pill -->
   <nav class="fixed bottom-4 left-0 right-0 z-40 max-w-md mx-auto px-5">
-    <div class="flex items-center justify-between rounded-full bg-black/40 backdrop-blur-2xl border border-white/10 p-2 shadow-2xl">
+    <div class="flex items-center justify-between rounded-full bg-black/50 backdrop-blur-md border border-white/10 p-2 shadow-2xl">
       <a href="/" aria-label="Home" title="Home"
          class="size-12 rounded-full flex items-center justify-center transition-colors {% if active == "home" %}bg-white/15 text-white{% else %}text-white/50 hover:text-white{% endif %}">
         <span class="material-symbols-outlined text-[22px]">dashboard</span>
