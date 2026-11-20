@@ -13,7 +13,7 @@ use super::services::{self, CreatePlanInput, PlanAmountInput, PlanError};
 use crate::domains::auth::handlers::AuthUser;
 use crate::domains::dashboard::not_found_handler;
 use crate::domains::plan_funds::services::{
-    early_fee_percent, get_plan_grid, GridCell, PeriodStep, PlanGridInput,
+        early_fee_percent, get_plan_grid, GridBlock, PeriodStep, PlanGridInput,
 };
 use crate::shared::money::{format_kobo_as_naira, parse_naira_to_kobo};
 use crate::shared::render::render_page;
@@ -102,7 +102,7 @@ pub struct PlanDetailTemplate {
     pub plan: PlanView,
     pub message: Option<String>,
     pub message_is_error: bool,
-    pub grid: Vec<GridCell>, // the streak grid, empty if it could not be loaded
+    pub grid: Vec<GridBlock>, // the streak grid in blocks, empty if it could not be loaded
 }
 
 // the new plan form as the browser sends it
