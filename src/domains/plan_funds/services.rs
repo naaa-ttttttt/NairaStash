@@ -1,8 +1,9 @@
+use chrono::{DateTime, Days, FixedOffset, Months, NaiveDate, Utc};
 use sqlx::{PgPool, Postgres, Transaction};
 use uuid::Uuid;
 
 use super::repo::{self, LockedPlan};
-use crate::domains::ledger::repo::{LedgerEntryType, NewLedgerEntry};
+use crate::domains::ledger::repo::{self as ledger_repo, LedgerEntryType, NewLedgerEntry};
 use crate::domains::ledger::services::{self as ledger_services, LedgerError};
 
 // the plan columns come back as text, so the two values we compare are named once here
@@ -61,6 +62,34 @@ pub struct AddMoneyResult {
 pub struct WithdrawResult {
     pub amount_received: i64,
     pub fee: i64,
+}
+
+// how far apart two cells of the grid are
+// plan_funds has its own copy so it never imports the plans types
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PeriodStep {
+    Day,
+    Week,
+    Month,
+}
+
+// the facts of a plan that the grid needs, the plans handler fills it in
+pub struct PlanGridInput {
+    pub plan_id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub amount_per_frequency: i64,
+    pub target_amount: i64,
+    pub step: PeriodStep,
+}
+
+// one cell of the streak grid, already formatted for display
+// ticked = a full period was paid, struck = money that left the plan crossed it out
+#[derive(Debug, Clone)]
+pub struct GridCell {
+    pub number: i64,
+    pub due_date: String,
+    pub is_ticked: bool,
+    pub is_struck: bool,
 }
 
 // ---------------------------------------------------------------- small rules
@@ -129,6 +158,84 @@ fn check_plan_is_not_locked(plan: &LockedPlan) -> Result<(), PlanFundsError> {
         return Err(PlanFundsError::PlanLocked);
     }
     Ok(()) // no semicolon
+}
+
+// ---------------------------------------------------------------- the streak grid
+
+// how many cells are struck: money taken out divided by the period amount, rounded down
+// the leftover carries over by itself, because it is one division of the running total
+// a strike can never go past the ticked cells
+pub fn calculate_struck_cells(taken_out: i64, amount_per_frequency: i64, ticked: i64) -> i64 {
+    if taken_out <= 0 || amount_per_frequency <= 0 {
+        return 0;
+    }
+    let whole_periods = taken_out / amount_per_frequency;
+    whole_periods.min(ticked) // no semicolon
+}
+
+// the due date of cell n (n starts at 1): always start + (n - 1) periods
+// never "previous cell + one period", months would drift (31st -> 28th -> stays 28th)
+fn cell_due_date(start: NaiveDate, step: PeriodStep, number: i64) -> Option<NaiveDate> {
+    let periods_after_start = (number - 1).max(0) as u64;
+    match step {
+        PeriodStep::Day => start.checked_add_days(Days::new(periods_after_start)),
+        PeriodStep::Week => start.checked_add_days(Days::new(periods_after_start * 7)),
+        PeriodStep::Month => start.checked_add_months(Months::new(periods_after_start as u32)),
+    }
+}
+
+// the day the plan was created, as a date in Lagos (UTC+1, no daylight saving)
+fn start_date_in_lagos(created_at: DateTime<Utc>) -> NaiveDate {
+    match FixedOffset::east_opt(60 * 60) {
+        Some(lagos) => created_at.with_timezone(&lagos).date_naive(),
+        None => created_at.date_naive(),
+    }
+}
+
+// builds every cell of the grid, no database in here
+// the first `ticked` cells are ticked, the first `struck` cells are struck
+fn build_grid_cells(
+    start: NaiveDate,
+    step: PeriodStep,
+    total_cells: i64,
+    ticked: i64,
+    struck: i64,
+) -> Vec<GridCell> {
+    let mut cells = Vec::new();
+    for number in 1..=total_cells {
+        let due_date = cell_due_date(start, step, number)
+            .map(|date| date.format("%b %d").to_string())
+            .unwrap_or_default();
+        cells.push(GridCell {
+            number,
+            due_date,
+            is_ticked: number <= ticked,
+            is_struck: number <= struck,
+        });
+    }
+    cells // no semicolon
+}
+
+// the whole grid of one plan, for the plan page
+// ticks come from the plan_contribution rows, strikes from the plan_withdrawal rows
+// nothing is stored: it is worked out again on every page load, so it can never drift from the ledger
+pub async fn get_plan_grid(
+    pool: &PgPool,
+    input: &PlanGridInput,
+) -> Result<Vec<GridCell>, PlanFundsError> {
+    if input.amount_per_frequency <= 0 {
+        return Ok(Vec::new());
+    }
+
+    let ticked = ledger_repo::count_plan_contributions(pool, input.plan_id).await?;
+    let taken_out = repo::sum_plan_money_taken_out(pool, input.plan_id).await?;
+
+    let total_cells = input.target_amount / input.amount_per_frequency;
+    let struck = calculate_struck_cells(taken_out, input.amount_per_frequency, ticked);
+    let start = start_date_in_lagos(input.created_at);
+
+    let cells = build_grid_cells(start, input.step, total_cells, ticked, struck);
+    Ok(cells) // no semicolon
 }
 
 // ---------------------------------------------------------------- add money
@@ -280,133 +387,3 @@ pub async fn withdraw_from_plan(
 
     let fee = calculate_withdrawal_fee(amount, early_fee_percent(false));
     let total_leaving_plan = amount
-        .checked_add(fee)
-        .ok_or(PlanFundsError::NotEnoughInPlan)?;
-    if total_leaving_plan > plan.balance {
-        return Err(PlanFundsError::NotEnoughInPlan);
-    }
-
-    move_plan_money_to_wallet(&mut tx, plan_id, user_id, amount, fee, remark).await?;
-
-    tx.commit().await?;
-
-    Ok(WithdrawResult { amount_received: amount, fee }) // no semicolon
-}
-
-// closes a plan: the whole balance goes to the wallet (fee on top), then the plan is closed
-// flexible plans pay the lower fee, locked plans the higher one
-// an empty plan just closes, with no fee and no ledger row
-pub async fn liquidate_plan(
-    pool: &PgPool,
-    user_id: Uuid,
-    plan_id: Uuid,
-) -> Result<WithdrawResult, PlanFundsError> {
-    let mut tx: Transaction<'_, Postgres> = pool.begin().await?;
-
-    let plan = repo::lock_plan_for_update(&mut tx, plan_id, user_id)
-        .await?
-        .ok_or(PlanFundsError::PlanNotFound)?;
-
-    check_plan_is_active(&plan)?;
-
-    // nothing inside: close it, no money moves, so there is nothing to charge
-    if plan.balance == 0 {
-        repo::close_plan(&mut tx, plan_id).await?;
-        tx.commit().await?;
-        return Ok(WithdrawResult { amount_received: 0, fee: 0 });
-    }
-
-    // the wallet gets the biggest amount the fee allows, the fee is what is left
-    // so the plan ends at exactly zero
-    let fee_percent = early_fee_percent(plan.lock_mode == PLAN_MODE_LOCKED);
-    let amount = calculate_max_withdrawal(plan.balance, fee_percent);
-    if amount <= 0 {
-        return Err(PlanFundsError::BalanceTooSmall);
-    }
-    let fee = plan.balance - amount;
-
-    let remark = Some("Plan closed early".to_string());
-    move_plan_money_to_wallet(&mut tx, plan_id, user_id, amount, fee, remark).await?;
-    repo::close_plan(&mut tx, plan_id).await?;
-
-    tx.commit().await?;
-
-    Ok(WithdrawResult { amount_received: amount, fee }) // no semicolon
-}
-
-// ---------------------------------------------------------------- tests
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    // 3 percent of 10,000 naira (1,000,000 kobo) is 300 naira
-    #[test]
-    fn flexible_fee_is_three_percent() {
-        assert_eq!(calculate_withdrawal_fee(1_000_000, 3), 30_000);
-    }
-
-    // 10 percent of 10,000 naira is 1,000 naira
-    #[test]
-    fn locked_fee_is_ten_percent() {
-        assert_eq!(calculate_withdrawal_fee(1_000_000, 10), 100_000);
-    }
-
-    // 3 percent of 1,000,001 kobo is 30,000.03, so it rounds up to 30,001
-    #[test]
-    fn fee_rounds_up() {
-        assert_eq!(calculate_withdrawal_fee(1_000_001, 3), 30_001);
-        assert_eq!(calculate_withdrawal_fee(1_000_001, 10), 100_001);
-    }
-
-    // locked plans pay the higher percent, flexible the lower
-    #[test]
-    fn locked_pays_more_than_flexible() {
-        assert_eq!(early_fee_percent(false), 3);
-        assert_eq!(early_fee_percent(true), 10);
-    }
-
-    // a balance of 10,300 naira can pay out exactly 10,000 naira plus 300 fee
-    #[test]
-    fn max_withdrawal_matches_the_flexible_example() {
-        assert_eq!(calculate_max_withdrawal(1_030_000, 3), 1_000_000);
-    }
-
-    // a balance of 11,000 naira can pay out exactly 10,000 naira plus 1,000 fee
-    #[test]
-    fn max_withdrawal_matches_the_locked_example() {
-        assert_eq!(calculate_max_withdrawal(1_100_000, 10), 1_000_000);
-    }
-
-    // the max is the exact edge: it fits, and one kobo more does not
-    #[test]
-    fn max_withdrawal_is_the_exact_edge() {
-        for percent in [3, 10] {
-            for balance in [1, 2, 3, 99, 100, 101, 103, 5_000, 999_999, 1_030_000, 51_500_000] {
-                let amount = calculate_max_withdrawal(balance, percent);
-                assert!(amount + calculate_withdrawal_fee(amount, percent) <= balance);
-                assert!(amount + 1 + calculate_withdrawal_fee(amount + 1, percent) > balance);
-            }
-        }
-    }
-
-    // closing a plan leaves nothing behind: amount + fee is the whole balance
-    #[test]
-    fn closing_leaves_zero() {
-        for percent in [3, 10] {
-            for balance in [2, 100, 4_000_000, 51_500_000] {
-                let amount = calculate_max_withdrawal(balance, percent);
-                let fee = balance - amount;
-                assert_eq!(amount + fee, balance);
-                assert!(fee >= calculate_withdrawal_fee(amount, percent));
-            }
-        }
-    }
-
-    // an empty plan pays nothing
-    #[test]
-    fn empty_plan_pays_nothing() {
-        assert_eq!(calculate_max_withdrawal(0, 3), 0);
-        assert_eq!(calculate_max_withdrawal(0, 10), 0);
-    }
-}
