@@ -1,4 +1,4 @@
-use chrono::{DateTime, Days, FixedOffset, Months, NaiveDate, Utc};
+use chrono::{DateTime, Datelike, Days, FixedOffset, Months, NaiveDate, Utc};
 use sqlx::{PgPool, Postgres, Transaction};
 use uuid::Uuid;
 
@@ -14,6 +14,11 @@ const PLAN_MODE_LOCKED: &str = "locked";
 // this is the only place these numbers live, the pages ask for them
 const FLEXIBLE_FEE_PERCENT: i64 = 3;
 const LOCKED_FEE_PERCENT: i64 = 10;
+
+// the short month names written on the boxes of a monthly plan
+const MONTH_NAMES: [&str; 12] = [
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+];
 
 // everything that can go wrong when money moves between wallet and plan
 #[derive(Debug)]
@@ -82,14 +87,22 @@ pub struct PlanGridInput {
     pub step: PeriodStep,
 }
 
-// one cell of the streak grid, already formatted for display
+// one box of the streak grid, already formatted for display
+// is_cell false = a faded box that is not part of the plan (a day before the start, say)
 // ticked = a full period was paid, struck = money that left the plan crossed it out
 #[derive(Debug, Clone)]
-pub struct GridCell {
-    pub number: i64,
-    pub due_date: String,
+pub struct GridBox {
+    pub label: String,
+    pub is_cell: bool,
     pub is_ticked: bool,
     pub is_struck: bool,
+}
+
+// one block of boxes under one title: a month, or a whole year for monthly plans
+#[derive(Debug, Clone)]
+pub struct GridBlock {
+    pub title: String,
+    pub boxes: Vec<GridBox>,
 }
 
 // ---------------------------------------------------------------- small rules
@@ -192,28 +205,173 @@ fn start_date_in_lagos(created_at: DateTime<Utc>) -> NaiveDate {
     }
 }
 
-// builds every cell of the grid, no database in here
+// one number for a month, so we can count months by simple subtraction
+// november 2026 minus october 2026 is 1
+fn month_index(date: NaiveDate) -> i32 {
+    date.year() * 12 + date.month0() as i32 // no semicolon
+}
+
+// how many days a month has, the calendar decides: february is 28, or 29 in a leap year
+// the length is the gap between the 1st of this month and the 1st of the next one
+fn days_in_month(year: i32, month: u32) -> u32 {
+    let first = NaiveDate::from_ymd_opt(year, month, 1);
+    let next_first = if month == 12 {
+        NaiveDate::from_ymd_opt(year + 1, 1, 1)
+    } else {
+        NaiveDate::from_ymd_opt(year, month + 1, 1)
+    };
+    match (first, next_first) {
+        (Some(first), Some(next_first)) => (next_first - first).num_days() as u32,
+        _ => 30,
+    }
+}
+
+// the title of a block, like "November 2026"
+fn month_title(year: i32, month: u32) -> String {
+    NaiveDate::from_ymd_opt(year, month, 1)
+        .map(|date| date.format("%B %Y").to_string())
+        .unwrap_or_default() // no semicolon
+}
+
+// one box: a number means it is a real cell of the plan, None means a faded box
+fn make_grid_box(label: String, number: Option<i64>, ticked: i64, struck: i64) -> GridBox {
+    match number {
+        Some(number) => GridBox {
+            label,
+            is_cell: true,
+            is_ticked: number <= ticked,
+            is_struck: number <= struck,
+        },
+        None => GridBox {
+            label,
+            is_cell: false,
+            is_ticked: false,
+            is_struck: false,
+        },
+    }
+}
+
+// daily plans: every real calendar month in full, one box per day
+// days before the start day and after the last cell are faded
+fn build_daily_blocks(
+    start: NaiveDate,
+    total_cells: i64,
+    ticked: i64,
+    struck: i64,
+) -> Vec<GridBlock> {
+    let Some(last) = cell_due_date(start, PeriodStep::Day, total_cells) else {
+        return Vec::new();
+    };
+
+    let mut blocks = Vec::new();
+    for index in month_index(start)..=month_index(last) {
+        let year = index.div_euclid(12);
+        let month = index.rem_euclid(12) as u32 + 1;
+
+        let mut boxes = Vec::new();
+        for day in 1..=days_in_month(year, month) {
+            // the cell number is how many days after the start this day is, plus 1
+            let number = NaiveDate::from_ymd_opt(year, month, day)
+                .filter(|date| *date >= start && *date <= last)
+                .map(|date| (date - start).num_days() + 1);
+            boxes.push(make_grid_box(day.to_string(), number, ticked, struck));
+        }
+        blocks.push(GridBlock {
+            title: month_title(year, month),
+            boxes,
+        });
+    }
+    blocks // no semicolon
+}
+
+// weekly plans: exactly 4 boxes per month, counted, never by date
+// the titles are real month names from the start month, the last block is filled up with faded boxes
+fn build_weekly_blocks(
+    start: NaiveDate,
+    total_cells: i64,
+    ticked: i64,
+    struck: i64,
+) -> Vec<GridBlock> {
+    let block_count = (total_cells + 3) / 4;
+    let start_index = month_index(start);
+
+    let mut blocks = Vec::new();
+    for block in 0..block_count {
+        let index = start_index + block as i32;
+        let year = index.div_euclid(12);
+        let month = index.rem_euclid(12) as u32 + 1;
+
+        let mut boxes = Vec::new();
+        for week in 1..=4 {
+            let number = block * 4 + week;
+            let in_plan = number <= total_cells;
+            boxes.push(make_grid_box(
+                format!("Week {week}"),
+                in_plan.then_some(number),
+                ticked,
+                struck,
+            ));
+        }
+        blocks.push(GridBlock {
+            title: month_title(year, month),
+            boxes,
+        });
+    }
+    blocks // no semicolon
+}
+
+// monthly plans: one block per calendar year, 12 boxes from Jan to Dec
+// months before the start month and after the last cell are faded
+fn build_monthly_blocks(
+    start: NaiveDate,
+    total_cells: i64,
+    ticked: i64,
+    struck: i64,
+) -> Vec<GridBlock> {
+    let Some(last) = cell_due_date(start, PeriodStep::Month, total_cells) else {
+        return Vec::new();
+    };
+    let start_index = month_index(start);
+
+    let mut blocks = Vec::new();
+    for year in start.year()..=last.year() {
+        let mut boxes = Vec::new();
+        for month in 1..=12u32 {
+            // the cell number is how many months after the start month this month is, plus 1
+            let number = (year * 12 + month as i32 - 1 - start_index + 1) as i64;
+            let in_plan = number >= 1 && number <= total_cells;
+            boxes.push(make_grid_box(
+                MONTH_NAMES[(month - 1) as usize].to_string(),
+                in_plan.then_some(number),
+                ticked,
+                struck,
+            ));
+        }
+        blocks.push(GridBlock {
+            title: year.to_string(),
+            boxes,
+        });
+    }
+    blocks // no semicolon
+}
+
+// builds the whole grid, no database in here
 // the first `ticked` cells are ticked, the first `struck` cells are struck
-fn build_grid_cells(
+fn build_grid_blocks(
     start: NaiveDate,
     step: PeriodStep,
     total_cells: i64,
     ticked: i64,
     struck: i64,
-) -> Vec<GridCell> {
-    let mut cells = Vec::new();
-    for number in 1..=total_cells {
-        let due_date = cell_due_date(start, step, number)
-            .map(|date| date.format("%b %d").to_string())
-            .unwrap_or_default();
-        cells.push(GridCell {
-            number,
-            due_date,
-            is_ticked: number <= ticked,
-            is_struck: number <= struck,
-        });
+) -> Vec<GridBlock> {
+    if total_cells <= 0 {
+        return Vec::new();
     }
-    cells // no semicolon
+    match step {
+        PeriodStep::Day => build_daily_blocks(start, total_cells, ticked, struck),
+        PeriodStep::Week => build_weekly_blocks(start, total_cells, ticked, struck),
+        PeriodStep::Month => build_monthly_blocks(start, total_cells, ticked, struck),
+    } // no semicolon
 }
 
 // the whole grid of one plan, for the plan page
@@ -222,7 +380,7 @@ fn build_grid_cells(
 pub async fn get_plan_grid(
     pool: &PgPool,
     input: &PlanGridInput,
-) -> Result<Vec<GridCell>, PlanFundsError> {
+) -> Result<Vec<GridBlock>, PlanFundsError> {
     if input.amount_per_frequency <= 0 {
         return Ok(Vec::new());
     }
@@ -234,8 +392,8 @@ pub async fn get_plan_grid(
     let struck = calculate_struck_cells(taken_out, input.amount_per_frequency, ticked);
     let start = start_date_in_lagos(input.created_at);
 
-    let cells = build_grid_cells(start, input.step, total_cells, ticked, struck);
-    Ok(cells) // no semicolon
+    let blocks = build_grid_blocks(start, input.step, total_cells, ticked, struck);
+    Ok(blocks) // no semicolon
 }
 
 // ---------------------------------------------------------------- add money
@@ -547,5 +705,62 @@ mod tests {
         let third = cell_due_date(start, PeriodStep::Month, 3).unwrap();
         assert_eq!(second, NaiveDate::from_ymd_opt(2027, 2, 28).unwrap());
         assert_eq!(third, NaiveDate::from_ymd_opt(2027, 3, 31).unwrap());
+    }
+
+    // the real month lengths come from the calendar, february has 29 days in a leap year
+    #[test]
+    fn month_lengths_follow_the_calendar() {
+        assert_eq!(days_in_month(2027, 2), 28);
+        assert_eq!(days_in_month(2028, 2), 29);
+        assert_eq!(days_in_month(2026, 11), 30);
+        assert_eq!(days_in_month(2026, 12), 31);
+    }
+
+    // a daily plan shows whole months, the days before the start day are faded
+    // 15 cells from 20 november end on 4 december
+    #[test]
+    fn daily_grid_fades_the_days_before_the_start() {
+        let start = NaiveDate::from_ymd_opt(2026, 11, 20).unwrap();
+        let blocks = build_grid_blocks(start, PeriodStep::Day, 15, 2, 1);
+        assert_eq!(blocks.len(), 2);
+        assert_eq!(blocks[0].title, "November 2026");
+        assert_eq!(blocks[0].boxes.len(), 30);
+        assert!(!blocks[0].boxes[18].is_cell); // 19 november, before the start
+        assert!(blocks[0].boxes[19].is_ticked && blocks[0].boxes[19].is_struck); // 20 november
+        assert!(blocks[0].boxes[20].is_ticked && !blocks[0].boxes[20].is_struck); // 21 november
+        assert!(blocks[0].boxes[21].is_cell && !blocks[0].boxes[21].is_ticked); // 22 november
+        assert_eq!(blocks[1].boxes.len(), 31);
+    }
+
+    // a weekly plan shows 4 boxes per month, the last block is filled up with faded boxes
+    #[test]
+    fn weekly_grid_has_four_boxes_per_month() {
+        let start = NaiveDate::from_ymd_opt(2026, 11, 20).unwrap();
+        let blocks = build_grid_blocks(start, PeriodStep::Week, 6, 5, 0);
+        assert_eq!(blocks.len(), 2);
+        assert_eq!(blocks[0].title, "November 2026");
+        assert_eq!(blocks[1].title, "December 2026");
+        assert_eq!(blocks[0].boxes.len(), 4);
+        assert_eq!(blocks[1].boxes.len(), 4);
+        assert_eq!(blocks[0].boxes[0].label, "Week 1");
+        assert!(blocks[1].boxes[0].is_ticked); // cell 5
+        assert!(blocks[1].boxes[1].is_cell && !blocks[1].boxes[1].is_ticked); // cell 6
+        assert!(!blocks[1].boxes[2].is_cell); // faded
+    }
+
+    // a monthly plan shows whole years, the months before the start month are faded
+    // 14 cells from november 2026 end in december 2027
+    #[test]
+    fn monthly_grid_shows_whole_years() {
+        let start = NaiveDate::from_ymd_opt(2026, 11, 20).unwrap();
+        let blocks = build_grid_blocks(start, PeriodStep::Month, 14, 1, 0);
+        assert_eq!(blocks.len(), 2);
+        assert_eq!(blocks[0].title, "2026");
+        assert_eq!(blocks[0].boxes.len(), 12);
+        assert!(!blocks[0].boxes[9].is_cell); // oct 2026, before the start
+        assert!(blocks[0].boxes[10].is_cell && blocks[0].boxes[10].is_ticked); // nov 2026
+        assert!(blocks[0].boxes[11].is_cell && !blocks[0].boxes[11].is_ticked); // dec 2026
+        assert_eq!(blocks[1].boxes[0].label, "Jan");
+        assert!(blocks[1].boxes.iter().all(|grid_box| grid_box.is_cell)); // all of 2027
     }
 }
