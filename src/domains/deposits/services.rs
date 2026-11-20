@@ -146,12 +146,14 @@ async fn settle_successful_deposit(pool: &PgPool, reference: &str) -> Result<(),
     };
 
     // the ledger row is written on the same tx, so it is saved only if the credit is
+    // a deposit is one single row, so it has no batch
     let ledger_row = NewLedgerEntry {
         fee: 0,
         user_id: claimed_deposit.user_id,
         entry_type: LedgerEntryType::Deposit,
         amount: claimed_deposit.amount,
         plan_id: None,
+        batch_id: None,
         remark: None,
         reference: claimed_deposit.reference.clone(),
         wallet_balance_after,
