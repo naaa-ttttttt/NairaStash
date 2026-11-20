@@ -12,6 +12,7 @@ use super::repo::{LockMode, PlanFrequency, PlanStatus, SavingsPlan};
 use super::services::{self, CreatePlanInput, PlanAmountInput, PlanError};
 use crate::domains::auth::handlers::AuthUser;
 use crate::domains::dashboard::not_found_handler;
+use crate::domains::plan_funds::services::early_fee_percent;
 use crate::shared::money::{format_kobo_as_naira, parse_naira_to_kobo};
 use crate::shared::render::render_page;
 use crate::AppState;
@@ -29,6 +30,7 @@ pub struct PlanView {
     pub target: Option<String>,
     pub progress_percent: i64,
     pub lock_label: &'static str,
+    pub early_fee_percent: i64, // what closing early costs, in percent
     pub end_date: Option<String>,
     pub created_on: String,
     pub is_active: bool,
@@ -113,10 +115,14 @@ pub struct NewPlanForm {
 }
 
 // the short codes the plan page can get in its url after an action
-// added is how many periods were saved, err is the reason something was refused
+// added is how many periods were saved, withdrawn and closed are kobo that reached the wallet,
+// fee is the early fee in kobo, err is the reason something was refused
 #[derive(Deserialize)]
 pub struct DetailQuery {
     added: Option<i64>,
+    withdrawn: Option<i64>,
+    closed: Option<i64>,
+    fee: Option<i64>,
     err: Option<String>,
 }
 
@@ -159,6 +165,7 @@ pub fn plan_view(plan: &SavingsPlan) -> PlanView {
         target: Some(format_kobo_as_naira(plan.target_amount)),
         progress_percent,
         lock_label,
+        early_fee_percent: early_fee_percent(plan.lock_mode == LockMode::Locked),
         end_date: Some(plan.end_date.format("%b %d, %Y").to_string()),
         created_on: plan.created_at.format("%b %d, %Y").to_string(),
         is_active: plan.status == PlanStatus::Active,
@@ -168,6 +175,30 @@ pub fn plan_view(plan: &SavingsPlan) -> PlanView {
 // builds the banner text from the codes in the url, an unknown code shows nothing
 // gives back the text and whether it is an error
 fn detail_message(query: &DetailQuery, plan: &PlanView) -> (Option<String>, bool) {
+    let fee_text = format_kobo_as_naira(query.fee.unwrap_or(0).max(0));
+
+    if let Some(received) = query.closed.filter(|received| *received >= 0) {
+        let text = if received > 0 {
+            format!(
+                "Plan closed. ₦{} moved to your wallet. Fee ₦{}.",
+                format_kobo_as_naira(received),
+                fee_text
+            )
+        } else {
+            "Plan closed. There was no money inside, so there was no fee.".to_string()
+        };
+        return (Some(text), false);
+    }
+
+    if let Some(received) = query.withdrawn.filter(|received| *received > 0) {
+        let text = format!(
+            "₦{} moved to your wallet. Fee ₦{}.",
+            format_kobo_as_naira(received),
+            fee_text
+        );
+        return (Some(text), false);
+    }
+
     if let Some(periods) = query.added.filter(|periods| *periods > 0) {
         let word = if periods == 1 {
             plan.unit.to_string()
@@ -184,11 +215,20 @@ fn detail_message(query: &DetailQuery, plan: &PlanView) -> (Option<String>, bool
     let text = match code {
         "invalid_amount" => "Enter an amount above zero.".to_string(),
         "below_one_period" => format!("Enter at least ₦{} (one {}).", plan.amount, plan.unit),
-        "not_active" => "This plan is closed, so it cannot receive money.".to_string(),
+        "not_active" => "This plan is closed, so it cannot be changed.".to_string(),
         "plan_full" => "This plan has reached its target, there is nothing left to fill.".to_string(),
+        "locked" => format!(
+            "Locked plans cannot be partly withdrawn. Use Close plan to take everything out, a {}% fee applies.",
+            plan.early_fee_percent
+        ),
         "not_enough_money" => {
             "Your wallet does not have enough money. Add money to your wallet first.".to_string()
         }
+        "not_enough_in_plan" => {
+            "That is more than this plan can pay, the fee is taken on top. Use the Max button or close the plan."
+                .to_string()
+        }
+        "too_small" => "The balance in this plan is too small to withdraw.".to_string(),
         "remark_too_long" => "Your note can be at most 200 characters.".to_string(),
         "server" => "Something went wrong. Please try again later.".to_string(),
         _ => return (None, false),
@@ -356,7 +396,7 @@ pub async fn create_plan_handler(
 }
 
 // GET /plans/:plan_id: one plan, a bad id or someone else's plan is a 404
-// the url may carry a result code from add money, shown as a banner
+// the url may carry a result code from add money, withdraw or close, shown as a banner
 pub async fn plan_detail_handler(
     auth: AuthUser,
     State(state): State<AppState>,
