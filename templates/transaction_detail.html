@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Transaction · NairaStash{% endblock %}
+{% block title %}Receipt · NairaStash{% endblock %}
 
 {% block content %}
 <header class="sticky top-0 z-30 flex items-center gap-3 px-5 h-16 bg-forest-900/50 backdrop-blur-xl">
@@ -9,58 +9,116 @@
     <span class="material-symbols-outlined text-[20px]">arrow_back</span>
   </a>
   <div class="leading-tight">
-    <h1 class="text-base font-semibold text-white">Transaction details</h1>
+    <h1 class="text-base font-semibold text-white">Transaction receipt</h1>
     <p class="text-[11px] text-white/60">{{ transaction.type_label }}</p>
   </div>
 </header>
 
 <main class="flex-1 flex flex-col gap-4 px-5 pt-4 pb-6">
 
-  <section class="glass rounded-3xl p-6 flex flex-col items-center text-center gap-2">
-    <div class="size-14 rounded-full bg-lime/15 text-lime flex items-center justify-center">
-      <span class="material-symbols-outlined text-[28px]">check_circle</span>
+  <!-- the receipt: status and amount on top, a dashed line, then the details -->
+  <section class="glass rounded-3xl overflow-hidden">
+
+    <div class="px-5 pt-5 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="size-8 rounded-full bg-lime/15 text-lime flex items-center justify-center">
+          <span class="material-symbols-outlined text-[16px]">account_balance</span>
+        </div>
+        <span class="text-sm font-semibold text-white">NairaStash</span>
+      </div>
+      <span class="text-[11px] text-white/50 uppercase tracking-wider">Receipt</span>
     </div>
-    <p class="text-sm text-white/70">{{ transaction.label }}</p>
-    <p class="text-3xl font-semibold tracking-tight {% if transaction.is_credit %}text-lime{% else %}text-white{% endif %}">{{ transaction.sign }}₦{{ transaction.amount }}</p>
-    <span class="rounded-full bg-lime/15 text-lime px-3 py-1 text-xs font-semibold">Successful</span>
+
+    <div class="px-5 pt-6 pb-6 flex flex-col items-center text-center gap-2">
+      <div class="size-14 rounded-full bg-lime/15 text-lime flex items-center justify-center">
+        <span class="material-symbols-outlined text-[30px]">check_circle</span>
+      </div>
+      <p class="text-sm font-semibold text-lime">Successful</p>
+      <p class="mt-1 text-4xl font-semibold tracking-tight {% if transaction.is_credit %}text-lime{% else %}text-white{% endif %}">{{ transaction.sign }}₦{{ transaction.amount }}</p>
+      <p class="text-sm text-white/70">{{ transaction.label }}</p>
+      <p class="text-xs text-white/50">{{ transaction.date }}</p>
+    </div>
+
+    <div class="border-t border-dashed border-white/20"></div>
+
+    <div class="py-2">
+      <div class="flex items-start justify-between gap-4 px-5 py-3">
+        <p class="text-xs text-white/60">Transaction type</p>
+        <p class="text-sm font-semibold text-white text-right">{{ transaction.type_label }}</p>
+      </div>
+
+      {% if let Some(plan_id) = transaction.plan_id %}
+      <div class="flex items-start justify-between gap-4 px-5 py-3">
+        <p class="text-xs text-white/60">Plan</p>
+        <a href="/plans/{{ plan_id }}" class="text-sm font-semibold text-lime text-right">{{ transaction.plan_name }}</a>
+      </div>
+      {% endif %}
+
+      <div class="flex items-start justify-between gap-4 px-5 py-3">
+        <p class="text-xs text-white/60">Amount</p>
+        <p class="text-sm font-semibold text-white text-right">₦{{ transaction.amount }}</p>
+      </div>
+
+      {% if let Some(fee) = transaction.fee %}
+      <div class="flex items-start justify-between gap-4 px-5 py-3">
+        <p class="text-xs text-white/60">Early withdrawal fee</p>
+        <p class="text-sm font-semibold text-white text-right">₦{{ fee }}</p>
+      </div>
+      {% endif %}
+
+      {% if let Some(remark) = transaction.remark %}
+      <div class="flex items-start justify-between gap-4 px-5 py-3">
+        <p class="text-xs text-white/60">Note</p>
+        <p class="text-sm text-white text-right break-words">{{ remark }}</p>
+      </div>
+      {% endif %}
+
+      <div class="flex items-start justify-between gap-4 px-5 py-3">
+        <p class="text-xs text-white/60">Wallet balance after</p>
+        <p class="text-sm font-semibold text-white text-right">₦{{ transaction.balance_after }}</p>
+      </div>
+
+      <div class="flex items-start justify-between gap-4 px-5 py-3">
+        <p class="text-xs text-white/60 shrink-0">Reference</p>
+        <div class="flex items-start gap-2 min-w-0">
+          <p class="text-sm font-semibold text-white text-right break-all">{{ transaction.reference }}</p>
+          <button id="copy-reference" type="button" data-reference="{{ transaction.reference }}"
+            class="shrink-0 inline-flex items-center gap-1 rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-semibold text-lime hover:bg-white/15 transition-colors">
+            <span class="material-symbols-outlined text-[14px]">content_copy</span>
+            <span id="copy-label">Copy</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="border-t border-dashed border-white/20"></div>
+
+    <p class="px-5 py-4 text-center text-[11px] leading-relaxed text-white/50">
+      This receipt is a record of a completed transaction and cannot be changed.
+      Quote the reference above if you need help.
+    </p>
   </section>
 
-  <section class="glass rounded-3xl divide-y divide-white/10 overflow-hidden">
-    <div class="px-4 py-3.5">
-      <p class="text-[11px] text-white/60 uppercase tracking-wider">Type</p>
-      <p class="mt-0.5 text-sm font-semibold text-white">{{ transaction.type_label }}</p>
-    </div>
-    <div class="px-4 py-3.5">
-      <p class="text-[11px] text-white/60 uppercase tracking-wider">Date</p>
-      <p class="mt-0.5 text-sm font-semibold text-white">{{ transaction.date }}</p>
-    </div>
-    {% if let Some(fee) = transaction.fee %}
-    <div class="px-4 py-3.5">
-      <p class="text-[11px] text-white/60 uppercase tracking-wider">Early withdrawal fee</p>
-      <p class="mt-0.5 text-sm font-semibold text-white">₦{{ fee }}</p>
-    </div>
-    {% endif %}
-    {% if let Some(plan_id) = transaction.plan_id %}
-    <div class="px-4 py-3.5">
-      <p class="text-[11px] text-white/60 uppercase tracking-wider">Plan</p>
-      <a href="/plans/{{ plan_id }}" class="mt-0.5 text-sm font-semibold text-lime">{{ transaction.plan_name }}</a>
-    </div>
-    {% endif %}
-    {% if let Some(remark) = transaction.remark %}
-    <div class="px-4 py-3.5">
-      <p class="text-[11px] text-white/60 uppercase tracking-wider">Remark</p>
-      <p class="mt-0.5 text-sm text-white">{{ remark }}</p>
-    </div>
-    {% endif %}
-    <div class="px-4 py-3.5">
-      <p class="text-[11px] text-white/60 uppercase tracking-wider">Reference</p>
-      <p class="mt-0.5 text-sm font-semibold text-white break-all">{{ transaction.reference }}</p>
-    </div>
-    <div class="px-4 py-3.5">
-      <p class="text-[11px] text-white/60 uppercase tracking-wider">Wallet balance after</p>
-      <p class="mt-0.5 text-sm font-semibold text-white">₦{{ transaction.balance_after }}</p>
-    </div>
-  </section>
+  <a href="/activity"
+    class="h-12 rounded-full glass text-white text-sm font-semibold flex items-center justify-center hover:bg-white/10 active:scale-[0.99] transition">
+    Back to activity
+  </a>
 
 </main>
+
+<script>
+  (function () {
+    var button = document.getElementById('copy-reference');
+    if (!button || !navigator.clipboard) { return; }
+
+    // copies the reference and shows "Copied" for a moment
+    button.addEventListener('click', function () {
+      navigator.clipboard.writeText(button.dataset.reference).then(function () {
+        var label = document.getElementById('copy-label');
+        label.textContent = 'Copied';
+        setTimeout(function () { label.textContent = 'Copy'; }, 1500);
+      });
+    });
+  })();
+</script>
 {% endblock %}
