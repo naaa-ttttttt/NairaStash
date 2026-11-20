@@ -1,9 +1,10 @@
 use chrono::{DateTime, NaiveDate, Utc};
-use sqlx::{FromRow, Postgres, Transaction};
+use sqlx::{FromRow, PgPool, Postgres, Transaction};
 use uuid::Uuid;
 
 
 // every function here takes &mut tx, so the service decides where the tx begins and ends, money is in kobo, and this file has no rules, only sql
+// the one exception is sum_plan_money_taken_out, it only reads, so it takes the pool
 
 // the plan row as the money code needs it, read while locked
 // status and lock_mode come as text so we do not copy enums we have not seen yet
@@ -166,5 +167,21 @@ pub async fn count_plan_contributions_in_tx(
     )
     .bind(plan_id)
     .fetch_one(&mut **tx)
+    .await // no semicolon
+}
+
+// all the money that has left a plan so far: amount + fee of every plan_withdrawal row
+// the grid uses it to know how many cells are struck, it only reads, so it takes the pool
+// COALESCE gives 0 when there are no withdrawals, SUM of bigint is numeric so we cast it back
+pub async fn sum_plan_money_taken_out(pool: &PgPool, plan_id: Uuid) -> Result<i64, sqlx::Error> {
+    sqlx::query_scalar::<_, i64>(
+        r#"
+        SELECT COALESCE(SUM(amount + fee), 0)::BIGINT
+        FROM ledger_entries
+        WHERE plan_id = $1 AND entry_type = 'plan_withdrawal'
+        "#,
+    )
+    .bind(plan_id)
+    .fetch_one(pool)
     .await // no semicolon
 }
