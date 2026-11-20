@@ -387,3 +387,165 @@ pub async fn withdraw_from_plan(
 
     let fee = calculate_withdrawal_fee(amount, early_fee_percent(false));
     let total_leaving_plan = amount
+        .checked_add(fee)
+        .ok_or(PlanFundsError::NotEnoughInPlan)?;
+    if total_leaving_plan > plan.balance {
+        return Err(PlanFundsError::NotEnoughInPlan);
+    }
+
+    move_plan_money_to_wallet(&mut tx, plan_id, user_id, amount, fee, remark).await?;
+
+    tx.commit().await?;
+
+    Ok(WithdrawResult { amount_received: amount, fee }) // no semicolon
+}
+
+// closes a plan: the whole balance goes to the wallet (fee on top), then the plan is closed
+// flexible plans pay the lower fee, locked plans the higher one
+// an empty plan just closes, with no fee and no ledger row
+pub async fn liquidate_plan(
+    pool: &PgPool,
+    user_id: Uuid,
+    plan_id: Uuid,
+) -> Result<WithdrawResult, PlanFundsError> {
+    let mut tx: Transaction<'_, Postgres> = pool.begin().await?;
+
+    let plan = repo::lock_plan_for_update(&mut tx, plan_id, user_id)
+        .await?
+        .ok_or(PlanFundsError::PlanNotFound)?;
+
+    check_plan_is_active(&plan)?;
+
+    // nothing inside: close it, no money moves, so there is nothing to charge
+    if plan.balance == 0 {
+        repo::close_plan(&mut tx, plan_id).await?;
+        tx.commit().await?;
+        return Ok(WithdrawResult { amount_received: 0, fee: 0 });
+    }
+
+    // the wallet gets the biggest amount the fee allows, the fee is what is left
+    // so the plan ends at exactly zero
+    let fee_percent = early_fee_percent(plan.lock_mode == PLAN_MODE_LOCKED);
+    let amount = calculate_max_withdrawal(plan.balance, fee_percent);
+    if amount <= 0 {
+        return Err(PlanFundsError::BalanceTooSmall);
+    }
+    let fee = plan.balance - amount;
+
+    let remark = Some("Plan closed early".to_string());
+    move_plan_money_to_wallet(&mut tx, plan_id, user_id, amount, fee, remark).await?;
+    repo::close_plan(&mut tx, plan_id).await?;
+
+    tx.commit().await?;
+
+    Ok(WithdrawResult { amount_received: amount, fee }) // no semicolon
+}
+
+// ---------------------------------------------------------------- tests
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // 3 percent of 10,000 naira (1,000,000 kobo) is 300 naira
+    #[test]
+    fn flexible_fee_is_three_percent() {
+        assert_eq!(calculate_withdrawal_fee(1_000_000, 3), 30_000);
+    }
+
+    // 10 percent of 10,000 naira is 1,000 naira
+    #[test]
+    fn locked_fee_is_ten_percent() {
+        assert_eq!(calculate_withdrawal_fee(1_000_000, 10), 100_000);
+    }
+
+    // 3 percent of 1,000,001 kobo is 30,000.03, so it rounds up to 30,001
+    #[test]
+    fn fee_rounds_up() {
+        assert_eq!(calculate_withdrawal_fee(1_000_001, 3), 30_001);
+        assert_eq!(calculate_withdrawal_fee(1_000_001, 10), 100_001);
+    }
+
+    // locked plans pay the higher percent, flexible the lower
+    #[test]
+    fn locked_pays_more_than_flexible() {
+        assert_eq!(early_fee_percent(false), 3);
+        assert_eq!(early_fee_percent(true), 10);
+    }
+
+    // a balance of 10,300 naira can pay out exactly 10,000 naira plus 300 fee
+    #[test]
+    fn max_withdrawal_matches_the_flexible_example() {
+        assert_eq!(calculate_max_withdrawal(1_030_000, 3), 1_000_000);
+    }
+
+    // a balance of 11,000 naira can pay out exactly 10,000 naira plus 1,000 fee
+    #[test]
+    fn max_withdrawal_matches_the_locked_example() {
+        assert_eq!(calculate_max_withdrawal(1_100_000, 10), 1_000_000);
+    }
+
+    // the max is the exact edge: it fits, and one kobo more does not
+    #[test]
+    fn max_withdrawal_is_the_exact_edge() {
+        for percent in [3, 10] {
+            for balance in [1, 2, 3, 99, 100, 101, 103, 5_000, 999_999, 1_030_000, 51_500_000] {
+                let amount = calculate_max_withdrawal(balance, percent);
+                assert!(amount + calculate_withdrawal_fee(amount, percent) <= balance);
+                assert!(amount + 1 + calculate_withdrawal_fee(amount + 1, percent) > balance);
+            }
+        }
+    }
+
+    // closing a plan leaves nothing behind: amount + fee is the whole balance
+    #[test]
+    fn closing_leaves_zero() {
+        for percent in [3, 10] {
+            for balance in [2, 100, 4_000_000, 51_500_000] {
+                let amount = calculate_max_withdrawal(balance, percent);
+                let fee = balance - amount;
+                assert_eq!(amount + fee, balance);
+                assert!(fee >= calculate_withdrawal_fee(amount, percent));
+            }
+        }
+    }
+
+    // an empty plan pays nothing
+    #[test]
+    fn empty_plan_pays_nothing() {
+        assert_eq!(calculate_max_withdrawal(0, 3), 0);
+        assert_eq!(calculate_max_withdrawal(0, 10), 0);
+    }
+
+    // 10,000 naira out of a 2,000 naira a day plan strikes the first 5 cells
+    #[test]
+    fn struck_cells_match_the_example() {
+        assert_eq!(calculate_struck_cells(1_000_000, 200_000, 20), 5);
+    }
+
+    // 3,000 naira out at 2,000 a day strikes 1 cell, the other 1,000 waits for the next withdrawal
+    // two withdrawals of 3,000 add up to 6,000, which strikes 3 cells
+    #[test]
+    fn struck_cells_carry_the_leftover() {
+        assert_eq!(calculate_struck_cells(300_000, 200_000, 20), 1);
+        assert_eq!(calculate_struck_cells(600_000, 200_000, 20), 3);
+    }
+
+    // a strike never goes past the ticked cells, and no money out strikes nothing
+    #[test]
+    fn struck_cells_never_pass_the_ticks() {
+        assert_eq!(calculate_struck_cells(9_000_000, 200_000, 4), 4);
+        assert_eq!(calculate_struck_cells(0, 200_000, 4), 0);
+        assert_eq!(calculate_struck_cells(500_000, 0, 4), 0);
+    }
+
+    // monthly cells count from the start, so a plan starting on the 31st does not drift
+    #[test]
+    fn monthly_dates_do_not_drift() {
+        let start = NaiveDate::from_ymd_opt(2027, 1, 31).unwrap();
+        let second = cell_due_date(start, PeriodStep::Month, 2).unwrap();
+        let third = cell_due_date(start, PeriodStep::Month, 3).unwrap();
+        assert_eq!(second, NaiveDate::from_ymd_opt(2027, 2, 28).unwrap());
+        assert_eq!(third, NaiveDate::from_ymd_opt(2027, 3, 31).unwrap());
+    }
+}
