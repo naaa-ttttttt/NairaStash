@@ -96,9 +96,9 @@
       <div>
         <p class="text-sm font-semibold">{{ plan.lock_label }} plan</p>
         {% if plan.lock_label == "Locked" %}
-        <p class="text-xs text-white/60">No withdrawals before the end date. Your savings are paid to your wallet when the plan ends.</p>
+        <p class="text-xs text-white/60">No partial withdrawals. If you need your money early, you can close the plan, but a {{ plan.early_fee_percent }}% fee is taken on top of what you receive. Waiting for the end date has no fee.</p>
         {% else %}
-        <p class="text-xs text-white/60">You can withdraw early, but an early withdrawal fee applies. Waiting for the end date has no fee.</p>
+        <p class="text-xs text-white/60">You can withdraw early, but a {{ plan.early_fee_percent }}% fee is taken on top of what you withdraw. Waiting for the end date has no fee.</p>
         {% endif %}
       </div>
     </div>
@@ -127,17 +127,20 @@
     <div class="rounded-2xl bg-black/20 border border-white/10 p-6 flex flex-col items-center text-center gap-2">
       <span class="material-symbols-outlined text-white/50 text-[28px]">receipt_long</span>
       <p class="text-sm font-semibold text-white">Your {{ plan.unit }}s will be ticked off here</p>
-      <p class="text-xs text-white/60">See every deposit on the <a href="/activity" class="font-semibold text-lime">Activity</a> page.</p>
+      <p class="text-xs text-white/60">See every deposit and withdrawal on the <a href="/activity" class="font-semibold text-lime">Activity</a> page.</p>
     </div>
   </section>
 
 </main>
 
-<!-- Action bar: two big buttons that stay above the bottom menu -->
+<!-- numbers the page script reads, the server formatted them -->
+<div id="plan-data" class="hidden" data-balance="{{ plan.balance }}" data-period="{{ plan.amount }}" data-unit="{{ plan.unit }}" data-fee="{{ plan.early_fee_percent }}"></div>
+
 {% if plan.is_active %}
+<!-- Action bar: two big buttons and a small close link, above the bottom menu -->
 <div class="sticky bottom-24 z-30 px-5 pt-6 pb-1 bg-gradient-to-t from-forest-900 via-forest-900/70 to-transparent">
   <div class="grid grid-cols-2 gap-3">
-    <button id="open-add" type="button"
+    <button id="add-open" type="button"
       class="h-14 rounded-full bg-lime text-lime-ink text-sm font-semibold flex items-center justify-center gap-2 shadow-xl active:scale-[0.98] transition">
       <span class="material-symbols-outlined text-[20px]">add_circle</span>
       Add money
@@ -149,27 +152,32 @@
       Locked
     </button>
     {% else %}
-    <button type="button" disabled
-      class="h-14 rounded-full glass text-white text-sm font-semibold flex items-center justify-center gap-2 opacity-40 cursor-not-allowed">
+    <button id="withdraw-open" type="button"
+      class="h-14 rounded-full glass text-white text-sm font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition">
       <span class="material-symbols-outlined text-[20px]">arrow_circle_down</span>
       Withdraw
     </button>
     {% endif %}
   </div>
-  {% if plan.lock_label == "Locked" %}
-  <p class="mt-2 text-center text-[11px] text-white/50">Withdrawals open when the plan ends.</p>
-  {% else %}
-  <p class="mt-2 text-center text-[11px] text-white/50">Early withdrawal is coming next.</p>
-  {% endif %}
+
+  <div class="mt-2 flex items-center justify-center gap-3 text-[11px] text-white/50">
+    {% if plan.lock_label == "Locked" %}
+    <span>Closing early costs {{ plan.early_fee_percent }}%.</span>
+    {% else %}
+    <span>Early withdrawals have a {{ plan.early_fee_percent }}% fee.</span>
+    {% endif %}
+    <span aria-hidden="true">·</span>
+    <button id="close-open" type="button" class="font-semibold text-warn">Close plan</button>
+  </div>
 </div>
 {% else %}
 <div class="px-5 pb-6">
-  <p class="rounded-2xl glass px-4 py-3 text-center text-sm text-white/70">This plan is closed, so it cannot receive money.</p>
+  <p class="rounded-2xl glass px-4 py-3 text-center text-sm text-white/70">This plan is closed, so it cannot be changed.</p>
 </div>
 {% endif %}
 
-<!-- Add money sheet: slides up from the bottom -->
 {% if plan.is_active %}
+<!-- Add money sheet -->
 <div id="add-sheet" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="add-title">
   <div id="add-backdrop" class="absolute inset-0 bg-black/60"></div>
   <div id="add-panel"
@@ -181,15 +189,13 @@
         <h2 id="add-title" class="text-base font-semibold text-white">Add money</h2>
         <p class="text-xs text-white/60">From your wallet into {{ plan.name }}</p>
       </div>
-      <button id="close-add" type="button" aria-label="Close"
+      <button id="add-close" type="button" aria-label="Close"
         class="size-9 rounded-full glass text-white/80 flex items-center justify-center">
         <span class="material-symbols-outlined text-[18px]">close</span>
       </button>
     </div>
 
-    <form id="add-form" method="post" action="/plans/{{ plan.plan_id }}/add"
-      data-period="{{ plan.amount }}" data-unit="{{ plan.unit }}" class="mt-4 space-y-4">
-
+    <form id="add-form" method="post" action="/plans/{{ plan.plan_id }}/add" class="mt-4 space-y-4">
       <div class="flex items-baseline justify-center gap-1 py-5 rounded-2xl bg-black/25 border border-white/10">
         <span class="text-2xl font-medium text-white/50">₦</span>
         <input id="add-amount" name="amount" type="text" inputmode="decimal" required placeholder="0"
@@ -197,14 +203,14 @@
       </div>
 
       <div class="grid grid-cols-3 gap-2">
-        <button type="button" data-periods="1" class="chip py-2.5 rounded-full bg-white/[0.06] text-white/80 border border-white/10 text-xs font-medium hover:bg-white/10 transition-colors"></button>
-        <button type="button" data-periods="2" class="chip py-2.5 rounded-full bg-white/[0.06] text-white/80 border border-white/10 text-xs font-medium hover:bg-white/10 transition-colors"></button>
-        <button type="button" data-periods="5" class="chip py-2.5 rounded-full bg-white/[0.06] text-white/80 border border-white/10 text-xs font-medium hover:bg-white/10 transition-colors"></button>
+        <button type="button" data-periods="1" class="add-chip py-2.5 rounded-full bg-white/[0.06] text-white/80 border border-white/10 text-xs font-medium hover:bg-white/10 transition-colors"></button>
+        <button type="button" data-periods="2" class="add-chip py-2.5 rounded-full bg-white/[0.06] text-white/80 border border-white/10 text-xs font-medium hover:bg-white/10 transition-colors"></button>
+        <button type="button" data-periods="5" class="add-chip py-2.5 rounded-full bg-white/[0.06] text-white/80 border border-white/10 text-xs font-medium hover:bg-white/10 transition-colors"></button>
       </div>
 
       <p id="add-preview" class="hidden rounded-2xl bg-white/5 px-4 py-3 text-xs text-white/70"></p>
 
-      <input id="add-remark" name="remark" type="text" maxlength="200" placeholder="Add a note (optional)"
+      <input name="remark" type="text" maxlength="200" placeholder="Add a note (optional)"
         class="w-full h-12 px-4 rounded-2xl bg-black/25 border border-white/10 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-lime/60 transition-colors">
 
       <button id="add-button" type="submit"
@@ -216,21 +222,100 @@
   </div>
 </div>
 
+{% if plan.lock_label != "Locked" %}
+<!-- Withdraw sheet, flexible plans only -->
+<div id="withdraw-sheet" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="withdraw-title">
+  <div id="withdraw-backdrop" class="absolute inset-0 bg-black/60"></div>
+  <div id="withdraw-panel"
+    class="absolute inset-x-0 bottom-0 mx-auto w-full max-w-lg translate-y-full transition-transform duration-300 rounded-t-3xl bg-forest-900 border-t border-white/10 px-5 pt-3 pb-8">
+    <div class="mx-auto h-1 w-10 rounded-full bg-white/20"></div>
+
+    <div class="mt-4 flex items-center justify-between">
+      <div>
+        <h2 id="withdraw-title" class="text-base font-semibold text-white">Withdraw</h2>
+        <p class="text-xs text-white/60">From {{ plan.name }} to your wallet</p>
+      </div>
+      <button id="withdraw-close" type="button" aria-label="Close"
+        class="size-9 rounded-full glass text-white/80 flex items-center justify-center">
+        <span class="material-symbols-outlined text-[18px]">close</span>
+      </button>
+    </div>
+
+    <form id="withdraw-form" method="post" action="/plans/{{ plan.plan_id }}/withdraw" class="mt-4 space-y-4">
+      <div class="flex items-baseline justify-center gap-1 py-5 rounded-2xl bg-black/25 border border-white/10">
+        <span class="text-2xl font-medium text-white/50">₦</span>
+        <input id="withdraw-amount" name="amount" type="text" inputmode="decimal" required placeholder="0"
+          class="w-44 bg-transparent text-4xl font-semibold tracking-tight text-white text-center placeholder:text-white/25 focus:outline-none">
+      </div>
+
+      <div class="flex items-center justify-between text-xs text-white/60">
+        <span>Plan balance: ₦{{ plan.balance }}</span>
+        <button id="withdraw-max" type="button" class="font-semibold text-lime">Max</button>
+      </div>
+
+      <p id="withdraw-preview" class="hidden rounded-2xl bg-white/5 px-4 py-3 text-xs text-white/70"></p>
+
+      <input name="remark" type="text" maxlength="200" placeholder="Add a note (optional)"
+        class="w-full h-12 px-4 rounded-2xl bg-black/25 border border-white/10 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-lime/60 transition-colors">
+
+      <button id="withdraw-button" type="submit"
+        class="w-full h-14 rounded-full bg-lime text-lime-ink text-sm font-semibold flex items-center justify-center gap-2 shadow-xl active:scale-[0.99] transition disabled:opacity-40">
+        <span class="material-symbols-outlined text-[20px]">arrow_circle_down</span>
+        Withdraw to wallet
+      </button>
+    </form>
+  </div>
+</div>
+{% endif %}
+
+<!-- Close plan sheet -->
+<div id="close-sheet" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="close-title">
+  <div id="close-backdrop" class="absolute inset-0 bg-black/60"></div>
+  <div id="close-panel"
+    class="absolute inset-x-0 bottom-0 mx-auto w-full max-w-lg translate-y-full transition-transform duration-300 rounded-t-3xl bg-forest-900 border-t border-white/10 px-5 pt-3 pb-8">
+    <div class="mx-auto h-1 w-10 rounded-full bg-white/20"></div>
+
+    <div class="mt-4 flex items-center justify-between">
+      <div>
+        <h2 id="close-title" class="text-base font-semibold text-white">Close this plan?</h2>
+        <p class="text-xs text-white/60">{{ plan.name }}</p>
+      </div>
+      <button id="close-close" type="button" aria-label="Cancel"
+        class="size-9 rounded-full glass text-white/80 flex items-center justify-center">
+        <span class="material-symbols-outlined text-[18px]">close</span>
+      </button>
+    </div>
+
+    <form id="close-form" method="post" action="/plans/{{ plan.plan_id }}/liquidate" class="mt-4 space-y-4">
+      <p id="close-info" class="rounded-2xl bg-white/5 px-4 py-4 text-sm text-white/80"></p>
+      <p class="text-xs text-white/50">Closing a plan cannot be undone.</p>
+
+      <div class="grid grid-cols-2 gap-3">
+        <button id="close-cancel" type="button"
+          class="h-14 rounded-full glass text-white text-sm font-semibold">Keep plan</button>
+        <button id="close-button" type="submit"
+          class="h-14 rounded-full bg-warn text-lime-ink text-sm font-semibold active:scale-[0.99] transition disabled:opacity-40">Close plan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <script>
   (function () {
-    var sheet = document.getElementById('add-sheet');
-    var panel = document.getElementById('add-panel');
-    var form = document.getElementById('add-form');
-    var input = document.getElementById('add-amount');
-    var preview = document.getElementById('add-preview');
-    var button = document.getElementById('add-button');
-    var openButton = document.getElementById('open-add');
-    if (!sheet || !form || !openButton) { return; }
+    var data = document.getElementById('plan-data');
+    if (!data) { return; }
 
-    var unit = form.dataset.unit;
+    var unit = data.dataset.unit;
 
-    // the plan's amount per period in kobo, read from the text the server formatted
-    var perPeriod = Math.round(parseFloat(form.dataset.period.replace(/,/g, '')) * 100);
+    // the early fee percent of this plan, it comes from the server so the page never disagrees with it
+    var feePercent = parseInt(data.dataset.fee, 10);
+
+    // the server formatted these as text like "40,000.00", we turn them into kobo
+    function toKobo(text) {
+      return Math.round(parseFloat(text.replace(/,/g, '')) * 100);
+    }
+    var perPeriod = toKobo(data.dataset.period);
+    var balance = toKobo(data.dataset.balance);
 
     function naira(kobo) {
       return '₦' + (kobo / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -240,63 +325,143 @@
       return count + ' ' + unit + (count === 1 ? '' : 's');
     }
 
-    // opens the sheet: show it, then slide the panel up on the next tick
-    function openSheet() {
-      sheet.classList.remove('hidden');
-      document.body.style.overflow = 'hidden';
-      setTimeout(function () {
-        panel.classList.remove('translate-y-full');
-        input.focus();
-      }, 20);
+    // the fee rounded up to a whole kobo, the server does the real calculation
+    function fee(kobo) {
+      return Math.floor((kobo * feePercent + 99) / 100);
     }
 
-    // closes the sheet: slide the panel down, then hide it
-    function closeSheet() {
-      panel.classList.add('translate-y-full');
-      document.body.style.overflow = '';
-      setTimeout(function () { sheet.classList.add('hidden'); }, 300);
+    // the biggest amount the plan can pay when the fee is taken on top
+    function maxWithdraw(total) {
+      if (total <= 0) { return 0; }
+      var amount = Math.floor(total * 100 / (100 + feePercent));
+      while (amount > 0 && amount + fee(amount) > total) { amount--; }
+      while (amount + 1 + fee(amount + 1) <= total) { amount++; }
+      return amount;
     }
 
-    // shows how many whole periods the typed amount pays and what stays in the wallet
-    function update() {
-      var kobo = Math.round((parseFloat((input.value || '').replace(/,/g, '')) || 0) * 100);
-      if (kobo <= 0 || perPeriod <= 0) {
-        preview.classList.add('hidden');
-        return;
+    // typed text to kobo, 0 when it is empty or not a number
+    function typedKobo(input) {
+      return Math.round((parseFloat((input.value || '').replace(/,/g, '')) || 0) * 100);
+    }
+
+    // sets up one sheet: open button, close buttons, backdrop and the Escape key
+    function setupSheet(name, onOpen) {
+      var sheet = document.getElementById(name + '-sheet');
+      var panel = document.getElementById(name + '-panel');
+      var openButton = document.getElementById(name + '-open');
+      if (!sheet || !panel || !openButton) { return; }
+
+      function openSheet() {
+        if (onOpen) { onOpen(); }
+        sheet.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        setTimeout(function () { panel.classList.remove('translate-y-full'); }, 20);
       }
-      var periods = Math.floor(kobo / perPeriod);
-      if (periods === 0) {
-        preview.textContent = 'That is less than one ' + unit + '. Enter at least ' + naira(perPeriod) + '.';
-      } else {
-        var moved = periods * perPeriod;
-        preview.textContent = 'Up to ' + word(periods) + ' (' + naira(moved) + '). ' + naira(kobo - moved) + ' stays in your wallet.';
-      }
-      preview.classList.remove('hidden');
-    }
 
-    // the quick buttons fill the amount for 1, 2 or 5 periods
-    document.querySelectorAll('#add-form .chip').forEach(function (chip) {
-      var count = parseInt(chip.dataset.periods, 10);
-      chip.textContent = word(count);
-      chip.addEventListener('click', function () {
-        input.value = ((count * perPeriod) / 100).toString();
-        update();
+      function closeSheet() {
+        panel.classList.add('translate-y-full');
+        document.body.style.overflow = '';
+        setTimeout(function () { sheet.classList.add('hidden'); }, 300);
+      }
+
+      openButton.addEventListener('click', openSheet);
+      [name + '-close', name + '-backdrop', name + '-cancel'].forEach(function (id) {
+        var element = document.getElementById(id);
+        if (element) { element.addEventListener('click', closeSheet); }
       });
-    });
 
-    openButton.addEventListener('click', openSheet);
-    document.getElementById('close-add').addEventListener('click', closeSheet);
-    document.getElementById('add-backdrop').addEventListener('click', closeSheet);
-    document.addEventListener('keydown', function (event) {
-      if (event.key === 'Escape' && !sheet.classList.contains('hidden')) { closeSheet(); }
-    });
+      // this listener removes itself once the page has been replaced
+      function onKey(event) {
+        if (!document.body.contains(sheet)) {
+          document.removeEventListener('keydown', onKey);
+          return;
+        }
+        if (event.key === 'Escape' && !sheet.classList.contains('hidden')) { closeSheet(); }
+      }
+      document.addEventListener('keydown', onKey);
+    }
 
-    input.addEventListener('input', update);
+    // stops a double tap from sending a form twice, and gives the page its scroll back
+    function guardForm(formId, buttonId) {
+      var form = document.getElementById(formId);
+      var button = document.getElementById(buttonId);
+      if (!form || !button) { return; }
+      form.addEventListener('submit', function () {
+        button.disabled = true;
+        document.body.style.overflow = '';
+      });
+    }
 
-    // stops a double tap from sending the form twice
-    form.addEventListener('submit', function () {
-      button.disabled = true;
-    });
+    // ---------------- add money
+    var addInput = document.getElementById('add-amount');
+    var addPreview = document.getElementById('add-preview');
+    if (addInput) {
+      function updateAdd() {
+        var kobo = typedKobo(addInput);
+        if (kobo <= 0 || perPeriod <= 0) { addPreview.classList.add('hidden'); return; }
+        var periods = Math.floor(kobo / perPeriod);
+        if (periods === 0) {
+          addPreview.textContent = 'That is less than one ' + unit + '. Enter at least ' + naira(perPeriod) + '.';
+        } else {
+          var moved = periods * perPeriod;
+          addPreview.textContent = 'Up to ' + word(periods) + ' (' + naira(moved) + '). ' + naira(kobo - moved) + ' stays in your wallet.';
+        }
+        addPreview.classList.remove('hidden');
+      }
+
+      document.querySelectorAll('.add-chip').forEach(function (chip) {
+        var count = parseInt(chip.dataset.periods, 10);
+        chip.textContent = word(count);
+        chip.addEventListener('click', function () {
+          addInput.value = ((count * perPeriod) / 100).toString();
+          updateAdd();
+        });
+      });
+
+      addInput.addEventListener('input', updateAdd);
+      setupSheet('add', function () { setTimeout(function () { addInput.focus(); }, 320); });
+      guardForm('add-form', 'add-button');
+    }
+
+    // ---------------- withdraw (flexible plans only, the sheet does not exist on locked plans)
+    var withdrawInput = document.getElementById('withdraw-amount');
+    var withdrawPreview = document.getElementById('withdraw-preview');
+    if (withdrawInput) {
+      function updateWithdraw() {
+        var kobo = typedKobo(withdrawInput);
+        if (kobo <= 0) { withdrawPreview.classList.add('hidden'); return; }
+        var feeKobo = fee(kobo);
+        if (kobo + feeKobo > balance) {
+          withdrawPreview.textContent = 'That is more than this plan can pay. The most you can take is ' + naira(maxWithdraw(balance)) + '.';
+        } else {
+          withdrawPreview.textContent = 'Fee ' + naira(feeKobo) + ' (' + feePercent + '%). Your plan loses ' + naira(kobo + feeKobo) + '. You receive ' + naira(kobo) + '.';
+        }
+        withdrawPreview.classList.remove('hidden');
+      }
+
+      document.getElementById('withdraw-max').addEventListener('click', function () {
+        var max = maxWithdraw(balance);
+        withdrawInput.value = max > 0 ? (max / 100).toFixed(2) : '';
+        updateWithdraw();
+      });
+
+      withdrawInput.addEventListener('input', updateWithdraw);
+      setupSheet('withdraw', function () { setTimeout(function () { withdrawInput.focus(); }, 320); });
+      guardForm('withdraw-form', 'withdraw-button');
+    }
+
+    // ---------------- close plan
+    var closeInfo = document.getElementById('close-info');
+    if (closeInfo) {
+      if (balance <= 0) {
+        closeInfo.textContent = 'This plan has no money inside. It will be closed with no fee.';
+      } else {
+        var receive = maxWithdraw(balance);
+        closeInfo.textContent = 'You will receive ' + naira(receive) + ' in your wallet. Early closing fee: ' + naira(balance - receive) + ' (' + feePercent + '%). The plan will be closed.';
+      }
+      setupSheet('close');
+      guardForm('close-form', 'close-button');
+    }
   })();
 </script>
 {% endif %}
