@@ -12,7 +12,9 @@ use super::repo::{LockMode, PlanFrequency, PlanStatus, SavingsPlan};
 use super::services::{self, CreatePlanInput, PlanAmountInput, PlanError};
 use crate::domains::auth::handlers::AuthUser;
 use crate::domains::dashboard::not_found_handler;
-use crate::domains::plan_funds::services::early_fee_percent;
+use crate::domains::plan_funds::services::{
+    early_fee_percent, get_plan_grid, GridCell, PeriodStep, PlanGridInput,
+};
 use crate::shared::money::{format_kobo_as_naira, parse_naira_to_kobo};
 use crate::shared::render::render_page;
 use crate::AppState;
@@ -100,6 +102,7 @@ pub struct PlanDetailTemplate {
     pub plan: PlanView,
     pub message: Option<String>,
     pub message_is_error: bool,
+    pub grid: Vec<GridCell>, // the streak grid, empty if it could not be loaded
 }
 
 // the new plan form as the browser sends it
@@ -170,6 +173,26 @@ pub fn plan_view(plan: &SavingsPlan) -> PlanView {
         created_on: plan.created_at.format("%b %d, %Y").to_string(),
         is_active: plan.status == PlanStatus::Active,
     }
+}
+
+// the grid has its own period type, this is where the plans type is turned into it
+fn step_for_frequency(frequency: PlanFrequency) -> PeriodStep {
+    match frequency {
+        PlanFrequency::Daily => PeriodStep::Day,
+        PlanFrequency::Weekly => PeriodStep::Week,
+        PlanFrequency::Monthly => PeriodStep::Month,
+    } // no semicolon
+}
+
+// copies the facts of a plan that the grid needs
+fn build_grid_input(plan: &SavingsPlan) -> PlanGridInput {
+    PlanGridInput {
+        plan_id: plan.plan_id,
+        created_at: plan.created_at,
+        amount_per_frequency: plan.amount_per_frequency,
+        target_amount: plan.target_amount,
+        step: step_for_frequency(plan.frequency),
+    } // no semicolon
 }
 
 // builds the banner text from the codes in the url, an unknown code shows nothing
@@ -397,6 +420,7 @@ pub async fn create_plan_handler(
 
 // GET /plans/:plan_id: one plan, a bad id or someone else's plan is a 404
 // the url may carry a result code from add money, withdraw or close, shown as a banner
+// the streak grid is loaded too, if that fails the page still opens with an empty grid
 pub async fn plan_detail_handler(
     auth: AuthUser,
     State(state): State<AppState>,
@@ -412,12 +436,23 @@ pub async fn plan_detail_handler(
         Ok(plan) => {
             let view = plan_view(&plan);
             let (message, message_is_error) = detail_message(&query, &view);
+
+            let grid_input = build_grid_input(&plan);
+            let grid = match get_plan_grid(&state.db, &grid_input).await {
+                Ok(cells) => cells,
+                Err(err) => {
+                    eprintln!("Plan grid error: {:?}", err);
+                    Vec::new()
+                }
+            };
+
             render_page(
                 PlanDetailTemplate {
                     active: "plans",
                     plan: view,
                     message,
                     message_is_error,
+                    grid,
                 },
                 StatusCode::OK,
             )
