@@ -1,4 +1,4 @@
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, NaiveDate, Utc};
 use sqlx::{FromRow, PgPool, Postgres, Transaction};
 use uuid::Uuid;
 
@@ -43,6 +43,14 @@ pub struct NewLedgerEntry {
     pub remark: Option<String>,
     pub reference: String,
     pub wallet_balance_after: i64,
+}
+
+// the money deposited on one calendar day (Lagos time), in kobo, 0 when nothing came in
+#[derive(Debug, Clone, FromRow)]
+pub struct DailyTotal {
+    pub day: NaiveDate,
+    pub total: i64,
+    pub count: i64,
 }
 
 // saves one transaction on the database transaction it is given (tx)
@@ -122,6 +130,20 @@ pub async fn count_plan_contributions(pool: &PgPool, plan_id: Uuid) -> Result<i6
     Ok(count) // no semicolon
 }
 
+// the deposit total of each of the last `days` days, oldest first, today is the last row
+// the days come from the calendar, so a day with no deposits still gives a row with 0
+pub async fn get_daily_deposit_totals(
+    pool: &PgPool,
+    user_id: Uuid,
+    days: i32,
+) -> Result<Vec<DailyTotal>, sqlx::Error> {
+    let query = sqlx::query_as::<_, DailyTotal>(DAILY_DEPOSIT_TOTALS_SQL)
+        .bind(user_id)
+        .bind(days);
+    let totals = query.fetch_all(pool).await?;
+    Ok(totals) // no semicolon
+}
+
 const SAVE_TRANSACTION_SQL: &str = "
     INSERT INTO ledger_entries
         (entry_id, user_id, entry_type, amount, fee, plan_id, batch_id, remark, reference, wallet_balance_after)
@@ -179,3 +201,22 @@ const LIST_PLAN_TRANSACTIONS_SQL: &str = "
 const COUNT_PLAN_CONTRIBUTIONS_SQL: &str = "
     SELECT COUNT(*) FROM ledger_entries
     WHERE plan_id = $1 AND entry_type = 'plan_contribution'";
+
+// generate_series makes one row per day, from (days - 1) days ago up to today, in Lagos time
+// the LEFT JOIN keeps every day, even a day with no deposit (its SUM is NULL, COALESCE makes it 0)
+// COUNT(e.entry_id) only counts real joined rows, so an empty day gives 0
+// created_at is stored in UTC, so AT TIME ZONE moves it to Lagos before we cut it to a date
+const DAILY_DEPOSIT_TOTALS_SQL: &str = "
+    SELECT d.day::date AS day,
+           COALESCE(SUM(e.amount), 0)::BIGINT AS total,
+           COUNT(e.entry_id)::BIGINT AS count
+    FROM generate_series(
+             ((now() AT TIME ZONE 'Africa/Lagos')::date - ($2::int - 1))::timestamp,
+             (now() AT TIME ZONE 'Africa/Lagos')::date::timestamp,
+             interval '1 day') AS d(day)
+    LEFT JOIN ledger_entries e
+           ON e.user_id = $1
+          AND e.entry_type = 'deposit'
+          AND (e.created_at AT TIME ZONE 'Africa/Lagos')::date = d.day::date
+    GROUP BY d.day
+    ORDER BY d.day";
