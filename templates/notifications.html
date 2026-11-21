@@ -3,57 +3,60 @@
 {% block title %}Notifications · NairaStash{% endblock %}
 
 {% block content %}
-<header class="sticky top-0 z-30 flex items-center justify-between gap-2 px-5 py-4 bg-forest-900/50 backdrop-blur-xl">
+<header class="app-header justify-between gap-2">
   <div class="flex items-center gap-2 min-w-0">
     <button type="button" aria-label="Go back" onclick="history.back()"
-      class="size-11 -ml-2 rounded-full flex items-center justify-center text-white/60 hover:text-white hover:bg-white/10 active:scale-95 transition-all">
+      class="size-11 -ml-2 rounded-full flex items-center justify-center text-muted hover:text-ink hover:bg-sunken active:scale-95 transition-all">
       <span class="material-symbols-outlined text-[22px]">arrow_back</span>
     </button>
-    <h1 class="text-lg font-semibold tracking-tight text-white">Notifications</h1>
-    <span id="header-count" class="rounded-full bg-lime/15 px-2 py-0.5 text-[10px] font-semibold text-lime">3</span>
+    <h1 class="text-lg font-semibold tracking-tight text-ink">Notifications</h1>
+    <span id="header-count" class="rounded-full bg-mint/15 px-2 py-0.5 text-[11px] font-semibold text-mint">3</span>
   </div>
-  <button id="mark-all" type="button" aria-label="Mark all read"
-    class="h-11 px-3 rounded-full flex items-center gap-1.5 text-azure hover:text-white hover:bg-white/10 active:scale-95 transition-all">
-    <span class="material-symbols-outlined text-[18px]">done_all</span>
-    <span class="text-[11px] font-semibold uppercase tracking-wider">Mark read</span>
-  </button>
+  <div class="flex items-center gap-1 shrink-0">
+    <button id="mark-all" type="button" aria-label="Mark all read"
+      class="h-11 px-3 rounded-full flex items-center gap-1.5 text-mint hover:text-ink hover:bg-sunken active:scale-95 transition-all">
+      <span class="material-symbols-outlined text-[18px]">done_all</span>
+      <span class="hidden min-[400px]:inline text-[11px] font-semibold uppercase tracking-wider">Mark read</span>
+    </button>
+    {% include "theme_toggle.html" %}
+  </div>
 </header>
 
 <main class="flex-1 flex flex-col gap-4 px-5 pt-2">
 
   <!-- fragment: notif-summary -->
-  <section class="glass rounded-3xl p-4 flex flex-col gap-3">
+  <section class="card p-4 flex flex-col gap-3">
     <div class="flex items-center justify-between gap-2">
       <div class="flex items-center gap-3 min-w-0">
-        <div class="size-9 rounded-xl bg-azure/20 text-azure flex items-center justify-center shrink-0">
+        <div class="size-9 rounded-xl bg-mint/15 text-mint flex items-center justify-center shrink-0">
           <span class="material-symbols-outlined fill-1 text-[20px]">notifications_active</span>
         </div>
         <div class="min-w-0">
           <div class="flex items-center gap-1.5">
-            <span class="text-sm font-semibold text-white">Activity feed</span>
-            <span class="size-1.5 rounded-full bg-lime"></span>
+            <span class="text-sm font-semibold text-ink">Activity feed</span>
+            <span class="size-1.5 rounded-full bg-mint"></span>
           </div>
-          <p id="summary-text" class="text-xs text-white/60 truncate">3 unread updates</p>
+          <p id="summary-text" class="text-xs text-muted truncate">3 unread updates</p>
         </div>
       </div>
       <button id="unread-toggle" type="button"
-        class="shrink-0 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 px-3 py-1.5 flex items-center gap-1.5 text-azure transition-all">
+        class="shrink-0 rounded-full bg-sunken border border-line text-ink active:scale-95 px-3 py-1.5 flex items-center gap-1.5 transition-colors">
         <span class="material-symbols-outlined text-[16px]">filter_alt</span>
-        <span id="unread-label" class="text-[10px] font-semibold uppercase tracking-wider">Unread (3)</span>
+        <span id="unread-label" class="text-[11px] font-semibold uppercase tracking-wider">Unread (3)</span>
       </button>
     </div>
     <div class="grid grid-cols-3 gap-2">
-      <div class="rounded-2xl bg-white/5 py-2 text-center">
-        <div class="text-sm font-semibold text-lime">62d</div>
-        <div class="text-[10px] uppercase tracking-wider text-white/60">Streak</div>
+      <div class="card-inset py-2 text-center">
+        <div class="text-sm font-semibold text-gold">62d</div>
+        <div class="text-[11px] uppercase tracking-wider text-muted">Streak</div>
       </div>
-      <div class="rounded-2xl bg-white/5 py-2 text-center">
-        <div class="text-sm font-semibold text-white">9 total</div>
-        <div class="text-[10px] uppercase tracking-wider text-white/60">Updates</div>
+      <div class="card-inset py-2 text-center">
+        <div class="text-sm font-semibold text-ink">9 total</div>
+        <div class="text-[11px] uppercase tracking-wider text-muted">Updates</div>
       </div>
-      <div class="rounded-2xl bg-white/5 py-2 text-center">
-        <div class="text-sm font-semibold text-warn">1 alert</div>
-        <div class="text-[10px] uppercase tracking-wider text-white/60">Action</div>
+      <div class="card-inset py-2 text-center">
+        <div class="text-sm font-semibold text-gold">1 alert</div>
+        <div class="text-[11px] uppercase tracking-wider text-muted">Action</div>
       </div>
     </div>
   </section>
@@ -61,20 +64,20 @@
 
   <!-- fragment: notif-filters -->
   <div id="chips" class="flex items-center gap-2 overflow-x-auto py-0.5">
-    <button type="button" data-category="all" class="chip rounded-full px-3 py-1.5 text-xs font-semibold shrink-0 flex items-center gap-1.5 transition-all bg-lime text-lime-ink">
-      <span>All</span><span class="rounded-full bg-black/10 px-1.5 text-[10px]">9</span>
+    <button type="button" data-category="all" class="chip rounded-full px-3 py-1.5 text-xs font-semibold shrink-0 flex items-center gap-1.5 transition-colors border bg-accent text-on-accent border-accent">
+      <span>All</span><span class="rounded-full bg-sunken border border-line px-1.5 text-[11px] text-muted">9</span>
     </button>
-    <button type="button" data-category="savings" class="chip rounded-full px-3 py-1.5 text-xs font-semibold shrink-0 flex items-center gap-1.5 transition-all glass text-white/70">
-      <span>Savings &amp; debits</span><span class="rounded-full bg-white/10 px-1.5 text-[10px]">4</span>
+    <button type="button" data-category="savings" class="chip rounded-full px-3 py-1.5 text-xs font-semibold shrink-0 flex items-center gap-1.5 transition-colors border bg-surface text-muted border-line">
+      <span>Savings &amp; debits</span><span class="rounded-full bg-sunken border border-line px-1.5 text-[11px] text-muted">4</span>
     </button>
-    <button type="button" data-category="groups" class="chip rounded-full px-3 py-1.5 text-xs font-semibold shrink-0 flex items-center gap-1.5 transition-all glass text-white/70">
-      <span>Groups</span><span class="rounded-full bg-white/10 px-1.5 text-[10px]">1</span>
+    <button type="button" data-category="groups" class="chip rounded-full px-3 py-1.5 text-xs font-semibold shrink-0 flex items-center gap-1.5 transition-colors border bg-surface text-muted border-line">
+      <span>Groups</span><span class="rounded-full bg-sunken border border-line px-1.5 text-[11px] text-muted">1</span>
     </button>
-    <button type="button" data-category="loans" class="chip rounded-full px-3 py-1.5 text-xs font-semibold shrink-0 flex items-center gap-1.5 transition-all glass text-white/70">
-      <span>Loans</span><span class="rounded-full bg-white/10 px-1.5 text-[10px]">2</span>
+    <button type="button" data-category="loans" class="chip rounded-full px-3 py-1.5 text-xs font-semibold shrink-0 flex items-center gap-1.5 transition-colors border bg-surface text-muted border-line">
+      <span>Loans</span><span class="rounded-full bg-sunken border border-line px-1.5 text-[11px] text-muted">2</span>
     </button>
-    <button type="button" data-category="withdrawals" class="chip rounded-full px-3 py-1.5 text-xs font-semibold shrink-0 flex items-center gap-1.5 transition-all glass text-white/70">
-      <span>Withdrawals</span><span class="rounded-full bg-white/10 px-1.5 text-[10px]">2</span>
+    <button type="button" data-category="withdrawals" class="chip rounded-full px-3 py-1.5 text-xs font-semibold shrink-0 flex items-center gap-1.5 transition-colors border bg-surface text-muted border-line">
+      <span>Withdrawals</span><span class="rounded-full bg-sunken border border-line px-1.5 text-[11px] text-muted">2</span>
     </button>
   </div>
   <!-- /fragment: notif-filters -->
@@ -85,58 +88,58 @@
     <section class="group-block flex flex-col gap-2">
       <div class="flex items-center justify-between px-1">
         <div class="flex items-center gap-2">
-          <span class="text-base font-semibold text-white">Today</span>
-          <span class="rounded-md bg-white/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-azure">5 events</span>
+          <span class="text-base font-semibold text-ink">Today</span>
+          <span class="rounded-md bg-sunken border border-line px-2 py-0.5 text-[11px] font-semibold uppercase tracking-widest text-muted">5 events</span>
         </div>
-        <span class="text-[10px] text-white/50">WAT</span>
+        <span class="text-[11px] text-muted">WAT</span>
       </div>
       <div class="flex flex-col gap-2">
 
-        <article class="item glass rounded-3xl p-4" data-category="savings" data-unread="true">
+        <article class="item card p-4" data-category="savings" data-unread="true">
           <div class="flex items-start gap-3">
             <div class="relative shrink-0 mt-0.5">
-              <div class="size-10 rounded-xl bg-warn/15 text-warn flex items-center justify-center"><span class="material-symbols-outlined text-[20px]">schedule</span></div>
-              <span class="dot absolute -top-0.5 -right-0.5 size-2.5 rounded-full bg-warn"></span>
+              <div class="size-10 rounded-xl bg-gold/15 text-gold flex items-center justify-center"><span class="material-symbols-outlined text-[20px]">schedule</span></div>
+              <span class="dot absolute -top-0.5 -right-0.5 size-2.5 rounded-full bg-gold"></span>
             </div>
             <div class="flex-1 min-w-0">
               <div class="flex items-center justify-between gap-2">
                 <div class="flex items-center gap-2 min-w-0">
-                  <h2 class="text-[15px] font-semibold text-white truncate">Daily deposit due soon</h2>
-                  <span class="rounded bg-warn/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-warn">Pending</span>
+                  <h2 class="text-[15px] font-semibold text-ink truncate">Daily deposit due soon</h2>
+                  <span class="rounded bg-gold/15 px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-gold">Pending</span>
                 </div>
-                <time class="text-[10px] text-white/50 shrink-0">35m ago</time>
+                <time class="text-[11px] text-muted shrink-0">35m ago</time>
               </div>
-              <p class="text-xs text-white/60 mt-1 leading-snug">₦5,000 will auto-debit from <span class="text-white font-medium">GTBank</span> for <span class="text-white font-medium">Emergency Fund</span> at 08:00 AM WAT.</p>
+              <p class="text-xs text-muted mt-1 leading-snug">₦5,000 will auto-debit from <span class="text-ink font-medium">GTBank</span> for <span class="text-ink font-medium">Emergency Fund</span> at 08:00 AM WAT.</p>
               <div class="mt-2.5 flex items-center gap-2">
-                <a href="/plans/emergency" class="rounded-full bg-white/10 hover:bg-white/15 px-3 py-1 text-xs font-semibold text-white flex items-center gap-1 active:scale-95 transition-all">
+                <a href="/plans/emergency" class="rounded-full bg-sunken border border-line hover:bg-line px-3 py-1 text-xs font-semibold text-ink flex items-center gap-1 active:scale-95 transition-all">
                   <span class="material-symbols-outlined text-[14px]">tune</span><span>Adjust debit</span>
                 </a>
-                <span class="text-xs text-white/60">₦5,000 target</span>
+                <span class="text-xs text-muted">₦5,000 target</span>
               </div>
             </div>
           </div>
         </article>
 
-        <article class="item glass rounded-3xl p-4" data-category="loans" data-unread="true">
+        <article class="item card p-4" data-category="loans" data-unread="true">
           <div class="flex items-start gap-3">
             <div class="relative shrink-0 mt-0.5">
-              <div class="size-10 rounded-xl bg-azure/15 text-azure flex items-center justify-center"><span class="material-symbols-outlined text-[20px]">currency_exchange</span></div>
-              <span class="dot absolute -top-0.5 -right-0.5 size-2.5 rounded-full bg-azure"></span>
+              <div class="size-10 rounded-xl bg-sunken border border-line text-muted flex items-center justify-center"><span class="material-symbols-outlined text-[20px]">currency_exchange</span></div>
+              <span class="dot absolute -top-0.5 -right-0.5 size-2.5 rounded-full bg-mint"></span>
             </div>
             <div class="flex-1 min-w-0">
               <div class="flex items-center justify-between gap-2">
                 <div class="flex items-center gap-2 min-w-0">
-                  <h2 class="text-[15px] font-semibold text-white truncate">Loan repayment due</h2>
-                  <span class="rounded bg-azure/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-azure">Repay</span>
+                  <h2 class="text-[15px] font-semibold text-ink truncate">Loan repayment due</h2>
+                  <span class="rounded bg-sunken border border-line px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-muted">Repay</span>
                 </div>
-                <time class="text-[10px] text-white/50 shrink-0">1h ago</time>
+                <time class="text-[11px] text-muted shrink-0">1h ago</time>
               </div>
-              <p class="text-xs text-white/60 mt-1 leading-snug">₦1,000 scheduled deduction for <span class="text-white font-medium">Server Cluster Scale</span> loan (<span class="text-white/80">#LN-7742</span>) in 1 hour.</p>
+              <p class="text-xs text-muted mt-1 leading-snug">₦1,000 scheduled deduction for <span class="text-ink font-medium">Server Cluster Scale</span> loan (<span class="text-ink">#LN-7742</span>) in 1 hour.</p>
               <div class="mt-2.5 flex items-center justify-between gap-2">
-                <div class="flex items-center gap-1.5 text-[10px] text-white/60">
-                  <span class="size-1.5 rounded-full bg-lime"></span><span>Auto-pull enabled</span>
+                <div class="flex items-center gap-1.5 text-[11px] text-muted">
+                  <span class="size-1.5 rounded-full bg-mint"></span><span>Auto-pull enabled</span>
                 </div>
-                <a href="/plans/tech-hardware" class="rounded-full bg-white/10 hover:bg-white/15 px-3 py-1 text-xs font-semibold text-azure flex items-center gap-1 active:scale-95 transition-all">
+                <a href="/plans/tech-hardware" class="rounded-full bg-sunken border border-line hover:bg-line px-3 py-1 text-xs font-semibold text-mint flex items-center gap-1 active:scale-95 transition-all">
                   <span>View plan</span><span class="material-symbols-outlined text-[13px]">arrow_forward</span>
                 </a>
               </div>
@@ -144,61 +147,61 @@
           </div>
         </article>
 
-        <article class="item glass rounded-3xl p-4 opacity-90" data-category="withdrawals" data-unread="false">
+        <article class="item card p-4 opacity-90" data-category="withdrawals" data-unread="false">
           <div class="flex items-start gap-3">
             <div class="shrink-0 mt-0.5">
-              <div class="size-10 rounded-xl bg-lime/15 text-lime flex items-center justify-center"><span class="material-symbols-outlined fill-1 text-[20px]">verified</span></div>
+              <div class="size-10 rounded-xl bg-mint/15 text-mint flex items-center justify-center"><span class="material-symbols-outlined fill-1 text-[20px]">verified</span></div>
             </div>
             <div class="flex-1 min-w-0">
               <div class="flex items-center justify-between gap-2">
-                <h2 class="text-[15px] font-semibold text-white truncate">Withdrawal cleared</h2>
-                <time class="text-[10px] text-white/50 shrink-0">Today, 07:22 AM</time>
+                <h2 class="text-[15px] font-semibold text-ink truncate">Withdrawal cleared</h2>
+                <time class="text-[11px] text-muted shrink-0">Today, 07:22 AM</time>
               </div>
-              <p class="text-xs text-white/60 mt-1 leading-snug">₦120,000 credited to <span class="text-white font-medium">GTBank</span> account. Zero processing fees applied.</p>
-              <div class="mt-2 flex items-center gap-2">
-                <span class="rounded bg-lime/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-lime">Cleared • Instant transfer</span>
-                <span class="text-[10px] text-white/50">Tx: #WTH-9021</span>
+              <p class="text-xs text-muted mt-1 leading-snug">₦120,000 credited to <span class="text-ink font-medium">GTBank</span> account. Zero processing fees applied.</p>
+              <div class="mt-2 flex items-center gap-2 flex-wrap">
+                <span class="rounded bg-mint/15 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-mint">Cleared • Instant transfer</span>
+                <span class="text-[11px] text-muted">Tx: #WTH-9021</span>
               </div>
             </div>
           </div>
         </article>
 
-        <article class="item glass rounded-3xl p-4 opacity-90" data-category="withdrawals" data-unread="false">
+        <article class="item card p-4 opacity-90" data-category="withdrawals" data-unread="false">
           <div class="flex items-start gap-3">
             <div class="shrink-0 mt-0.5">
-              <div class="size-10 rounded-xl bg-warn/15 text-warn flex items-center justify-center"><span class="material-symbols-outlined text-[20px]">arrow_outward</span></div>
+              <div class="size-10 rounded-xl bg-gold/15 text-gold flex items-center justify-center"><span class="material-symbols-outlined text-[20px]">arrow_outward</span></div>
             </div>
             <div class="flex-1 min-w-0">
               <div class="flex items-center justify-between gap-2">
-                <h2 class="text-[15px] font-semibold text-white truncate">Withdrawal request submitted</h2>
-                <time class="text-[10px] text-white/50 shrink-0">Today, 07:15 AM</time>
+                <h2 class="text-[15px] font-semibold text-ink truncate">Withdrawal request submitted</h2>
+                <time class="text-[11px] text-muted shrink-0">Today, 07:15 AM</time>
               </div>
-              <p class="text-xs text-white/60 mt-1 leading-snug">Initiated ₦120,000 payout from <span class="text-white font-medium">Real Estate Buffer</span> to GTBank •••• 4920 via instant transfer.</p>
+              <p class="text-xs text-muted mt-1 leading-snug">Initiated ₦120,000 payout from <span class="text-ink font-medium">Real Estate Buffer</span> to GTBank •••• 4920 via instant transfer.</p>
               <div class="mt-2 flex items-center gap-1.5">
-                <span class="size-1.5 rounded-full bg-warn animate-pulse"></span>
-                <span class="text-[10px] font-medium uppercase tracking-wider text-warn">Sent to clearing</span>
+                <span class="size-1.5 rounded-full bg-gold animate-pulse"></span>
+                <span class="text-[11px] font-medium uppercase tracking-wider text-gold">Sent to clearing</span>
               </div>
             </div>
           </div>
         </article>
 
-        <article class="item glass rounded-3xl p-4 opacity-90" data-category="savings" data-unread="false">
+        <article class="item card p-4 opacity-90" data-category="savings" data-unread="false">
           <div class="flex items-start gap-3">
             <div class="shrink-0 mt-0.5">
-              <div class="size-10 rounded-xl bg-lime/15 text-lime flex items-center justify-center"><span class="material-symbols-outlined text-[20px]">check_circle</span></div>
+              <div class="size-10 rounded-xl bg-mint/15 text-mint flex items-center justify-center"><span class="material-symbols-outlined text-[20px]">check_circle</span></div>
             </div>
             <div class="flex-1 min-w-0">
               <div class="flex items-center justify-between gap-2">
-                <h2 class="text-[15px] font-semibold text-white truncate">Daily deposit settled</h2>
-                <time class="text-[10px] text-white/50 shrink-0">Today, 08:00 AM</time>
+                <h2 class="text-[15px] font-semibold text-ink truncate">Daily deposit settled</h2>
+                <time class="text-[11px] text-muted shrink-0">Today, 08:00 AM</time>
               </div>
-              <p class="text-xs text-white/60 mt-1 leading-snug">Successfully saved ₦5,000 to <span class="text-white font-medium">Emergency Fund</span>. Streak: <span class="text-lime font-semibold">62 days</span>.</p>
+              <p class="text-xs text-muted mt-1 leading-snug">Successfully saved ₦5,000 to <span class="text-ink font-medium">Emergency Fund</span>. Streak: <span class="text-gold font-semibold">62 days</span>.</p>
               <div class="mt-2 flex items-center gap-2">
-                <div class="flex items-center gap-1 rounded bg-white/10 px-2 py-0.5 text-[10px] text-white">
-                  <span class="material-symbols-outlined fill-1 text-[13px] text-lime">local_fire_department</span>
+                <div class="flex items-center gap-1 rounded bg-sunken border border-line px-2 py-0.5 text-[11px] text-ink">
+                  <span class="material-symbols-outlined fill-1 text-[13px] text-gold">local_fire_department</span>
                   <span class="font-semibold">62 days</span>
                 </div>
-                <span class="text-[10px] text-white/50">Ref: #SET-1029</span>
+                <span class="text-[11px] text-muted">Ref: #SET-1029</span>
               </div>
             </div>
           </div>
@@ -212,57 +215,57 @@
     <section class="group-block flex flex-col gap-2">
       <div class="flex items-center justify-between px-1">
         <div class="flex items-center gap-2">
-          <span class="text-base font-semibold text-white">Yesterday</span>
-          <span class="rounded-md bg-white/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-white/60">2 events</span>
+          <span class="text-base font-semibold text-ink">Yesterday</span>
+          <span class="rounded-md bg-sunken border border-line px-2 py-0.5 text-[11px] font-semibold uppercase tracking-widest text-muted">2 events</span>
         </div>
-        <span class="text-[10px] text-white/50">Oct 16</span>
+        <span class="text-[11px] text-muted">Oct 16</span>
       </div>
       <div class="flex flex-col gap-2">
 
-        <article class="item glass rounded-3xl p-4 relative overflow-hidden" data-category="savings" data-unread="true">
-          <div class="absolute left-0 top-0 bottom-0 w-1 bg-red-400"></div>
+        <article class="item card p-4 relative overflow-hidden" data-category="savings" data-unread="true">
+          <div class="absolute left-0 top-0 bottom-0 w-1 bg-danger"></div>
           <div class="flex items-start gap-3 pl-1">
             <div class="relative shrink-0 mt-0.5">
-              <div class="size-10 rounded-xl bg-red-400/15 text-red-300 flex items-center justify-center"><span class="material-symbols-outlined text-[20px]">warning</span></div>
-              <span class="dot absolute -top-0.5 -right-0.5 size-2.5 rounded-full bg-red-400"></span>
+              <div class="size-10 rounded-xl bg-danger/15 text-danger flex items-center justify-center"><span class="material-symbols-outlined text-[20px]">warning</span></div>
+              <span class="dot absolute -top-0.5 -right-0.5 size-2.5 rounded-full bg-danger"></span>
             </div>
             <div class="flex-1 min-w-0">
               <div class="flex items-center justify-between gap-2">
                 <div class="flex items-center gap-2 min-w-0">
-                  <h2 class="text-[15px] font-semibold text-red-300 truncate">Missed daily deposit</h2>
-                  <span class="rounded bg-red-400/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-red-300">Urgent</span>
+                  <h2 class="text-[15px] font-semibold text-danger truncate">Missed daily deposit</h2>
+                  <span class="rounded bg-danger/15 px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-danger">Urgent</span>
                 </div>
-                <time class="text-[10px] text-white/50 shrink-0">Yesterday, 08:05 AM</time>
+                <time class="text-[11px] text-muted shrink-0">Yesterday, 08:05 AM</time>
               </div>
-              <p class="text-xs text-white/60 mt-1 leading-snug">Could not collect ₦2,000 for <span class="text-white font-medium">Family Health Reserve</span> because your balance was too low.</p>
+              <p class="text-xs text-muted mt-1 leading-snug">Could not collect ₦2,000 for <span class="text-ink font-medium">Family Health Reserve</span> because your balance was too low.</p>
               <div class="mt-3 flex items-center gap-2">
-                <a href="/deposit" class="rounded-full bg-lime text-lime-ink px-3.5 py-1.5 text-xs font-semibold flex items-center gap-1.5 active:scale-95 transition-all">
+                <a href="/deposit" class="rounded-full bg-accent text-on-accent px-3.5 py-1.5 text-xs font-semibold flex items-center gap-1.5 active:scale-95 transition-all">
                   <span class="material-symbols-outlined text-[15px]">credit_card</span><span>Pay ₦2,000 now</span>
                 </a>
-                <a href="/plans/family-health" class="rounded-full bg-white/10 hover:bg-white/15 px-3 py-1.5 text-xs font-semibold text-white transition-all">Change funding</a>
+                <a href="/plans/family-health" class="rounded-full bg-sunken border border-line hover:bg-line px-3 py-1.5 text-xs font-semibold text-ink transition-all">Change funding</a>
               </div>
             </div>
           </div>
         </article>
 
-        <article class="item glass rounded-3xl p-4 opacity-90" data-category="savings" data-unread="false">
+        <article class="item card p-4 opacity-90" data-category="savings" data-unread="false">
           <div class="flex items-start gap-3">
             <div class="shrink-0 mt-0.5">
-              <div class="size-10 rounded-xl bg-lime/15 text-lime flex items-center justify-center"><span class="material-symbols-outlined fill-1 text-[20px]">bolt</span></div>
+              <div class="size-10 rounded-xl bg-mint/15 text-mint flex items-center justify-center"><span class="material-symbols-outlined fill-1 text-[20px]">bolt</span></div>
             </div>
             <div class="flex-1 min-w-0">
               <div class="flex items-center justify-between gap-2">
                 <div class="flex items-center gap-2 min-w-0">
-                  <h2 class="text-[15px] font-semibold text-white truncate">Buffer extended: 5 days ahead</h2>
-                  <span class="rounded bg-lime/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-lime">Ahead</span>
+                  <h2 class="text-[15px] font-semibold text-ink truncate">Buffer extended: 5 days ahead</h2>
+                  <span class="rounded bg-mint/15 px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-mint">Ahead</span>
                 </div>
-                <time class="text-[10px] text-white/50 shrink-0">Yesterday, 06:18 PM</time>
+                <time class="text-[11px] text-muted shrink-0">Yesterday, 06:18 PM</time>
               </div>
-              <p class="text-xs text-white/60 mt-1 leading-snug">Your top-up of ₦25,000 moved your <span class="text-white font-medium">Emergency Fund</span> coverage forward to Oct 22, 2026.</p>
+              <p class="text-xs text-muted mt-1 leading-snug">Your top-up of ₦25,000 moved your <span class="text-ink font-medium">Emergency Fund</span> coverage forward to Oct 22, 2026.</p>
               <div class="mt-2 flex items-center gap-2">
-                <span class="text-xs font-medium text-lime">Fully covered</span>
-                <span class="size-1 rounded-full bg-white/30"></span>
-                <span class="text-[10px] text-white/60">+5 days ahead</span>
+                <span class="text-xs font-medium text-mint">Fully covered</span>
+                <span class="size-1 rounded-full bg-line"></span>
+                <span class="text-[11px] text-muted">+5 days ahead</span>
               </div>
             </div>
           </div>
@@ -276,49 +279,49 @@
     <section class="group-block flex flex-col gap-2">
       <div class="flex items-center justify-between px-1">
         <div class="flex items-center gap-2">
-          <span class="text-base font-semibold text-white">Earlier this week</span>
-          <span class="rounded-md bg-white/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-white/60">2 events</span>
+          <span class="text-base font-semibold text-ink">Earlier this week</span>
+          <span class="rounded-md bg-sunken border border-line px-2 py-0.5 text-[11px] font-semibold uppercase tracking-widest text-muted">2 events</span>
         </div>
-        <span class="text-[10px] text-white/50">Archived</span>
+        <span class="text-[11px] text-muted">Archived</span>
       </div>
       <div class="flex flex-col gap-2">
 
-        <article class="item glass rounded-3xl p-4 opacity-85" data-category="groups" data-unread="false">
+        <article class="item card p-4 opacity-85" data-category="groups" data-unread="false">
           <div class="flex items-start gap-3">
             <div class="shrink-0 mt-0.5">
-              <div class="size-10 rounded-xl bg-azure/15 text-azure flex items-center justify-center"><span class="material-symbols-outlined fill-1 text-[20px]">diversity_3</span></div>
+              <div class="size-10 rounded-xl bg-mint/15 text-mint flex items-center justify-center"><span class="material-symbols-outlined fill-1 text-[20px]">diversity_3</span></div>
             </div>
             <div class="flex-1 min-w-0">
               <div class="flex items-center justify-between gap-2">
-                <h2 class="text-[15px] font-semibold text-white truncate">Founders Tech Stash: payout round</h2>
-                <time class="text-[10px] text-white/50 shrink-0">2 days ago</time>
+                <h2 class="text-[15px] font-semibold text-ink truncate">Founders Tech Stash: payout round</h2>
+                <time class="text-[11px] text-muted shrink-0">2 days ago</time>
               </div>
-              <p class="text-xs text-white/60 mt-1 leading-snug">Maya K. received the round 5 payout of ₦420,000. You are next on <span class="text-white font-semibold">Dec 12 (round 6)</span>.</p>
+              <p class="text-xs text-muted mt-1 leading-snug">Maya K. received the round 5 payout of ₦420,000. You are next on <span class="text-ink font-semibold">Dec 12 (round 6)</span>.</p>
               <div class="mt-2.5 flex items-center justify-between gap-2">
                 <div class="flex items-center gap-1.5">
-                  <span class="size-2 rounded-full bg-lime"></span>
-                  <span class="text-[10px] text-white/60">All 8 members active</span>
+                  <span class="size-2 rounded-full bg-mint"></span>
+                  <span class="text-[11px] text-muted">All 8 members active</span>
                 </div>
-                <a href="/groups" class="rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-semibold text-white active:scale-95 transition-all">Payout order</a>
+                <a href="/groups" class="rounded-full bg-sunken border border-line px-2.5 py-1 text-[11px] font-semibold text-ink active:scale-95 transition-all">Payout order</a>
               </div>
             </div>
           </div>
         </article>
 
-        <article class="item glass rounded-3xl p-4 opacity-85" data-category="loans" data-unread="false">
+        <article class="item card p-4 opacity-85" data-category="loans" data-unread="false">
           <div class="flex items-start gap-3">
             <div class="shrink-0 mt-0.5">
-              <div class="size-10 rounded-xl bg-azure/15 text-azure flex items-center justify-center"><span class="material-symbols-outlined text-[20px]">shield_person</span></div>
+              <div class="size-10 rounded-xl bg-sunken border border-line text-muted flex items-center justify-center"><span class="material-symbols-outlined text-[20px]">shield_person</span></div>
             </div>
             <div class="flex-1 min-w-0">
               <div class="flex items-center justify-between gap-2">
-                <h2 class="text-[15px] font-semibold text-white truncate">Group loan approved &amp; paid out</h2>
-                <time class="text-[10px] text-white/50 shrink-0">Oct 14, 09:12 AM</time>
+                <h2 class="text-[15px] font-semibold text-ink truncate">Group loan approved &amp; paid out</h2>
+                <time class="text-[11px] text-muted shrink-0">Oct 14, 09:12 AM</time>
               </div>
-              <p class="text-xs text-white/60 mt-1 leading-snug">4 of 8 members backed your <span class="text-white font-medium">₦60,000 Server Cluster loan</span>. Funds were released instantly.</p>
+              <p class="text-xs text-muted mt-1 leading-snug">4 of 8 members backed your <span class="text-ink font-medium">₦60,000 Server Cluster loan</span>. Funds were released instantly.</p>
               <div class="mt-2.5 flex items-center justify-between gap-2">
-                <span class="rounded bg-azure/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-azure">Approved (50%)</span>
-                <a href="/groups" class="rounded-full bg-white/10 hover:bg-white/15 px-3 py-1 text-xs font-semibold text-white flex items-center gap-1 active:scale-95 transition-all">
+                <span class="rounded bg-mint/15 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-mint">Approved (50%)</span>
+                <a href="/groups" class="rounded-full bg-sunken border border-line hover:bg-line px-3 py-1 text-xs font-semibold text-ink flex items-center gap-1 active:scale-95 transition-all">
                   <span>Review backers</span><span class="material-symbols-outlined text-[13px]">chevron_right</span>
                 </a>
               </div>
@@ -334,27 +337,27 @@
 
   <!-- fragment: notif-empty -->
   <div id="empty" class="hidden py-8 flex-col items-center justify-center text-center">
-    <div class="size-14 rounded-2xl glass flex items-center justify-center text-white/60 mb-3">
+    <div class="card size-14 rounded-2xl flex items-center justify-center text-muted mb-3">
       <span class="material-symbols-outlined text-[28px]">mark_email_read</span>
     </div>
-    <h3 class="text-base font-semibold text-white">All caught up</h3>
-    <p class="text-xs text-white/60 max-w-xs mt-1">No notifications match this filter right now.</p>
-    <button id="reset-filters" type="button" class="mt-4 rounded-full bg-lime text-lime-ink px-4 py-2 text-xs font-semibold uppercase tracking-wider">Show all notifications</button>
+    <h3 class="text-base font-semibold text-ink">All caught up</h3>
+    <p class="text-xs text-muted max-w-xs mt-1">No notifications match this filter right now.</p>
+    <button id="reset-filters" type="button" class="mt-4 rounded-full bg-accent text-on-accent px-4 py-2 text-xs font-semibold uppercase tracking-wider">Show all notifications</button>
   </div>
   <!-- /fragment: notif-empty -->
 
   <!-- fragment: notif-prefs -->
-  <a href="/profile" class="glass rounded-3xl p-4 flex items-center justify-between gap-2 hover:bg-white/10 transition-all">
+  <a href="/profile" class="card p-4 flex items-center justify-between gap-2 hover:bg-sunken transition-colors">
     <div class="flex items-center gap-3 min-w-0">
-      <div class="size-10 rounded-xl bg-white/10 text-white flex items-center justify-center shrink-0">
+      <div class="size-10 rounded-xl bg-sunken border border-line text-ink flex items-center justify-center shrink-0">
         <span class="material-symbols-outlined text-[20px]">notifications_paused</span>
       </div>
       <div class="min-w-0">
-        <h4 class="text-[15px] font-semibold text-white truncate">Notification preferences</h4>
-        <p class="text-xs text-white/60 truncate">Push alerts, saving reminders and group pings</p>
+        <h4 class="text-[15px] font-semibold text-ink truncate">Notification preferences</h4>
+        <p class="text-xs text-muted truncate">Push alerts, saving reminders and group pings</p>
       </div>
     </div>
-    <span class="material-symbols-outlined text-white/50 text-[20px] shrink-0">settings</span>
+    <span class="material-symbols-outlined text-muted text-[20px] shrink-0">settings</span>
   </a>
   <!-- /fragment: notif-prefs -->
 
@@ -374,8 +377,8 @@
   var headerCount = document.getElementById('header-count');
   var summary = document.getElementById('summary-text');
 
-  var chipOn = ['bg-lime', 'text-lime-ink'];
-  var chipOff = ['glass', 'text-white/70'];
+  var chipOn = ['bg-accent', 'text-on-accent', 'border-accent'];
+  var chipOff = ['bg-surface', 'text-muted', 'border-line'];
 
   function unreadCount() {
     var n = 0;
@@ -419,10 +422,12 @@
   }
 
   function setToggle() {
-    toggle.classList.toggle('bg-lime', onlyUnread);
-    toggle.classList.toggle('text-lime-ink', onlyUnread);
-    toggle.classList.toggle('bg-white/10', !onlyUnread);
-    toggle.classList.toggle('text-azure', !onlyUnread);
+    toggle.classList.toggle('bg-accent', onlyUnread);
+    toggle.classList.toggle('text-on-accent', onlyUnread);
+    toggle.classList.toggle('border-accent', onlyUnread);
+    toggle.classList.toggle('bg-sunken', !onlyUnread);
+    toggle.classList.toggle('text-ink', !onlyUnread);
+    toggle.classList.toggle('border-line', !onlyUnread);
   }
 
   chips.forEach(function (btn) {
