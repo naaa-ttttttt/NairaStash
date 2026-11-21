@@ -3,57 +3,60 @@
 {% block title %}Group rules · NairaStash{% endblock %}
 
 {% block content %}
-<header class="sticky top-0 z-30 flex items-center justify-between gap-2 px-5 h-16 bg-forest-900/50 backdrop-blur-xl">
+<header class="app-header gap-3">
   <a href="/groups/founders" aria-label="Back to group"
-    class="size-10 rounded-full glass flex items-center justify-center text-white/80 hover:text-white transition-colors">
+    class="card size-10 rounded-full shrink-0 flex items-center justify-center text-ink hover:bg-sunken transition-colors">
     <span class="material-symbols-outlined text-[20px]">arrow_back</span>
   </a>
-  <div class="flex flex-col items-center min-w-0">
-    <span class="text-[10px] font-semibold uppercase tracking-widest text-lime">Founders Tech Stash</span>
-    <h1 class="text-base font-semibold tracking-tight text-white truncate">Group rules</h1>
+  <div class="flex-1 min-w-0 leading-tight">
+    <span class="block text-[10px] font-semibold uppercase tracking-widest text-mint truncate">Founders Tech Stash</span>
+    <h1 class="text-base font-semibold tracking-tight text-ink truncate">Group rules</h1>
   </div>
-  <button id="edit" type="button"
-    class="h-10 px-3 rounded-full glass text-xs font-semibold text-azure flex items-center gap-1 hover:bg-white/10 transition-colors">
-    <span class="material-symbols-outlined text-[16px]">edit</span><span id="edit-label">Edit</span>
-  </button>
+  <div class="flex items-center gap-2 shrink-0">
+    <button id="edit" type="button"
+      class="card h-10 px-3 rounded-full text-xs font-semibold text-mint flex items-center gap-1 hover:bg-sunken transition-colors">
+      <span class="material-symbols-outlined text-[16px]">edit</span><span id="edit-label">Edit</span>
+    </button>
+    {% include "theme_toggle.html" %}
+  </div>
 </header>
 
-<main class="flex-1 flex flex-col gap-4 px-5 pt-2 pb-8">
+<main class="flex-1 flex flex-col gap-4 px-5 pt-2">
 
   <!-- fragment: rules-intro -->
-  <section class="glass rounded-3xl p-4 flex items-start gap-3">
-    <div class="size-10 rounded-2xl bg-warn/15 text-warn flex items-center justify-center shrink-0">
+  <section class="card p-4 flex items-start gap-3">
+    <div class="size-10 rounded-xl bg-sunken border border-line text-mint flex items-center justify-center shrink-0">
       <span class="material-symbols-outlined text-[22px]">admin_panel_settings</span>
     </div>
     <div>
-      <p class="text-sm font-semibold text-white">How this group runs</p>
-      <p class="text-xs text-white/60 mt-0.5 leading-relaxed">These rules apply to every member. <span class="text-white">Every withdrawal and loan from the group needs approval from an admin.</span> Only admins can change the rules.</p>
+      <p class="text-sm font-semibold text-ink">How this group runs</p>
+      <p class="text-xs text-muted mt-0.5 leading-relaxed">These rules apply to every member. <span class="text-ink">Every withdrawal and loan from the group needs approval from an admin.</span> Only admins can change the rules.</p>
     </div>
   </section>
   <!-- /fragment: rules-intro -->
 
   <!-- fragment: rules-admins -->
-  <section class="glass rounded-3xl p-4 flex flex-col gap-3">
+  <section class="card p-4 flex flex-col gap-3">
     <div class="flex items-center justify-between">
-      <h2 class="text-base font-semibold text-white">Group admins</h2>
-      <span class="text-[10px] uppercase text-white/50">2 admins</span>
+      <h2 class="text-base font-semibold text-ink">Group admins</h2>
+      <span class="text-[10px] uppercase text-muted">2 admins</span>
     </div>
-    <div class="flex items-center justify-between rounded-2xl bg-white/5 p-3">
-      <div class="flex items-center gap-3">
-        <span class="size-9 rounded-full bg-lime text-lime-ink text-xs font-bold flex items-center justify-center">CO</span>
-        <div><p class="text-sm font-medium text-white">Chinedu Okafor (You)</p><p class="text-[10px] text-white/50">Group creator</p></div>
+    <div class="card-inset flex items-center justify-between gap-2 p-3">
+      <div class="flex items-center gap-3 min-w-0">
+        <span class="size-9 shrink-0 rounded-full bg-accent text-on-accent text-xs font-bold flex items-center justify-center">CO</span>
+        <div class="min-w-0"><p class="text-sm font-medium text-ink truncate">Chinedu Okafor (You)</p><p class="text-[10px] text-muted">Group creator</p></div>
       </div>
-      <span class="rounded bg-white/10 px-1.5 py-0.5 text-[9px] uppercase text-white/60">Admin</span>
+      <span class="shrink-0 rounded-full border border-line bg-surface px-2 py-0.5 text-[9px] uppercase text-muted">Admin</span>
     </div>
-    <div class="flex items-center justify-between rounded-2xl bg-white/5 p-3">
-      <div class="flex items-center gap-3">
-        <span class="size-9 rounded-full bg-lime text-lime-ink text-xs font-bold flex items-center justify-center">DC</span>
-        <div><p class="text-sm font-medium text-white">David Chen</p><p class="text-[10px] text-white/50">Added Aug 20</p></div>
+    <div class="card-inset flex items-center justify-between gap-2 p-3">
+      <div class="flex items-center gap-3 min-w-0">
+        <span class="size-9 shrink-0 rounded-full bg-accent text-on-accent text-xs font-bold flex items-center justify-center">DC</span>
+        <div class="min-w-0"><p class="text-sm font-medium text-ink truncate">David Chen</p><p class="text-[10px] text-muted">Added Aug 20</p></div>
       </div>
-      <span class="rounded bg-white/10 px-1.5 py-0.5 text-[9px] uppercase text-white/60">Admin</span>
+      <span class="shrink-0 rounded-full border border-line bg-surface px-2 py-0.5 text-[9px] uppercase text-muted">Admin</span>
     </div>
-    <p class="flex items-start gap-1.5 text-[11px] text-white/50">
-      <span class="material-symbols-outlined text-[14px] text-lime mt-0.5">info</span>
+    <p class="flex items-start gap-1.5 text-[11px] text-muted">
+      <span class="material-symbols-outlined text-[14px] text-mint mt-0.5">info</span>
       An admin can never approve their own request. Another admin has to.
     </p>
   </section>
@@ -61,23 +64,24 @@
 
   <div id="sections" class="flex flex-col gap-4"></div>
 
-  <div id="save-bar" class="hidden gap-2">
-    <button id="cancel" type="button" class="flex-1 h-12 rounded-full glass text-sm font-semibold text-white hover:bg-white/10 transition-colors">Cancel</button>
-    <button id="save" type="button" class="flex-1 h-12 rounded-full bg-lime text-lime-ink text-sm font-semibold active:scale-[0.98] transition">Save rules</button>
-  </div>
-
-  <a href="/approvals" class="glass rounded-3xl p-4 flex items-center justify-between gap-2 hover:bg-white/10 transition-colors">
+  <a href="/approvals" class="card p-4 flex items-center justify-between gap-2 hover:bg-sunken transition-colors">
     <div class="flex items-center gap-3">
-      <div class="size-10 rounded-xl bg-white/10 text-lime flex items-center justify-center"><span class="material-symbols-outlined text-[20px]">fact_check</span></div>
-      <div><p class="text-sm font-semibold text-white">Pending approvals</p><p class="text-xs text-white/60">Review withdrawal and loan requests</p></div>
+      <div class="size-10 rounded-xl bg-sunken border border-line text-mint flex items-center justify-center"><span class="material-symbols-outlined text-[20px]">fact_check</span></div>
+      <div><p class="text-sm font-semibold text-ink">Pending approvals</p><p class="text-xs text-muted">Review withdrawal and loan requests</p></div>
     </div>
-    <span class="material-symbols-outlined text-white/40">chevron_right</span>
+    <span class="material-symbols-outlined text-muted">chevron_right</span>
   </a>
+
+  <!-- solid save bar, sits above the 80px tab bar -->
+  <div id="save-bar" class="hidden sticky bottom-20 z-30 -mx-5 px-5 py-3 gap-2 bg-page border-t border-line">
+    <button id="cancel" type="button" class="btn-quiet flex-1 text-sm">Cancel</button>
+    <button id="save" type="button" class="btn-primary flex-1 text-sm">Save rules</button>
+  </div>
 </main>
 
 <div id="toast" class="fixed bottom-28 left-0 right-0 z-50 max-w-md mx-auto px-5 pointer-events-none opacity-0 translate-y-4 transition-all duration-300">
-  <div class="glass-dark rounded-2xl px-4 py-3 flex items-center gap-2 text-white">
-    <span class="material-symbols-outlined text-lime text-[20px]">check_circle</span>
+  <div class="card px-4 py-3 flex items-center gap-2 text-ink">
+    <span class="material-symbols-outlined text-mint text-[20px]">check_circle</span>
     <span id="toast-text" class="text-xs"></span>
   </div>
 </div>
@@ -85,13 +89,13 @@
 <script>
 (function () {
   var SECTIONS = [
-    { id: 'withdraw', title: 'Withdrawal rules', icon: 'arrow_outward', color: 'text-lime', note: 'Applies to money taken from your own share. An admin must approve each request.',
+    { id: 'withdraw', title: 'Withdrawal rules', icon: 'arrow_outward', color: 'text-mint', note: 'Applies to money taken from your own share. An admin must approve each request.',
       rules: [
         { key: 'w_keep', label: 'Minimum to keep in your share', hint: 'A request cannot take your share below this', value: 50000, prefix: '₦' },
         { key: 'w_max', label: 'Most you can take per request', hint: 'As a percentage of your share', value: 50, suffix: '%' },
         { key: 'w_review', label: 'Admin review time', hint: 'Target time to decide a request', value: 1, suffix: ' day' }
       ] },
-    { id: 'loan', title: 'Loan rules', icon: 'handshake', color: 'text-warn', note: 'How loans are given. An admin must approve every loan, whatever the amount.',
+    { id: 'loan', title: 'Loan rules', icon: 'handshake', color: 'text-mint', note: 'How loans are given. An admin must approve every loan, whatever the amount.',
       rules: [
         { key: 'l_limit', label: 'Loan limit', hint: 'As a percentage of the member\'s savings share', value: 75, suffix: '%' },
         { key: 'l_fee', label: 'Pool fee', hint: 'Flat fee on the amount borrowed, no interest', value: 1.5, suffix: '%' },
@@ -100,7 +104,7 @@
         { key: 'l_history', label: 'Savings history needed', hint: 'Days of on-time saving before a member can borrow', value: 30, suffix: ' days' },
         { key: 'l_active', label: 'Active loans per member', hint: 'Maximum at one time', value: 1, suffix: '' }
       ] },
-    { id: 'saving', title: 'Contribution rules', icon: 'savings', color: 'text-azure', note: 'What every member puts in.',
+    { id: 'saving', title: 'Contribution rules', icon: 'savings', color: 'text-mint', note: 'What every member puts in.',
       rules: [
         { key: 'c_daily', label: 'Daily contribution', hint: 'Per member, collected automatically', value: 2500, prefix: '₦', suffix: ' / day' },
         { key: 'c_grace', label: 'Grace period', hint: 'Hours before a missed day counts as late', value: 24, suffix: ' hours' }
@@ -120,15 +124,15 @@
     el('sections').innerHTML = SECTIONS.map(function (s) {
       var rows = s.rules.map(function (r) {
         var right = editing
-          ? '<div class="flex items-center gap-1 shrink-0"><span class="text-xs text-white/50">' + (r.prefix || '') + '</span>' +
-            '<input data-k="' + r.key + '" type="number" step="any" value="' + vals[r.key] + '" class="w-24 rounded-xl bg-black/30 border border-white/10 px-2 py-1.5 text-right text-sm font-semibold text-white focus:outline-none focus:border-lime/60">' +
-            '<span class="text-xs text-white/50">' + (r.suffix || '') + '</span></div>'
-          : '<span class="text-sm font-semibold text-white shrink-0">' + fmt(r, vals[r.key]) + '</span>';
-        return '<div class="flex items-center justify-between gap-3 py-3"><div class="min-w-0"><p class="text-sm font-medium text-white">' + r.label +
-          '</p><p class="text-[11px] text-white/50">' + r.hint + '</p></div>' + right + '</div>';
-      }).join('<div class="h-px bg-white/10"></div>');
-      return '<section class="glass rounded-3xl p-4"><div class="flex items-center gap-2 mb-1"><span class="material-symbols-outlined ' + s.color + ' text-[20px]">' + s.icon +
-        '</span><h2 class="text-base font-semibold text-white">' + s.title + '</h2></div><p class="text-xs text-white/50 mb-1">' + s.note + '</p>' + rows + '</section>';
+          ? '<div class="flex items-center gap-1 shrink-0"><span class="text-xs text-muted">' + (r.prefix || '') + '</span>' +
+            '<input data-k="' + r.key + '" type="number" step="any" value="' + vals[r.key] + '" class="w-24 rounded-xl bg-sunken border border-line px-2 py-1.5 text-right text-sm font-semibold text-ink focus:outline-none focus:border-mint">' +
+            '<span class="text-xs text-muted">' + (r.suffix || '') + '</span></div>'
+          : '<span class="text-sm font-semibold text-ink shrink-0">' + fmt(r, vals[r.key]) + '</span>';
+        return '<div class="flex items-center justify-between gap-3 py-3"><div class="min-w-0"><p class="text-sm font-medium text-ink">' + r.label +
+          '</p><p class="text-[11px] text-muted">' + r.hint + '</p></div>' + right + '</div>';
+      }).join('<div class="h-px bg-line"></div>');
+      return '<section class="card p-4"><div class="flex items-center gap-2 mb-1"><span class="material-symbols-outlined ' + s.color + ' text-[20px]">' + s.icon +
+        '</span><h2 class="text-base font-semibold text-ink">' + s.title + '</h2></div><p class="text-xs text-muted mb-1">' + s.note + '</p>' + rows + '</section>';
     }).join('');
     el('edit-label').textContent = editing ? 'Editing' : 'Edit';
     el('save-bar').classList.toggle('hidden', !editing);
