@@ -3,36 +3,37 @@
 {% block title %}{{ plan.name }} · NairaStash{% endblock %}
 
 {% block content %}
-<header class="sticky top-0 z-30 flex items-center gap-3 px-5 py-4 bg-forest-900/50 backdrop-blur-xl">
+<header class="app-header gap-3">
   <a href="/plans" aria-label="Back to plans"
-    class="size-10 rounded-full glass flex items-center justify-center text-white/80 hover:text-white transition-colors">
+    class="card size-10 shrink-0 flex items-center justify-center text-ink hover:bg-sunken transition-colors">
     <span class="material-symbols-outlined text-[20px]">arrow_back</span>
   </a>
   <div class="min-w-0 flex-1">
-    <p class="text-xs text-white/60 uppercase tracking-wider truncate">Plans · {{ plan.frequency_label }}</p>
-    <h1 class="text-base font-semibold truncate">{{ plan.name }}</h1>
+    <p class="text-xs text-muted truncate">Plans · {{ plan.frequency_label }}</p>
+    <h1 class="text-base font-semibold text-ink truncate">{{ plan.name }}</h1>
   </div>
+  {% include "theme_toggle.html" %}
 </header>
 
 <main class="flex-1 px-5 pt-4 pb-4 space-y-5">
 
   {% if let Some(text) = message %}
-  <p class="rounded-2xl px-4 py-3 text-sm {% if message_is_error %}bg-warn/15 border border-warn/30 text-warn{% else %}bg-lime/15 border border-lime/30 text-lime{% endif %}" role="status">{{ text }}</p>
+  <p class="rounded-xl px-4 py-3 text-sm {% if message_is_error %}bg-danger/10 border border-danger/30 text-danger{% else %}bg-mint/10 border border-mint/30 text-mint{% endif %}" role="status">{{ text }}</p>
   {% endif %}
 
   <!-- Hero: balance and progress ring -->
-  <section class="glass rounded-3xl p-5">
+  <section class="card p-5">
     <div class="flex items-center justify-between gap-2">
-      <span class="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs text-lime">
+      <span class="inline-flex items-center gap-1.5 rounded-lg bg-sunken border border-line px-2.5 py-1 text-xs text-ink">
         <span class="material-symbols-outlined text-[16px]">{% if plan.lock_label == "Locked" %}lock{% else %}lock_open{% endif %}</span>
         {{ plan.lock_label }}
       </span>
       {% if plan.is_active %}
-      <span class="inline-flex items-center gap-1.5 rounded-full bg-lime/15 px-3 py-1 text-xs text-lime">
-        <span class="size-1.5 rounded-full bg-lime"></span>Active
+      <span class="inline-flex items-center gap-1.5 rounded-lg bg-mint/10 px-2.5 py-1 text-xs text-mint">
+        <span class="size-1.5 rounded-full bg-mint"></span>Active
       </span>
       {% else %}
-      <span class="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs text-white/60">Closed</span>
+      <span class="inline-flex items-center gap-1.5 rounded-lg bg-sunken border border-line px-2.5 py-1 text-xs text-muted">Closed</span>
       {% endif %}
     </div>
 
@@ -40,21 +41,21 @@
       <!-- the ring: pathLength 100 makes the dash length equal the percent -->
       <div class="relative size-28 shrink-0">
         <svg viewBox="0 0 100 100" class="size-28 -rotate-90" aria-hidden="true">
-          <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" stroke-width="9" class="text-white/10"></circle>
+          <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" stroke-width="9" class="text-line"></circle>
           <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" stroke-width="9" stroke-linecap="round"
-            pathLength="100" stroke-dasharray="{{ plan.progress_percent }} 100" class="text-lime"></circle>
+            pathLength="100" stroke-dasharray="{{ plan.progress_percent }} 100" class="text-mint"></circle>
         </svg>
         <div class="absolute inset-0 flex flex-col items-center justify-center">
-          <span class="text-2xl font-semibold tracking-tight text-white">{{ plan.progress_percent }}%</span>
-          <span class="text-[10px] uppercase tracking-wider text-white/50">saved</span>
+          <span class="text-2xl font-semibold tracking-tight text-ink">{{ plan.progress_percent }}%</span>
+          <span class="text-[10px] text-muted">saved</span>
         </div>
       </div>
 
-      <div class="min-w-0">
-        <p class="text-xs text-white/60">Plan balance</p>
-        <p class="text-3xl font-semibold tracking-tight text-white truncate">₦{{ plan.balance }}</p>
+      <div class="min-w-0 flex-1">
+        <p class="text-xs text-muted">Plan balance</p>
+        <p class="text-2xl leading-tight font-semibold tracking-tight text-ink break-all">₦{{ plan.balance }}</p>
         {% if let Some(target) = plan.target %}
-        <p class="mt-1 text-xs text-white/60">of ₦{{ target }} target</p>
+        <p class="mt-1 text-xs text-muted break-all">of ₦{{ target }} target</p>
         {% endif %}
       </div>
     </div>
@@ -62,96 +63,96 @@
 
   <!-- Quick facts -->
   <section class="grid grid-cols-3 gap-2">
-    <div class="glass rounded-2xl p-3">
-      <span class="material-symbols-outlined text-[18px] text-lime">payments</span>
-      <p class="mt-2 text-[11px] text-white/60">You save</p>
-      <p class="text-sm font-semibold">₦{{ plan.amount }}</p>
-      <p class="text-[11px] text-white/50">every {{ plan.unit }}</p>
+    <div class="card p-3 min-w-0">
+      <span class="material-symbols-outlined text-[18px] text-mint">payments</span>
+      <p class="mt-2 text-[11px] text-muted">You save</p>
+      <p class="text-sm font-semibold text-ink break-words">₦{{ plan.amount }}</p>
+      <p class="text-[11px] text-muted">every {{ plan.unit }}</p>
     </div>
-    <div class="glass rounded-2xl p-3">
-      <span class="material-symbols-outlined text-[18px] text-lime">event_repeat</span>
-      <p class="mt-2 text-[11px] text-white/60">Frequency</p>
-      <p class="text-sm font-semibold">{{ plan.frequency_label }}</p>
-      <p class="text-[11px] text-white/50">since {{ plan.created_on }}</p>
+    <div class="card p-3 min-w-0">
+      <span class="material-symbols-outlined text-[18px] text-mint">event_repeat</span>
+      <p class="mt-2 text-[11px] text-muted">Frequency</p>
+      <p class="text-sm font-semibold text-ink">{{ plan.frequency_label }}</p>
+      <p class="text-[11px] text-muted">since {{ plan.created_on }}</p>
     </div>
-    <div class="glass rounded-2xl p-3">
-      <span class="material-symbols-outlined text-[18px] text-lime">flag</span>
-      <p class="mt-2 text-[11px] text-white/60">Ends</p>
+    <div class="card p-3 min-w-0">
+      <span class="material-symbols-outlined text-[18px] text-mint">flag</span>
+      <p class="mt-2 text-[11px] text-muted">Ends</p>
       {% if let Some(end_date) = plan.end_date %}
-      <p class="text-sm font-semibold">{{ end_date }}</p>
+      <p class="text-sm font-semibold text-ink">{{ end_date }}</p>
       {% else %}
-      <p class="text-sm font-semibold">No end date</p>
+      <p class="text-sm font-semibold text-ink">No end date</p>
       {% endif %}
-      <p class="text-[11px] text-white/50">paid to wallet</p>
+      <p class="text-[11px] text-muted">paid to wallet</p>
     </div>
   </section>
 
   <!-- How this plan works -->
-  <section class="glass rounded-3xl p-5 space-y-3">
-    <h2 class="text-xs text-white/60 uppercase tracking-wider">How this plan works</h2>
+  <section class="card p-5 space-y-3">
+    <h2 class="text-xs font-semibold text-muted">How this plan works</h2>
     <div class="flex items-start gap-3">
-      <div class="size-9 shrink-0 rounded-2xl bg-lime/15 text-lime flex items-center justify-center">
+      <div class="size-9 shrink-0 rounded-lg bg-mint/10 text-mint flex items-center justify-center">
         <span class="material-symbols-outlined text-[18px]">{% if plan.lock_label == "Locked" %}lock{% else %}lock_open{% endif %}</span>
       </div>
       <div>
-        <p class="text-sm font-semibold">{{ plan.lock_label }} plan</p>
+        <p class="text-sm font-semibold text-ink">{{ plan.lock_label }} plan</p>
         {% if plan.lock_label == "Locked" %}
-        <p class="text-xs text-white/60">No partial withdrawals. If you need your money early, you can close the plan, but a {{ plan.early_fee_percent }}% fee is taken on top of what you receive. Waiting for the end date has no fee.</p>
+        <p class="text-xs text-muted">No partial withdrawals. If you need your money early, you can close the plan, but a {{ plan.early_fee_percent }}% fee is taken on top of what you receive. Waiting for the end date has no fee.</p>
         {% else %}
-        <p class="text-xs text-white/60">You can withdraw early, but a {{ plan.early_fee_percent }}% fee is taken on top of what you withdraw. Waiting for the end date has no fee.</p>
+        <p class="text-xs text-muted">You can withdraw early, but a {{ plan.early_fee_percent }}% fee is taken on top of what you withdraw. Waiting for the end date has no fee.</p>
         {% endif %}
       </div>
     </div>
     <div class="flex items-start gap-3">
-      <div class="size-9 shrink-0 rounded-2xl bg-lime/15 text-lime flex items-center justify-center">
+      <div class="size-9 shrink-0 rounded-lg bg-mint/10 text-mint flex items-center justify-center">
         <span class="material-symbols-outlined text-[18px]">savings</span>
       </div>
       <div>
-        <p class="text-sm font-semibold">Whole {{ plan.unit }}s only</p>
-        <p class="text-xs text-white/60">Each time you add money, we fill whole {{ plan.unit }}s of ₦{{ plan.amount }}. Any leftover stays in your wallet.</p>
+        <p class="text-sm font-semibold text-ink">Whole {{ plan.unit }}s only</p>
+        <p class="text-xs text-muted">Each time you add money, we fill whole {{ plan.unit }}s of ₦{{ plan.amount }}. Any leftover stays in your wallet.</p>
       </div>
     </div>
   </section>
 
   <!-- Streak grid -->
-  <section class="glass rounded-3xl p-5 space-y-4">
-    <div class="flex items-center gap-2">
-      <div class="size-9 shrink-0 rounded-2xl bg-lime/15 text-lime flex items-center justify-center">
+  <section class="card p-5 space-y-4">
+    <div class="flex items-center gap-3">
+      <div class="size-9 shrink-0 rounded-lg bg-mint/10 text-mint flex items-center justify-center">
         <span class="material-symbols-outlined text-[18px]">grid_view</span>
       </div>
       <div>
-        <h2 class="text-base font-semibold">Streak grid</h2>
-        <p class="text-xs text-white/60">One box for every {{ plan.unit }} of this plan</p>
+        <h2 class="text-base font-semibold text-ink">Streak grid</h2>
+        <p class="text-xs text-muted">One box for every {{ plan.unit }} of this plan</p>
       </div>
     </div>
 
     {% if grid.is_empty() %}
-    <div class="rounded-2xl bg-black/20 border border-white/10 p-6 flex flex-col items-center text-center gap-2">
-      <span class="material-symbols-outlined text-white/50 text-[28px]">grid_off</span>
-      <p class="text-sm font-semibold text-white">The grid is not available right now</p>
-      <p class="text-xs text-white/60">Your money is safe. Try again in a moment.</p>
+    <div class="card-inset p-6 flex flex-col items-center text-center gap-2">
+      <span class="material-symbols-outlined text-muted text-[28px]">grid_off</span>
+      <p class="text-sm font-semibold text-ink">The grid is not available right now</p>
+      <p class="text-xs text-muted">Your money is safe. Try again in a moment.</p>
     </div>
     {% else %}
     {% for grid_block in grid %}
     <div class="space-y-2">
-      <p class="text-xs font-semibold text-white/70">{{ grid_block.title }}</p>
+      <p class="text-xs font-semibold text-muted">{{ grid_block.title }}</p>
       <div class="grid {% if plan.unit == "day" %}grid-cols-7{% else %}grid-cols-4{% endif %} gap-1.5">
         {% for grid_box in grid_block.boxes %}
         {% if grid_box.is_struck %}
-        <div class="aspect-square rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white/30 line-through" title="Money taken out">
+        <div class="aspect-square rounded-md bg-sunken border border-line flex items-center justify-center text-muted line-through" title="Money taken out">
           <span class="text-[10px]">{{ grid_box.label }}</span>
         </div>
         {% else if grid_box.is_ticked %}
-        <div class="aspect-square rounded-lg bg-lime text-lime-ink flex flex-col items-center justify-center" title="Paid">
+        <div class="aspect-square rounded-md bg-mint text-on-accent flex flex-col items-center justify-center" title="Paid">
           <span class="material-symbols-outlined text-[14px] leading-none">check</span>
           <span class="text-[9px] font-semibold leading-none">{{ grid_box.label }}</span>
         </div>
         {% else if grid_box.is_cell %}
-        <div class="aspect-square rounded-lg border border-white/20 flex items-center justify-center text-white/70" title="Not paid yet">
+        <div class="aspect-square rounded-md border border-muted/50 flex items-center justify-center text-ink" title="Not paid yet">
           <span class="text-[10px]">{{ grid_box.label }}</span>
         </div>
         {% else %}
-        <div class="aspect-square rounded-lg bg-white/[0.03] flex items-center justify-center text-white/15">
+        <div class="aspect-square rounded-md bg-sunken flex items-center justify-center text-line">
           <span class="text-[10px]">{{ grid_box.label }}</span>
         </div>
         {% endif %}
@@ -160,14 +161,14 @@
     </div>
     {% endfor %}
 
-    <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-white/60">
-      <span class="inline-flex items-center gap-1.5"><span class="size-3 rounded bg-lime"></span>Paid</span>
-      <span class="inline-flex items-center gap-1.5"><span class="size-3 rounded border border-white/30"></span>Not paid yet</span>
-      <span class="inline-flex items-center gap-1.5"><span class="size-3 rounded bg-white/10 border border-white/10"></span>Taken out</span>
+    <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-muted">
+      <span class="inline-flex items-center gap-1.5"><span class="size-3 rounded-sm bg-mint"></span>Paid</span>
+      <span class="inline-flex items-center gap-1.5"><span class="size-3 rounded-sm border border-muted/50"></span>Not paid yet</span>
+      <span class="inline-flex items-center gap-1.5"><span class="size-3 rounded-sm bg-sunken border border-line"></span>Taken out</span>
     </div>
     {% endif %}
 
-    <p class="text-xs text-white/60">See every deposit and withdrawal on the <a href="/activity" class="font-semibold text-lime">Activity</a> page.</p>
+    <p class="text-xs text-muted">See every deposit and withdrawal on the <a href="/activity" class="font-semibold text-mint">Activity</a> page.</p>
   </section>
 
 </main>
@@ -176,42 +177,39 @@
 <div id="plan-data" class="hidden" data-balance="{{ plan.balance }}" data-period="{{ plan.amount }}" data-unit="{{ plan.unit }}" data-fee="{{ plan.early_fee_percent }}"></div>
 
 {% if plan.is_active %}
-<!-- Action bar: two big buttons and a small close link, above the bottom menu -->
-<div class="sticky bottom-24 z-30 px-5 pt-6 pb-1 bg-gradient-to-t from-forest-900 via-forest-900/70 to-transparent">
+<!-- Action bar: solid, sits right above the 80px bottom menu -->
+<div class="sticky bottom-20 z-30 px-5 pt-3 pb-3 bg-page border-t border-line">
   <div class="grid grid-cols-2 gap-3">
-    <button id="add-open" type="button"
-      class="h-14 rounded-full bg-lime text-lime-ink text-sm font-semibold flex items-center justify-center gap-2 shadow-xl active:scale-[0.98] transition">
+    <button id="add-open" type="button" class="btn-primary">
       <span class="material-symbols-outlined text-[20px]">add_circle</span>
       Add money
     </button>
     {% if plan.lock_label == "Locked" %}
-    <button type="button" disabled
-      class="h-14 rounded-full glass text-white text-sm font-semibold flex items-center justify-center gap-2 opacity-40 cursor-not-allowed">
+    <button type="button" disabled class="btn-quiet opacity-40 cursor-not-allowed">
       <span class="material-symbols-outlined text-[20px]">lock</span>
       Locked
     </button>
     {% else %}
-    <button id="withdraw-open" type="button"
-      class="h-14 rounded-full glass text-white text-sm font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition">
+    <button id="withdraw-open" type="button" class="btn-quiet">
       <span class="material-symbols-outlined text-[20px]">arrow_circle_down</span>
       Withdraw
     </button>
     {% endif %}
   </div>
 
-  <div class="mt-2 flex items-center justify-center gap-3 text-[11px] text-white/50">
+  <div class="mt-2 flex items-center justify-center gap-3 text-[11px] text-muted">
     {% if plan.lock_label == "Locked" %}
     <span>Closing early costs {{ plan.early_fee_percent }}%.</span>
     {% else %}
     <span>Early withdrawals have a {{ plan.early_fee_percent }}% fee.</span>
     {% endif %}
     <span aria-hidden="true">·</span>
-    <button id="close-open" type="button" class="font-semibold text-warn">Close plan</button>
+    <button id="close-open" type="button" class="font-semibold text-danger">Close plan</button>
   </div>
 </div>
 {% else %}
 <div class="px-5 pb-6">
-  <p class="rounded-2xl glass px-4 py-3 text-center text-sm text-white/70">This plan is closed, so it cannot be changed.</p>
+  <p class="card px-4 py-3 text-center text-sm text-muted">This plan is closed, so it cannot be changed.</p>
 </div>
 {% endif %}
 
@@ -220,40 +218,39 @@
 <div id="add-sheet" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="add-title">
   <div id="add-backdrop" class="absolute inset-0 bg-black/60"></div>
   <div id="add-panel"
-    class="absolute inset-x-0 bottom-0 mx-auto w-full max-w-lg translate-y-full transition-transform duration-300 rounded-t-3xl bg-forest-900 border-t border-white/10 px-5 pt-3 pb-8">
-    <div class="mx-auto h-1 w-10 rounded-full bg-white/20"></div>
+    class="absolute inset-x-0 bottom-0 mx-auto w-full max-w-lg translate-y-full transition-transform duration-300 rounded-t-xl bg-surface border-t border-line px-5 pt-3 pb-8">
+    <div class="mx-auto h-1 w-10 rounded-full bg-line"></div>
 
     <div class="mt-4 flex items-center justify-between">
       <div>
-        <h2 id="add-title" class="text-base font-semibold text-white">Add money</h2>
-        <p class="text-xs text-white/60">From your wallet into {{ plan.name }}</p>
+        <h2 id="add-title" class="text-base font-semibold text-ink">Add money</h2>
+        <p class="text-xs text-muted">From your wallet into {{ plan.name }}</p>
       </div>
       <button id="add-close" type="button" aria-label="Close"
-        class="size-9 rounded-full glass text-white/80 flex items-center justify-center">
+        class="card size-9 text-ink flex items-center justify-center">
         <span class="material-symbols-outlined text-[18px]">close</span>
       </button>
     </div>
 
     <form id="add-form" method="post" action="/plans/{{ plan.plan_id }}/add" class="mt-4 space-y-4">
-      <div class="flex items-baseline justify-center gap-1 py-5 rounded-2xl bg-black/25 border border-white/10">
-        <span class="text-2xl font-medium text-white/50">₦</span>
+      <div class="card-inset flex items-baseline justify-center gap-1 py-5">
+        <span class="text-2xl font-medium text-muted">₦</span>
         <input id="add-amount" name="amount" type="text" inputmode="decimal" required placeholder="0"
-          class="w-44 bg-transparent text-4xl font-semibold tracking-tight text-white text-center placeholder:text-white/25 focus:outline-none">
+          class="w-44 bg-transparent text-4xl font-semibold tracking-tight text-ink text-center placeholder:text-muted focus:outline-none">
       </div>
 
       <div class="grid grid-cols-3 gap-2">
-        <button type="button" data-periods="1" class="add-chip py-2.5 rounded-full bg-white/[0.06] text-white/80 border border-white/10 text-xs font-medium hover:bg-white/10 transition-colors"></button>
-        <button type="button" data-periods="2" class="add-chip py-2.5 rounded-full bg-white/[0.06] text-white/80 border border-white/10 text-xs font-medium hover:bg-white/10 transition-colors"></button>
-        <button type="button" data-periods="5" class="add-chip py-2.5 rounded-full bg-white/[0.06] text-white/80 border border-white/10 text-xs font-medium hover:bg-white/10 transition-colors"></button>
+        <button type="button" data-periods="1" class="add-chip btn-quiet h-10 px-2 text-xs"></button>
+        <button type="button" data-periods="2" class="add-chip btn-quiet h-10 px-2 text-xs"></button>
+        <button type="button" data-periods="5" class="add-chip btn-quiet h-10 px-2 text-xs"></button>
       </div>
 
-      <p id="add-preview" class="hidden rounded-2xl bg-white/5 px-4 py-3 text-xs text-white/70"></p>
+      <p id="add-preview" class="hidden card-inset px-4 py-3 text-xs text-muted"></p>
 
       <input name="remark" type="text" maxlength="200" placeholder="Add a note (optional)"
-        class="w-full h-12 px-4 rounded-2xl bg-black/25 border border-white/10 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-lime/60 transition-colors">
+        class="w-full h-12 px-4 rounded-xl bg-sunken border border-line text-sm text-ink placeholder:text-muted focus:outline-none focus:border-mint transition-colors">
 
-      <button id="add-button" type="submit"
-        class="w-full h-14 rounded-full bg-lime text-lime-ink text-sm font-semibold flex items-center justify-center gap-2 shadow-xl active:scale-[0.99] transition disabled:opacity-40">
+      <button id="add-button" type="submit" class="btn-primary w-full disabled:opacity-40">
         <span class="material-symbols-outlined text-[20px]">account_balance_wallet</span>
         Confirm
       </button>
@@ -266,39 +263,38 @@
 <div id="withdraw-sheet" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="withdraw-title">
   <div id="withdraw-backdrop" class="absolute inset-0 bg-black/60"></div>
   <div id="withdraw-panel"
-    class="absolute inset-x-0 bottom-0 mx-auto w-full max-w-lg translate-y-full transition-transform duration-300 rounded-t-3xl bg-forest-900 border-t border-white/10 px-5 pt-3 pb-8">
-    <div class="mx-auto h-1 w-10 rounded-full bg-white/20"></div>
+    class="absolute inset-x-0 bottom-0 mx-auto w-full max-w-lg translate-y-full transition-transform duration-300 rounded-t-xl bg-surface border-t border-line px-5 pt-3 pb-8">
+    <div class="mx-auto h-1 w-10 rounded-full bg-line"></div>
 
     <div class="mt-4 flex items-center justify-between">
       <div>
-        <h2 id="withdraw-title" class="text-base font-semibold text-white">Withdraw</h2>
-        <p class="text-xs text-white/60">From {{ plan.name }} to your wallet</p>
+        <h2 id="withdraw-title" class="text-base font-semibold text-ink">Withdraw</h2>
+        <p class="text-xs text-muted">From {{ plan.name }} to your wallet</p>
       </div>
       <button id="withdraw-close" type="button" aria-label="Close"
-        class="size-9 rounded-full glass text-white/80 flex items-center justify-center">
+        class="card size-9 text-ink flex items-center justify-center">
         <span class="material-symbols-outlined text-[18px]">close</span>
       </button>
     </div>
 
     <form id="withdraw-form" method="post" action="/plans/{{ plan.plan_id }}/withdraw" class="mt-4 space-y-4">
-      <div class="flex items-baseline justify-center gap-1 py-5 rounded-2xl bg-black/25 border border-white/10">
-        <span class="text-2xl font-medium text-white/50">₦</span>
+      <div class="card-inset flex items-baseline justify-center gap-1 py-5">
+        <span class="text-2xl font-medium text-muted">₦</span>
         <input id="withdraw-amount" name="amount" type="text" inputmode="decimal" required placeholder="0"
-          class="w-44 bg-transparent text-4xl font-semibold tracking-tight text-white text-center placeholder:text-white/25 focus:outline-none">
+          class="w-44 bg-transparent text-4xl font-semibold tracking-tight text-ink text-center placeholder:text-muted focus:outline-none">
       </div>
 
-      <div class="flex items-center justify-between text-xs text-white/60">
-        <span>Plan balance: ₦{{ plan.balance }}</span>
-        <button id="withdraw-max" type="button" class="font-semibold text-lime">Max</button>
+      <div class="flex items-center justify-between gap-3 text-xs text-muted">
+        <span class="min-w-0 break-all">Plan balance: ₦{{ plan.balance }}</span>
+        <button id="withdraw-max" type="button" class="font-semibold text-mint">Max</button>
       </div>
 
-      <p id="withdraw-preview" class="hidden rounded-2xl bg-white/5 px-4 py-3 text-xs text-white/70"></p>
+      <p id="withdraw-preview" class="hidden card-inset px-4 py-3 text-xs text-muted"></p>
 
       <input name="remark" type="text" maxlength="200" placeholder="Add a note (optional)"
-        class="w-full h-12 px-4 rounded-2xl bg-black/25 border border-white/10 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-lime/60 transition-colors">
+        class="w-full h-12 px-4 rounded-xl bg-sunken border border-line text-sm text-ink placeholder:text-muted focus:outline-none focus:border-mint transition-colors">
 
-      <button id="withdraw-button" type="submit"
-        class="w-full h-14 rounded-full bg-lime text-lime-ink text-sm font-semibold flex items-center justify-center gap-2 shadow-xl active:scale-[0.99] transition disabled:opacity-40">
+      <button id="withdraw-button" type="submit" class="btn-primary w-full disabled:opacity-40">
         <span class="material-symbols-outlined text-[20px]">arrow_circle_down</span>
         Withdraw to wallet
       </button>
@@ -311,29 +307,28 @@
 <div id="close-sheet" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="close-title">
   <div id="close-backdrop" class="absolute inset-0 bg-black/60"></div>
   <div id="close-panel"
-    class="absolute inset-x-0 bottom-0 mx-auto w-full max-w-lg translate-y-full transition-transform duration-300 rounded-t-3xl bg-forest-900 border-t border-white/10 px-5 pt-3 pb-8">
-    <div class="mx-auto h-1 w-10 rounded-full bg-white/20"></div>
+    class="absolute inset-x-0 bottom-0 mx-auto w-full max-w-lg translate-y-full transition-transform duration-300 rounded-t-xl bg-surface border-t border-line px-5 pt-3 pb-8">
+    <div class="mx-auto h-1 w-10 rounded-full bg-line"></div>
 
     <div class="mt-4 flex items-center justify-between">
       <div>
-        <h2 id="close-title" class="text-base font-semibold text-white">Close this plan?</h2>
-        <p class="text-xs text-white/60">{{ plan.name }}</p>
+        <h2 id="close-title" class="text-base font-semibold text-ink">Close this plan?</h2>
+        <p class="text-xs text-muted">{{ plan.name }}</p>
       </div>
       <button id="close-close" type="button" aria-label="Cancel"
-        class="size-9 rounded-full glass text-white/80 flex items-center justify-center">
+        class="card size-9 text-ink flex items-center justify-center">
         <span class="material-symbols-outlined text-[18px]">close</span>
       </button>
     </div>
 
     <form id="close-form" method="post" action="/plans/{{ plan.plan_id }}/liquidate" class="mt-4 space-y-4">
-      <p id="close-info" class="rounded-2xl bg-white/5 px-4 py-4 text-sm text-white/80"></p>
-      <p class="text-xs text-white/50">Closing a plan cannot be undone.</p>
+      <p id="close-info" class="card-inset px-4 py-4 text-sm text-ink"></p>
+      <p class="text-xs text-muted">Closing a plan cannot be undone.</p>
 
       <div class="grid grid-cols-2 gap-3">
-        <button id="close-cancel" type="button"
-          class="h-14 rounded-full glass text-white text-sm font-semibold">Keep plan</button>
+        <button id="close-cancel" type="button" class="btn-quiet">Keep plan</button>
         <button id="close-button" type="submit"
-          class="h-14 rounded-full bg-warn text-lime-ink text-sm font-semibold active:scale-[0.99] transition disabled:opacity-40">Close plan</button>
+          class="flex items-center justify-center h-12 px-5 rounded-xl bg-danger text-page font-semibold transition-opacity hover:opacity-90 disabled:opacity-40">Close plan</button>
       </div>
     </form>
   </div>
