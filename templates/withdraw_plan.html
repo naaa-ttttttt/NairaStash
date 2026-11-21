@@ -7,44 +7,47 @@
 {% block nav %}{% endblock %}
 
 {% block content %}
-<header class="sticky top-0 z-30 flex items-center justify-between gap-2 px-5 h-16 bg-forest-900/50 backdrop-blur-xl">
+<header class="app-header justify-between gap-2">
   <button type="button" onclick="history.back()" aria-label="Go back"
-    class="size-11 -ml-2 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 active:scale-95 transition-all">
+    class="size-11 -ml-2 rounded-full flex items-center justify-center text-muted hover:text-ink hover:bg-sunken active:scale-95 transition-all">
     <span class="material-symbols-outlined text-[22px]">arrow_back</span>
   </button>
   <div class="flex flex-col items-center min-w-0">
-    <span class="text-[10px] font-semibold uppercase tracking-widest text-lime">Withdraw</span>
-    <h1 class="text-base font-semibold tracking-tight text-white truncate">Select plan</h1>
+    <span class="text-[11px] font-semibold uppercase tracking-widest text-mint">Withdraw</span>
+    <h1 class="text-base font-semibold tracking-tight text-ink truncate">Select plan</h1>
   </div>
-  <a href="/" aria-label="Close"
-    class="size-11 -mr-2 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 active:scale-95 transition-all">
-    <span class="material-symbols-outlined text-[22px]">close</span>
-  </a>
+  <div class="flex items-center gap-1">
+    {% include "theme_toggle.html" %}
+    <a href="/" aria-label="Close"
+      class="size-11 -mr-2 rounded-full flex items-center justify-center text-muted hover:text-ink hover:bg-sunken active:scale-95 transition-all">
+      <span class="material-symbols-outlined text-[22px]">close</span>
+    </a>
+  </div>
 </header>
 
 <main class="flex-1 flex flex-col gap-5 px-5 pt-2">
 
   <!-- fragment: withdraw-stepper -->
-  <div class="glass rounded-2xl p-3">
+  <div class="card p-3">
     <div class="flex items-center">
       <div class="flex flex-col items-center gap-1">
-        <div class="size-7 rounded-full bg-azure text-white ring-2 ring-white/30 flex items-center justify-center text-xs font-semibold">1</div>
-        <span class="text-[10px] font-semibold uppercase tracking-wider text-white">Plan</span>
+        <div class="size-7 rounded-full bg-accent text-on-accent ring-2 ring-mint/40 flex items-center justify-center text-xs font-semibold">1</div>
+        <span class="text-[11px] font-semibold uppercase tracking-wider text-ink">Plan</span>
       </div>
-      <div class="flex-1 h-0.5 mx-1.5 -mt-4 rounded-full bg-white/10"></div>
+      <div class="flex-1 h-0.5 mx-1.5 -mt-4 rounded-full bg-line"></div>
       <div class="flex flex-col items-center gap-1">
-        <div class="size-7 rounded-full bg-white/10 text-white/50 flex items-center justify-center text-xs font-semibold">2</div>
-        <span class="text-[10px] uppercase tracking-wider text-white/50">Amount</span>
+        <div class="size-7 rounded-full bg-sunken border border-line text-muted flex items-center justify-center text-xs font-semibold">2</div>
+        <span class="text-[11px] uppercase tracking-wider text-muted">Amount</span>
       </div>
-      <div class="flex-1 h-0.5 mx-1.5 -mt-4 rounded-full bg-white/10"></div>
+      <div class="flex-1 h-0.5 mx-1.5 -mt-4 rounded-full bg-line"></div>
       <div class="flex flex-col items-center gap-1">
-        <div class="size-7 rounded-full bg-white/10 text-white/50 flex items-center justify-center text-xs font-semibold">3</div>
-        <span class="text-[10px] uppercase tracking-wider text-white/50">Account</span>
+        <div class="size-7 rounded-full bg-sunken border border-line text-muted flex items-center justify-center text-xs font-semibold">3</div>
+        <span class="text-[11px] uppercase tracking-wider text-muted">Account</span>
       </div>
-      <div class="flex-1 h-0.5 mx-1.5 -mt-4 rounded-full bg-white/10"></div>
+      <div class="flex-1 h-0.5 mx-1.5 -mt-4 rounded-full bg-line"></div>
       <div class="flex flex-col items-center gap-1">
-        <div class="size-7 rounded-full bg-white/10 text-white/50 flex items-center justify-center text-xs font-semibold">4</div>
-        <span class="text-[10px] uppercase tracking-wider text-white/50">Review</span>
+        <div class="size-7 rounded-full bg-sunken border border-line text-muted flex items-center justify-center text-xs font-semibold">4</div>
+        <span class="text-[11px] uppercase tracking-wider text-muted">Review</span>
       </div>
     </div>
   </div>
@@ -53,35 +56,35 @@
   <!-- fragment: withdraw-plan-intro -->
   <section>
     <div class="flex items-center gap-2 mb-1">
-      <span class="size-2 rounded-full bg-lime animate-pulse"></span>
-      <span class="text-[10px] font-semibold uppercase tracking-widest text-lime">Step 1 of 4</span>
+      <span class="size-2 rounded-full bg-mint animate-pulse"></span>
+      <span class="text-[11px] font-semibold uppercase tracking-widest text-mint">Step 1 of 4</span>
     </div>
-    <h2 class="text-2xl font-semibold tracking-tight text-white">Select source plan</h2>
-    <p class="text-sm text-white/60 mt-1">Choose the savings plan or group share you want to withdraw from.</p>
+    <h2 class="text-2xl font-semibold tracking-tight text-ink">Select source plan</h2>
+    <p class="text-sm text-muted mt-1">Choose the savings plan or group share you want to withdraw from.</p>
   </section>
   <!-- /fragment: withdraw-plan-intro -->
 
   <!-- fragment: withdraw-plan-search -->
   <div class="relative flex items-center">
-    <span class="material-symbols-outlined absolute left-3.5 text-white/40 text-[20px] pointer-events-none">search</span>
+    <span class="material-symbols-outlined absolute left-3.5 text-muted text-[20px] pointer-events-none">search</span>
     <input id="plan-search" type="text" placeholder="Search plans..."
-      class="w-full h-12 pl-11 pr-4 rounded-2xl bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-lime/60 focus:bg-white/10 transition-all">
+      class="w-full h-12 pl-11 pr-4 rounded-xl bg-sunken border border-line text-sm text-ink placeholder:text-muted focus:outline-none focus:border-mint transition-colors">
   </div>
   <!-- /fragment: withdraw-plan-search -->
 
   <!-- fragment: withdraw-plan-list -->
   <div id="plan-list" class="flex flex-col gap-3"></div>
-  <p id="plan-empty" class="hidden text-center text-sm text-white/60 py-6">No plans match your search.</p>
+  <p id="plan-empty" class="hidden text-center text-sm text-muted py-6">No plans match your search.</p>
   <!-- /fragment: withdraw-plan-list -->
 
   <!-- fragment: withdraw-plan-policy -->
-  <div class="glass rounded-3xl p-4 flex items-start gap-3">
-    <div class="size-8 rounded-xl bg-white/10 text-lime flex items-center justify-center shrink-0">
+  <div class="card p-4 flex items-start gap-3">
+    <div class="size-8 rounded-xl bg-sunken border border-line text-mint flex items-center justify-center shrink-0">
       <span class="material-symbols-outlined text-[20px]">verified_user</span>
     </div>
     <div>
-      <p class="text-[10px] font-semibold uppercase tracking-wider text-white/60">How withdrawals work</p>
-      <p class="text-xs text-white/60 mt-0.5 leading-relaxed">Personal plans are paid out instantly with no early-withdrawal fee. Group shares need approval from a group admin first.</p>
+      <p class="text-[11px] font-semibold uppercase tracking-wider text-muted">How withdrawals work</p>
+      <p class="text-xs text-muted mt-0.5 leading-relaxed">Personal plans are paid out instantly with no early-withdrawal fee. Group shares need approval from a group admin first.</p>
     </div>
   </div>
   <!-- /fragment: withdraw-plan-policy -->
@@ -89,20 +92,19 @@
 </main>
 
 <!-- fragment: withdraw-plan-dock -->
-<div class="fixed bottom-0 left-0 right-0 z-40 max-w-md mx-auto px-5 pb-5">
-  <div class="glass-dark rounded-3xl p-3 flex flex-col gap-2">
-    <div class="flex items-center justify-between rounded-2xl bg-white/5 px-4 py-2">
+<div class="fixed bottom-0 inset-x-0 z-40 bg-page border-t border-line">
+  <div class="max-w-md mx-auto px-5 py-3 flex flex-col gap-2">
+    <div class="card-inset flex items-center justify-between px-4 py-2">
       <div class="flex items-center gap-2 min-w-0">
-        <span class="material-symbols-outlined text-lime text-[18px]">radio_button_checked</span>
-        <span id="dock-name" class="text-xs font-medium text-white truncate"></span>
+        <span class="material-symbols-outlined text-mint text-[18px]">radio_button_checked</span>
+        <span id="dock-name" class="text-xs font-medium text-ink truncate"></span>
       </div>
       <div class="flex items-center gap-1 shrink-0">
-        <span class="text-[10px] uppercase text-white/50">Avail:</span>
-        <span id="dock-avail" class="text-xs font-semibold text-lime"></span>
+        <span class="text-[11px] uppercase text-muted">Avail:</span>
+        <span id="dock-avail" class="text-xs font-semibold text-mint"></span>
       </div>
     </div>
-    <a id="dock-continue" href="/withdraw/amount?plan=emergency"
-      class="h-12 rounded-full bg-lime text-lime-ink text-sm font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition">
+    <a id="dock-continue" href="/withdraw/amount?plan=emergency" class="btn-primary w-full h-12 text-sm">
       <span>Continue to amount</span>
       <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
     </a>
@@ -120,9 +122,9 @@
     { id: 'founders', name: 'Founders Tech Stash (my share)', icon: 'diversity_3', kind: 'Group share', daily: 2500, avail: 155000, tone: 'ahead', note: 'Admin approval', group: true }
   ];
   var tones = {
-    ahead: 'bg-lime/15 text-lime',
-    ok: 'bg-azure/15 text-azure',
-    behind: 'bg-warn/15 text-warn'
+    ahead: 'bg-mint/15 text-mint',
+    ok: 'bg-sunken border border-line text-muted',
+    behind: 'bg-gold/15 text-gold'
   };
 
   var selected = plans[0];
@@ -136,22 +138,22 @@
 
   function card(p) {
     var on = p.id === selected.id;
-    var noteTone = p.group ? 'bg-warn/15 text-warn' : tones[p.tone];
-    return '<button type="button" data-id="' + p.id + '" class="plan glass w-full text-left rounded-3xl p-4 transition-all ' +
-      (on ? 'ring-2 ring-lime/70' : 'hover:bg-white/10') + '">' +
+    var noteTone = p.group ? 'bg-gold/15 text-gold' : tones[p.tone];
+    return '<button type="button" data-id="' + p.id + '" class="plan card w-full text-left p-4 transition-colors ' +
+      (on ? 'ring-2 ring-mint' : 'hover:bg-sunken') + '">' +
       '<div class="flex items-start gap-3">' +
-        '<div class="size-11 rounded-2xl ' + (on ? 'bg-lime text-lime-ink' : 'bg-white/10 text-white/70') + ' flex items-center justify-center shrink-0">' +
+        '<div class="size-11 rounded-xl ' + (on ? 'bg-accent text-on-accent' : 'bg-sunken border border-line text-muted') + ' flex items-center justify-center shrink-0">' +
           '<span class="material-symbols-outlined text-[22px]">' + p.icon + '</span></div>' +
         '<div class="flex-1 min-w-0">' +
           '<div class="flex items-start justify-between gap-2">' +
-            '<div class="min-w-0"><h3 class="text-sm font-semibold text-white truncate">' + p.name + '</h3>' +
-            '<p class="text-[11px] text-white/50 mt-0.5">' + p.kind + ' • ₦' + p.daily.toLocaleString('en-US') + ' / day</p></div>' +
-            (on ? '<span class="shrink-0 rounded-full bg-lime text-lime-ink px-2 py-0.5 text-[10px] font-semibold uppercase flex items-center gap-1"><span class="material-symbols-outlined fill-1 text-[13px]">check_circle</span>Selected</span>' : '') +
+            '<div class="min-w-0"><h3 class="text-sm font-semibold text-ink truncate">' + p.name + '</h3>' +
+            '<p class="text-[11px] text-muted mt-0.5">' + p.kind + ' • ₦' + p.daily.toLocaleString('en-US') + ' / day</p></div>' +
+            (on ? '<span class="shrink-0 rounded-full bg-accent text-on-accent px-2 py-0.5 text-[11px] font-semibold uppercase flex items-center gap-1"><span class="material-symbols-outlined fill-1 text-[13px]">check_circle</span>Selected</span>' : '') +
           '</div>' +
           '<div class="mt-3 flex items-end justify-between gap-2">' +
-            '<div><p class="text-[10px] uppercase text-white/50">Available</p>' +
-            '<p class="text-lg font-semibold tracking-tight ' + (on ? 'text-lime' : 'text-white') + '">' + money(p.avail) + '</p></div>' +
-            '<span class="rounded-md px-2 py-1 text-[10px] font-semibold ' + noteTone + '">' + p.note + '</span>' +
+            '<div class="min-w-0"><p class="text-[11px] uppercase text-muted">Available</p>' +
+            '<p class="text-lg font-semibold tracking-tight break-all ' + (on ? 'text-mint' : 'text-ink') + '">' + money(p.avail) + '</p></div>' +
+            '<span class="shrink-0 rounded-lg px-2 py-1 text-[11px] font-semibold ' + noteTone + '">' + p.note + '</span>' +
           '</div>' +
         '</div>' +
       '</div></button>';
