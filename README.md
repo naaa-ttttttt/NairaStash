@@ -9,6 +9,7 @@ A mobile-first savings app in naira (NGN). People save a fixed amount on a sched
 - **Savings plans:** a daily, weekly or monthly plan with a required end date and a target.
 - **Add money:** tap **Add money** on a plan, a sheet slides up, type an amount, and whole periods move from the wallet into the plan.
 - **Activity:** every money movement is a row in an append-only ledger, with a detail page for each one.
+- **Themes:** a dark (dark green) and a light theme. The app follows the phone setting, and a round sun/moon button in every header switches and remembers the choice.
 
 ## How the money works
 
@@ -71,6 +72,35 @@ templates/           askama html templates
 migrations/          sqlx migrations
 ```
 
+## Design
+
+The look is a mature fintech app: dark green and white, with gold as the third colour. A reference fintech app (balance hero card, quick-action row, plain list rows, a tab bar with a pill on the active tab) set the direction.
+
+**Theme roles.** Colours are defined once in `templates/base.html` as CSS variables, with one set of values for dark and one for light. Pages use only role names, never hex values.
+
+| Role | Use |
+|---|---|
+| `page`, `surface`, `sunken` | backgrounds: the page, cards, and blocks inside cards |
+| `line` | 1px borders and progress tracks |
+| `ink`, `muted` | main and quiet text |
+| `accent`, `on-accent` | the primary button, selected chips, the active tab |
+| `mint` | progress, links, credits, "active" and "approved" states |
+| `gold` | pending, behind and "required" states, plus the few brand spots on the hero card |
+| `danger` | declined, failed and error states |
+| `hero` | the balance card gradient |
+
+**Shared classes** (also in `base.html`): `app-header`, `card`, `card-inset`, `btn-primary`, `btn-quiet`, `hero-card`, `tab-on`, `tab-off`.
+
+**Rules for every page:**
+
+- Solid surfaces with a 1px border. No transparency, no blur, no shadows.
+- One gradient only: `.hero-card` (the dashboard balance card and the login header). Its text is always white.
+- Corners: cards and buttons 16px, inputs 12px. Full pills only for the active tab, tab switches, filter chips, status chips and round icon buttons.
+- `btn-primary` is for the main action only. Other buttons use `btn-quiet`.
+- Pages that hide the tab bar use a fixed solid bottom dock (`bg-page border-t border-line`). Pages with the tab bar end in a normal `btn-primary`. There are no floating buttons.
+- Long naira amounts must not be cut off: `break-all` or a smaller font.
+- Tailwind runs from the CDN with its config inside `base.html`, so classes written inside JavaScript strings still work.
+
 ## Run it
 
 You need Rust, Postgres and `sqlx-cli` (`cargo install sqlx-cli`).
@@ -87,16 +117,18 @@ Paystack's webhook (`POST /api/deposits/webhook`) cannot reach a local address, 
 
 To create a migration: `sqlx migrate add <name>`, edit the new file, then `sqlx migrate run`.
 
-## Status (19 Nov 2026)
+## Status (21 Nov 2026)
 
 ### Working
 
-- **Auth:** signup (user and wallet in one transaction), login (argon2), logout, cookie sessions (hashed token, HttpOnly, 7-day cap) and a 20-minute idle timeout enforced in the database.
+- **Auth:** signup (user and wallet in one transaction), login (argon2), logout, cookie sessions (hashed token, HttpOnly, 7-day cap) and a 20-minute idle timeout enforced in the database. The signup form has a show/hide button on both password fields.
 - **Deposits:** `POST /api/deposits/initialize` (minimum ₦100) creates a pending deposit and a Paystack checkout link. The webhook verifies the signature and, in one transaction, credits the wallet and writes a ledger row.
 - **Ledger and activity:** an append-only `ledger_entries` table (a trigger blocks updates and deletes) with a `fee` column. The `/activity` and `/activity/:entry_id` pages show real transactions.
 - **Plans:** create a plan with a required end date and a target. The form asks for the end date first, then an optional target, and refills what you typed after an error. List, search and detail pages use real data.
 - **Add money:** `POST /plans/:plan_id/add`. On the plan page, the **Add money** button opens a bottom sheet with quick buttons (1, 2 or 5 periods) and a live preview of what moves and what stays in the wallet.
-- **Dashboard:** real wallet balance, the latest 3 active plans, and the latest 5 ledger rows.
+- **Dashboard:** real wallet balance with a hide-balance eye, four quick actions, the latest 3 active plans, and the latest 5 ledger rows.
+- **Deposits chart:** "Deposits this week" on the dashboard shows 7 bars, one per day, with the naira total per day, a gold daily-average line, the week total and the change against last week. It reads settled `deposit` rows from `ledger_entries`, with day boundaries in Africa/Lagos time.
+- **Restyle:** every page now uses the theme roles and shared classes above, in both themes. The legacy colours (`forest`, `lime`, `azure`, `warn`) and the `.glass` classes are removed from `base.html`.
 
 ### Not built yet
 
@@ -104,8 +136,9 @@ To create a migration: `sqlx migrate add <name>`, edit the new file, then `sqlx 
 - **Scheduled jobs:** the 8:00 AM automatic add money, and the automatic payout at the target or end date.
 - **Passbook streak grid** and plan history on the plan detail page.
 - **Withdraw to a bank account.**
-- **Groups, withdrawals and loans, notifications, linked bank accounts:** mock pages only.
+- **Groups, withdrawals and loans, notifications, linked bank accounts:** mock pages only. They are restyled but still show hardcoded sample data.
 - **Admin side** and cooperatives hosting their own customers.
+- **UI polish:** bolder naira amounts, and an animated splash and login (a pig logo with naira notes dropping into the slot).
 
 ### Known rough edges
 
@@ -117,6 +150,7 @@ To create a migration: `sqlx migrate add <name>`, edit the new file, then `sqlx 
 - `auth.rs` has its own `render` function that only accepts `LoginTemplate`.
 - `LoanReviewTemplate` has a field named `Security` (style warning), and some mock templates have never-read fields (warnings).
 - `deposits/handlers.rs` has an unreachable match pattern (warning).
+- The mock group, rules, approvals and loan pages link to placeholder routes (`/rules`, `/approvals`, `/loans/new`, `/loans/review`, `/loans/detail`). The group list links to `/groups/founders-x89`, while the back arrows on the rules and approvals pages go to `/groups/founders`.
 
 ## Roadmap
 
@@ -124,9 +158,11 @@ To create a migration: `sqlx migrate add <name>`, edit the new file, then `sqlx 
 2. Auth and sessions: done
 3. Plans pages and the ledger: done
 4. Add money from wallet to plan: done
-5. Early withdrawal, liquidation and payout: next
-6. Streak grid and plan history
-7. Scheduled jobs (automatic add money, automatic payout)
-8. Withdraw to bank and linked bank accounts
-9. Groups and loans, then the admin side and cooperatives
-10. Split templates into htmx fragments
+5. UI restyle (themes, roles, shared classes, deposits chart): done
+6. Early withdrawal, liquidation and payout: next
+7. Streak grid and plan history
+8. Scheduled jobs (automatic add money, automatic payout)
+9. Withdraw to bank and linked bank accounts
+10. Groups and loans, then the admin side and cooperatives
+11. UI polish (bolder amounts, animated splash and login)
+12. Split templates into htmx fragments
