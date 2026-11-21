@@ -21,7 +21,7 @@
       document.documentElement.setAttribute('data-theme', theme);
     })();
 
-    // the theme button on the profile page calls this
+    // the theme button in the headers calls this
     function toggleTheme() {
       var next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
       document.documentElement.setAttribute('data-theme', next);
@@ -52,6 +52,8 @@
             accent: "rgb(var(--accent) / <alpha-value>)",
             "on-accent": "rgb(var(--on-accent) / <alpha-value>)",
             mint: "rgb(var(--mint) / <alpha-value>)",
+            gold: "rgb(var(--gold) / <alpha-value>)",
+            hero: "rgb(var(--hero-to) / <alpha-value>)",
             danger: "rgb(var(--danger) / <alpha-value>)",
 
             /* legacy: only for pages we have not rewritten yet, delete when all pages are done */
@@ -69,31 +71,37 @@
   <style>
     /* dark theme, the default. Each value is three numbers: red green blue */
     :root {
-      --page: 11 31 20;
-      --surface: 18 48 31;
-      --sunken: 14 39 24;
-      --line: 29 74 48;
-      --ink: 242 245 239;
-      --muted: 157 181 165;
-      --accent: 242 245 239;
-      --on-accent: 11 31 20;
+      --page: 8 24 16;
+      --surface: 16 40 27;
+      --sunken: 12 33 22;
+      --line: 30 62 44;
+      --ink: 244 247 242;
+      --muted: 150 175 160;
+      --accent: 244 247 242;
+      --on-accent: 8 24 16;
       --mint: 143 214 168;
+      --gold: 226 184 96;
       --danger: 242 139 130;
+      --hero-from: 33 104 66;
+      --hero-to: 12 46 30;
       color-scheme: dark;
     }
 
     /* light theme: the same roles with different values */
     html[data-theme="light"] {
-      --page: 244 246 242;
+      --page: 244 246 243;
       --surface: 255 255 255;
       --sunken: 238 242 238;
-      --line: 221 229 222;
+      --line: 224 231 225;
       --ink: 11 31 20;
       --muted: 91 111 98;
-      --accent: 11 31 20;
+      --accent: 14 58 37;
       --on-accent: 255 255 255;
       --mint: 31 122 69;
+      --gold: 154 111 14;
       --danger: 179 38 30;
+      --hero-from: 22 90 57;
+      --hero-to: 9 40 26;
       color-scheme: light;
     }
 
@@ -103,6 +111,14 @@
     }
 
     body { font-variant-numeric: tabular-nums; }
+
+    /* the one gradient in the app: the balance card. Its text is always white */
+    .hero-card {
+      background: linear-gradient(135deg, rgb(var(--hero-from)), rgb(var(--hero-to)));
+      border: 1px solid rgb(255 255 255 / 0.08);
+      border-radius: 1.25rem;
+      color: #fff;
+    }
 
     /* legacy card classes, mapped to the roles so old pages keep working */
     .glass {
@@ -126,11 +142,13 @@
   <style type="text/tailwindcss">
     /* shared pieces: change one here and every page follows */
     @layer components {
-      .app-header { @apply sticky top-0 z-30 flex items-center px-5 h-16 bg-page border-b border-line; }
-      .card { @apply bg-surface border border-line rounded-xl; }
+      .app-header { @apply sticky top-0 z-30 flex items-center px-5 h-16 bg-page; }
+      .card { @apply bg-surface border border-line rounded-2xl; }
       .card-inset { @apply bg-sunken border border-line rounded-xl; }
-      .btn-primary { @apply flex items-center justify-center gap-2 h-12 px-5 rounded-xl bg-accent text-on-accent font-semibold transition-opacity hover:opacity-90; }
-      .btn-quiet { @apply flex items-center justify-center gap-2 h-12 px-5 rounded-xl bg-surface text-ink border border-line font-medium transition-colors hover:bg-sunken; }
+      .btn-primary { @apply flex items-center justify-center gap-2 h-12 px-5 rounded-2xl bg-accent text-on-accent font-semibold transition-opacity hover:opacity-90; }
+      .btn-quiet { @apply flex items-center justify-center gap-2 h-12 px-5 rounded-2xl bg-surface text-ink border border-line font-medium transition-colors hover:bg-sunken; }
+      .tab-off { @apply flex flex-col items-center justify-center gap-0.5 w-12 h-14 text-muted transition-colors hover:text-ink; }
+      .tab-on { @apply flex items-center justify-center gap-1.5 h-11 px-3.5 rounded-full bg-accent text-on-accent; }
     }
   </style>
 
@@ -153,28 +171,28 @@
   </div>
 
   {% block nav %}
-  <!-- Bottom tab bar: full width and solid, so nothing shows through it -->
+  <!-- Bottom tab bar: full width and solid. The active tab is a pill with its label -->
   <nav class="fixed bottom-0 inset-x-0 z-40 bg-surface border-t border-line">
-    <div class="mx-auto max-w-md h-20 px-5 flex items-center justify-between">
-      <a href="/" aria-label="Home" title="Home"
-         class="size-12 rounded-xl flex items-center justify-center transition-colors {% if active == "home" %}bg-line text-ink{% else %}text-muted hover:text-ink{% endif %}">
-        <span class="material-symbols-outlined text-[22px]">dashboard</span>
+    <div class="mx-auto max-w-md h-20 px-3 flex items-center justify-between">
+      <a href="/" aria-label="Home" class="{% if active == "home" %}tab-on{% else %}tab-off{% endif %}">
+        <span class="material-symbols-outlined text-[22px] {% if active == "home" %}fill-1{% endif %}">dashboard</span>
+        <span class="text-[11px] font-semibold">Home</span>
       </a>
-      <a href="/plans" aria-label="Plans" title="Plans"
-         class="size-12 rounded-xl flex items-center justify-center transition-colors {% if active == "plans" %}bg-line text-ink{% else %}text-muted hover:text-ink{% endif %}">
-        <span class="material-symbols-outlined text-[22px]">savings</span>
+      <a href="/plans" aria-label="Plans" class="{% if active == "plans" %}tab-on{% else %}tab-off{% endif %}">
+        <span class="material-symbols-outlined text-[22px] {% if active == "plans" %}fill-1{% endif %}">savings</span>
+        <span class="text-[11px] font-semibold">Plans</span>
       </a>
-      <a href="/groups" aria-label="Groups" title="Groups"
-         class="size-12 rounded-xl flex items-center justify-center transition-colors {% if active == "groups" %}bg-line text-ink{% else %}text-muted hover:text-ink{% endif %}">
-        <span class="material-symbols-outlined text-[22px]">diversity_3</span>
+      <a href="/groups" aria-label="Groups" class="{% if active == "groups" %}tab-on{% else %}tab-off{% endif %}">
+        <span class="material-symbols-outlined text-[22px] {% if active == "groups" %}fill-1{% endif %}">diversity_3</span>
+        <span class="text-[11px] font-semibold">Groups</span>
       </a>
-      <a href="/activity" aria-label="Activity" title="Activity"
-         class="size-12 rounded-xl flex items-center justify-center transition-colors {% if active == "activity" %}bg-line text-ink{% else %}text-muted hover:text-ink{% endif %}">
-        <span class="material-symbols-outlined text-[22px]">receipt_long</span>
+      <a href="/activity" aria-label="Activity" class="{% if active == "activity" %}tab-on{% else %}tab-off{% endif %}">
+        <span class="material-symbols-outlined text-[22px] {% if active == "activity" %}fill-1{% endif %}">receipt_long</span>
+        <span class="text-[11px] font-semibold">Activity</span>
       </a>
-      <a href="/profile" aria-label="Profile" title="Profile"
-         class="size-12 rounded-xl flex items-center justify-center transition-colors {% if active == "profile" %}bg-line text-ink{% else %}text-muted hover:text-ink{% endif %}">
-        <span class="material-symbols-outlined text-[22px]">manage_accounts</span>
+      <a href="/profile" aria-label="Profile" class="{% if active == "profile" %}tab-on{% else %}tab-off{% endif %}">
+        <span class="material-symbols-outlined text-[22px] {% if active == "profile" %}fill-1{% endif %}">manage_accounts</span>
+        <span class="text-[11px] font-semibold">Profile</span>
       </a>
     </div>
   </nav>
