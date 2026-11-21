@@ -3,87 +3,90 @@
 {% block title %}Receipt · NairaStash{% endblock %}
 
 {% block content %}
-<header class="sticky top-0 z-30 flex items-center gap-3 px-5 h-16 bg-forest-900/50 backdrop-blur-xl">
-  <a href="/activity" aria-label="Back to activity"
-    class="size-10 rounded-full glass text-white flex items-center justify-center hover:bg-white/10 transition-colors">
-    <span class="material-symbols-outlined text-[20px]">arrow_back</span>
-  </a>
-  <div class="leading-tight">
-    <h1 class="text-base font-semibold text-white">Transaction receipt</h1>
-    <p class="text-[11px] text-white/60">{{ transaction.type_label }}</p>
+<header class="app-header justify-between">
+  <div class="flex items-center gap-3">
+    <a href="/activity" aria-label="Back to activity"
+      class="card size-10 rounded-full flex items-center justify-center text-ink hover:bg-sunken transition-colors">
+      <span class="material-symbols-outlined text-[20px]">arrow_back</span>
+    </a>
+    <div class="leading-tight">
+      <h1 class="text-base font-semibold text-ink">Transaction receipt</h1>
+      <p class="text-[11px] text-muted">{{ transaction.type_label }}</p>
+    </div>
   </div>
+  {% include "theme_toggle.html" %}
 </header>
 
 <main class="flex-1 flex flex-col gap-4 px-5 pt-4 pb-6">
 
   <!-- the receipt: status and amount on top, a dashed line, then the details -->
-  <section class="glass rounded-3xl overflow-hidden">
+  <section class="card overflow-hidden">
 
     <div class="px-5 pt-5 flex items-center justify-between">
       <div class="flex items-center gap-2">
-        <div class="size-8 rounded-full bg-lime/15 text-lime flex items-center justify-center">
+        <div class="size-8 rounded-full bg-mint/15 text-mint flex items-center justify-center">
           <span class="material-symbols-outlined text-[16px]">account_balance</span>
         </div>
-        <span class="text-sm font-semibold text-white">NairaStash</span>
+        <span class="text-sm font-semibold text-ink">NairaStash</span>
       </div>
-      <span class="text-[11px] text-white/50 uppercase tracking-wider">Receipt</span>
+      <span class="text-[11px] text-muted uppercase tracking-wider">Receipt</span>
     </div>
 
     <div class="px-5 pt-6 pb-6 flex flex-col items-center text-center gap-2">
-      <div class="size-14 rounded-full bg-lime/15 text-lime flex items-center justify-center">
+      <div class="size-14 rounded-full bg-mint/15 text-mint flex items-center justify-center">
         <span class="material-symbols-outlined text-[30px]">check_circle</span>
       </div>
-      <p class="text-sm font-semibold text-lime">Successful</p>
-      <p class="mt-1 text-4xl font-semibold tracking-tight {% if transaction.is_credit %}text-lime{% else %}text-white{% endif %}">{{ transaction.sign }}₦{{ transaction.amount }}</p>
-      <p class="text-sm text-white/70">{{ transaction.label }}</p>
-      <p class="text-xs text-white/50">{{ transaction.date }}</p>
+      <p class="text-sm font-semibold text-mint">Successful</p>
+      <p class="mt-1 text-3xl font-semibold tracking-tight break-all {% if transaction.is_credit %}text-mint{% else %}text-ink{% endif %}">{{ transaction.sign }}₦{{ transaction.amount }}</p>
+      <p class="text-sm text-muted">{{ transaction.label }}</p>
+      <p class="text-xs text-muted">{{ transaction.date }}</p>
     </div>
 
-    <div class="border-t border-dashed border-white/20"></div>
+    <div class="border-t border-dashed border-line"></div>
 
     <div class="py-2">
       <div class="flex items-start justify-between gap-4 px-5 py-3">
-        <p class="text-xs text-white/60">Transaction type</p>
-        <p class="text-sm font-semibold text-white text-right">{{ transaction.type_label }}</p>
+        <p class="text-xs text-muted">Transaction type</p>
+        <p class="text-sm font-semibold text-ink text-right">{{ transaction.type_label }}</p>
       </div>
 
       {% if let Some(plan_id) = transaction.plan_id %}
       <div class="flex items-start justify-between gap-4 px-5 py-3">
-        <p class="text-xs text-white/60">Plan</p>
-        <a href="/plans/{{ plan_id }}" class="text-sm font-semibold text-lime text-right">{{ transaction.plan_name }}</a>
+        <p class="text-xs text-muted">Plan</p>
+        <a href="/plans/{{ plan_id }}" class="text-sm font-semibold text-mint text-right">{{ transaction.plan_name }}</a>
       </div>
       {% endif %}
 
       <div class="flex items-start justify-between gap-4 px-5 py-3">
-        <p class="text-xs text-white/60">Amount</p>
-        <p class="text-sm font-semibold text-white text-right">₦{{ transaction.amount }}</p>
+        <p class="text-xs text-muted">Amount</p>
+        <p class="text-sm font-semibold text-ink text-right break-all">₦{{ transaction.amount }}</p>
       </div>
 
       {% if let Some(fee) = transaction.fee %}
       <div class="flex items-start justify-between gap-4 px-5 py-3">
-        <p class="text-xs text-white/60">Early withdrawal fee</p>
-        <p class="text-sm font-semibold text-white text-right">₦{{ fee }}</p>
+        <p class="text-xs text-muted">Early withdrawal fee</p>
+        <p class="text-sm font-semibold text-ink text-right break-all">₦{{ fee }}</p>
       </div>
       {% endif %}
 
       {% if let Some(remark) = transaction.remark %}
       <div class="flex items-start justify-between gap-4 px-5 py-3">
-        <p class="text-xs text-white/60">Note</p>
-        <p class="text-sm text-white text-right break-words">{{ remark }}</p>
+        <p class="text-xs text-muted">Note</p>
+        <p class="text-sm text-ink text-right break-words">{{ remark }}</p>
       </div>
       {% endif %}
 
       <div class="flex items-start justify-between gap-4 px-5 py-3">
-        <p class="text-xs text-white/60">Wallet balance after</p>
-        <p class="text-sm font-semibold text-white text-right">₦{{ transaction.balance_after }}</p>
+        <p class="text-xs text-muted">Wallet balance after</p>
+        <p class="text-sm font-semibold text-ink text-right break-all">₦{{ transaction.balance_after }}</p>
       </div>
 
       <div class="flex items-start justify-between gap-4 px-5 py-3">
-        <p class="text-xs text-white/60 shrink-0">Reference</p>
+        <p class="text-xs text-muted shrink-0">Reference</p>
         <div class="flex items-start gap-2 min-w-0">
-          <p class="text-sm font-semibold text-white text-right break-all">{{ transaction.reference }}</p>
+          <p class="text-sm font-semibold text-ink text-right break-all">{{ transaction.reference }}</p>
           <button id="copy-reference" type="button" data-reference="{{ transaction.reference }}"
-            class="shrink-0 inline-flex items-center gap-1 rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-semibold text-lime hover:bg-white/15 transition-colors">
+            class="shrink-0 inline-flex items-center gap-1 rounded-full bg-sunken border border-line px-2.5 py-1 text-[11px] font-semibold text-mint hover:bg-surface transition-colors">
             <span class="material-symbols-outlined text-[14px]">content_copy</span>
             <span id="copy-label">Copy</span>
           </button>
@@ -91,16 +94,15 @@
       </div>
     </div>
 
-    <div class="border-t border-dashed border-white/20"></div>
+    <div class="border-t border-dashed border-line"></div>
 
-    <p class="px-5 py-4 text-center text-[11px] leading-relaxed text-white/50">
+    <p class="px-5 py-4 text-center text-[11px] leading-relaxed text-muted">
       This receipt is a record of a completed transaction and cannot be changed.
       Quote the reference above if you need help.
     </p>
   </section>
 
-  <a href="/activity"
-    class="h-12 rounded-full glass text-white text-sm font-semibold flex items-center justify-center hover:bg-white/10 active:scale-[0.99] transition">
+  <a href="/activity" class="btn-quiet">
     Back to activity
   </a>
 
