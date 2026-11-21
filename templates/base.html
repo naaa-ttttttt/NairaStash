@@ -20,9 +20,11 @@
         extend: {
           colors: {
             lime: { DEFAULT: "#D8F13A", ink: "#10301C" },
+            /* azure and warn stay for now so unfinished pages don't break, we remove them page by page */
             azure: "#2F7CF6",
             warn: "#FFC247",
-            forest: { 950: "#071A10", 900: "#0A2416", 800: "#0F3D24", 700: "#1B6B3A" }
+            /* 950 darkest, 900 page background, 800 surfaces (cards, nav), 700 borders */
+            forest: { 950: "#081811", 900: "#0B1F14", 800: "#12301F", 700: "#1D4A30" }
           },
           fontFamily: { sans: ["Plus Jakarta Sans", "system-ui", "sans-serif"] }
         }
@@ -30,36 +32,22 @@
     }
   </script>
   <style>
-    /* the plain colour shows first, the gradient layer below sits on top of it */
+    /* one flat colour behind everything, no gradient layer */
     html {
       min-height: 100%;
-      background-color: #071A10;
+      background-color: #0B1F14;
     }
 
-    /* the gradient lives on its own fixed layer, so scrolling never repaints it */
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      z-index: -1;
-      pointer-events: none;
-      background-image:
-        radial-gradient(60% 38% at 92% 4%, rgba(190, 240, 60, .30), transparent 62%),
-        radial-gradient(75% 45% at 0% 42%, rgba(34, 139, 70, .60), transparent 66%),
-        radial-gradient(80% 45% at 100% 100%, rgba(60, 170, 90, .50), transparent 62%),
-        linear-gradient(165deg, #0A2416 0%, #0E3A22 50%, #14592F 100%);
-    }
+    body { font-variant-numeric: tabular-nums; }
 
-    body { background: transparent; font-variant-numeric: tabular-nums; }
-
-    /* cards have no blur on purpose: it was costly and the background is smooth anyway */
+    /* solid cards: a flat colour slightly lighter than the page, plus a 1px border */
     .glass {
-      background: rgba(255, 255, 255, .07);
-      border: 1px solid rgba(255, 255, 255, .10);
+      background: #12301F;
+      border: 1px solid #1D4A30;
     }
     .glass-dark {
-      background: rgba(0, 0, 0, .28);
-      border: 1px solid rgba(255, 255, 255, .08);
+      background: #0E2718;
+      border: 1px solid #1D4A30;
     }
 
     .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400; }
@@ -70,8 +58,8 @@
     ::-webkit-scrollbar { display: none; }
     ::view-transition-old(root), ::view-transition-new(root) { animation-duration: .15s; }
   </style>
-  
-    <script>
+
+  <script>
     // htmx skips 4xx responses by default, this lets a 400 form error page show up
     document.addEventListener('htmx:beforeSwap', function (event) {
       if (event.detail.xhr.status === 400) {
@@ -90,29 +78,27 @@
   </div>
 
   {% block nav %}
-  <!-- Floating nav pill -->
-  <nav class="fixed bottom-4 left-0 right-0 z-40 max-w-md mx-auto px-5">
-    <div class="flex items-center justify-between rounded-full bg-black/50 backdrop-blur-md border border-white/10 p-2 shadow-2xl">
+  <!-- Bottom tab bar: full width and solid, so nothing shows through it -->
+  <nav class="fixed bottom-0 inset-x-0 z-40 bg-forest-800 border-t border-forest-700">
+    <div class="mx-auto max-w-md h-20 px-5 flex items-center justify-between">
       <a href="/" aria-label="Home" title="Home"
-         class="size-12 rounded-full flex items-center justify-center transition-colors {% if active == "home" %}bg-white/15 text-white{% else %}text-white/50 hover:text-white{% endif %}">
+         class="size-12 rounded-xl flex items-center justify-center transition-colors {% if active == "home" %}bg-forest-700 text-white{% else %}text-white/60 hover:text-white{% endif %}">
         <span class="material-symbols-outlined text-[22px]">dashboard</span>
       </a>
       <a href="/plans" aria-label="Plans" title="Plans"
-         class="size-12 rounded-full flex items-center justify-center transition-colors {% if active == "plans" %}bg-white/15 text-white{% else %}text-white/50 hover:text-white{% endif %}">
+         class="size-12 rounded-xl flex items-center justify-center transition-colors {% if active == "plans" %}bg-forest-700 text-white{% else %}text-white/60 hover:text-white{% endif %}">
         <span class="material-symbols-outlined text-[22px]">savings</span>
       </a>
       <a href="/groups" aria-label="Groups" title="Groups"
-         class="size-12 rounded-full flex items-center justify-center transition-colors {% if active == "groups" %}bg-white/15 text-white{% else %}text-white/50 hover:text-white{% endif %}">
+         class="size-12 rounded-xl flex items-center justify-center transition-colors {% if active == "groups" %}bg-forest-700 text-white{% else %}text-white/60 hover:text-white{% endif %}">
         <span class="material-symbols-outlined text-[22px]">diversity_3</span>
       </a>
-
-            <a href="/activity" aria-label="Activity" title="Activity"
-         class="size-12 rounded-full flex items-center justify-center transition-colors {% if active == "activity" %}bg-white/15 text-white{% else %}text-white/50 hover:text-white{% endif %}">
+      <a href="/activity" aria-label="Activity" title="Activity"
+         class="size-12 rounded-xl flex items-center justify-center transition-colors {% if active == "activity" %}bg-forest-700 text-white{% else %}text-white/60 hover:text-white{% endif %}">
         <span class="material-symbols-outlined text-[22px]">receipt_long</span>
       </a>
-
-            <a href="/profile" aria-label="Profile" title="Profile"
-         class="size-12 rounded-full flex items-center justify-center transition-colors {% if active == "profile" %}bg-white/15 text-white{% else %}text-white/50 hover:text-white{% endif %}">
+      <a href="/profile" aria-label="Profile" title="Profile"
+         class="size-12 rounded-xl flex items-center justify-center transition-colors {% if active == "profile" %}bg-forest-700 text-white{% else %}text-white/60 hover:text-white{% endif %}">
         <span class="material-symbols-outlined text-[22px]">manage_accounts</span>
       </a>
     </div>
