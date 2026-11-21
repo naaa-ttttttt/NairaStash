@@ -3,127 +3,129 @@
 {% block title %}New plan · NairaStash{% endblock %}
 
 {% block content %}
-<header class="sticky top-0 z-30 flex items-center gap-3 px-5 h-16 bg-forest-900/50 backdrop-blur-xl">
-  <a href="/plans" aria-label="Back"
-    class="size-10 rounded-full glass text-white flex items-center justify-center hover:bg-white/10 transition-colors">
-    <span class="material-symbols-outlined text-[20px]">arrow_back</span>
-  </a>
-  <div class="leading-tight">
-    <h1 class="text-base font-semibold text-white">New savings plan</h1>
-    <p class="text-[11px] text-white/60">Save a fixed amount on a schedule</p>
+<header class="app-header justify-between">
+  <div class="flex items-center gap-3">
+    <a href="/plans" aria-label="Back"
+      class="card size-10 rounded-full flex items-center justify-center text-ink hover:bg-sunken transition-colors">
+      <span class="material-symbols-outlined text-[20px]">arrow_back</span>
+    </a>
+    <div class="leading-tight">
+      <h1 class="text-base font-semibold text-ink">New savings plan</h1>
+      <p class="text-[11px] text-muted">Save a fixed amount on a schedule</p>
+    </div>
   </div>
+  {% include "theme_toggle.html" %}
 </header>
 
 <form method="post" action="/plans/new" class="flex-1 flex flex-col">
   <div class="flex flex-col gap-4 px-5 pt-4 pb-6">
 
     {% if let Some(message) = error %}
-    <p class="rounded-2xl bg-warn/15 border border-warn/30 text-warn text-sm px-4 py-3" role="alert">{{ message }}</p>
+    <p class="rounded-xl border border-danger/40 bg-danger/10 text-danger text-sm px-4 py-3" role="alert">{{ message }}</p>
     {% endif %}
 
     <!-- Name -->
-    <section class="glass rounded-3xl p-5 flex flex-col gap-3">
-      <label for="plan-name" class="text-xs font-semibold text-white/80">Plan name</label>
+    <section class="card p-5 flex flex-col gap-3">
+      <label for="plan-name" class="text-xs font-semibold text-ink">Plan name</label>
       <input id="plan-name" name="name" type="text" required maxlength="60" value="{{ form.name }}"
         placeholder="e.g. Rent, New laptop"
-        class="w-full h-12 px-4 rounded-2xl bg-black/25 border border-white/10 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-lime/60 transition-colors">
+        class="w-full h-12 px-4 rounded-xl bg-sunken border border-line text-sm text-ink placeholder:text-muted focus:outline-none focus:border-mint transition-colors">
     </section>
 
     <!-- End date -->
-    <section class="glass rounded-3xl p-5 flex flex-col gap-3">
-      <label for="end-date" class="text-xs font-semibold text-white/80">End date</label>
-      <input id="end-date" name="end_date" type="date" required value="{{ form.end_date }}" style="color-scheme: dark;"
-        class="w-full h-12 px-4 rounded-2xl bg-black/25 border border-white/10 text-sm text-white focus:outline-none focus:border-lime/60 transition-colors">
-      <p class="text-xs text-white/60">Every plan has an end date. Your savings are paid to your wallet on that day.</p>
+    <section class="card p-5 flex flex-col gap-3">
+      <label for="end-date" class="text-xs font-semibold text-ink">End date</label>
+      <input id="end-date" name="end_date" type="date" required value="{{ form.end_date }}"
+        class="w-full h-12 px-4 rounded-xl bg-sunken border border-line text-sm text-ink focus:outline-none focus:border-mint transition-colors">
+      <p class="text-xs text-muted">Every plan has an end date. Your savings are paid to your wallet on that day.</p>
     </section>
 
     <!-- Target -->
-    <section class="glass rounded-3xl p-5">
-      <div class="flex items-center justify-between">
+    <section class="card p-5">
+      <div class="flex items-center justify-between gap-3">
         <div>
-          <h2 class="text-xs font-semibold text-white/80">Savings target</h2>
-          <p class="text-xs text-white/60">Optional, we work out how much to save each time</p>
+          <h2 class="text-xs font-semibold text-ink">Savings target</h2>
+          <p class="text-xs text-muted">Optional, we work out how much to save each time</p>
         </div>
-        <label class="relative inline-flex items-center cursor-pointer">
+        <label class="relative inline-flex items-center cursor-pointer shrink-0">
           <input id="target-toggle" name="has_target" type="checkbox" class="sr-only peer" {% if form.has_target %}checked{% endif %}>
-          <div class="w-12 h-7 bg-white/15 rounded-full peer-checked:bg-lime after:content-[''] after:absolute after:top-[3px] after:start-[3px] after:bg-white after:rounded-full after:h-5 after:w-5 after:shadow after:transition-all peer-checked:after:translate-x-5 peer-checked:after:bg-lime-ink"></div>
+          <div class="w-12 h-7 bg-sunken border border-line rounded-full peer-checked:bg-mint peer-checked:border-mint after:content-[''] after:absolute after:top-1 after:start-1 after:bg-muted after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5 peer-checked:after:bg-white"></div>
         </label>
       </div>
 
-      <div id="target-box" class="hidden mt-4 pt-4 border-t border-white/10">
-        <div class="flex items-center justify-between h-12 px-4 rounded-2xl bg-black/25 border border-white/10">
-          <span class="text-sm text-white/70">Target</span>
+      <div id="target-box" class="hidden mt-4 pt-4 border-t border-line">
+        <div class="flex items-center justify-between h-12 px-4 rounded-xl bg-sunken border border-line">
+          <span class="text-sm text-muted">Target</span>
           <div class="flex items-baseline gap-1">
-            <span class="text-sm text-white/50">₦</span>
+            <span class="text-sm text-muted">₦</span>
             <input id="target-input" name="target" type="text" inputmode="decimal" placeholder="500,000" value="{{ form.target }}"
-              class="w-28 bg-transparent text-sm font-semibold text-white text-right placeholder:text-white/25 focus:outline-none">
+              class="w-28 bg-transparent text-sm font-semibold text-ink text-right placeholder:text-muted focus:outline-none">
           </div>
         </div>
       </div>
     </section>
 
     <!-- Frequency -->
-    <section class="glass rounded-3xl p-5 flex flex-col gap-3">
-      <h2 class="text-xs font-semibold text-white/80">How often</h2>
+    <section class="card p-5 flex flex-col gap-3">
+      <h2 class="text-xs font-semibold text-ink">How often</h2>
       <div class="flex items-center gap-2">
         <label class="cursor-pointer flex-1">
           <input type="radio" name="frequency" value="daily" class="sr-only peer" {% if form.frequency == "daily" %}checked{% endif %}>
-          <span class="block text-center px-3.5 py-2.5 rounded-full border border-white/10 bg-white/[0.06] text-white/80 text-xs font-medium transition-colors peer-checked:bg-lime peer-checked:border-lime peer-checked:text-lime-ink peer-checked:font-semibold">Daily</span>
+          <span class="block text-center px-3.5 py-2.5 rounded-full border border-line bg-sunken text-ink text-xs font-medium transition-colors peer-checked:bg-accent peer-checked:border-accent peer-checked:text-on-accent peer-checked:font-semibold">Daily</span>
         </label>
         <label class="cursor-pointer flex-1">
           <input type="radio" name="frequency" value="weekly" class="sr-only peer" {% if form.frequency == "weekly" %}checked{% endif %}>
-          <span class="block text-center px-3.5 py-2.5 rounded-full border border-white/10 bg-white/[0.06] text-white/80 text-xs font-medium transition-colors peer-checked:bg-lime peer-checked:border-lime peer-checked:text-lime-ink peer-checked:font-semibold">Weekly</span>
+          <span class="block text-center px-3.5 py-2.5 rounded-full border border-line bg-sunken text-ink text-xs font-medium transition-colors peer-checked:bg-accent peer-checked:border-accent peer-checked:text-on-accent peer-checked:font-semibold">Weekly</span>
         </label>
         <label class="cursor-pointer flex-1">
           <input type="radio" name="frequency" value="monthly" class="sr-only peer" {% if form.frequency == "monthly" %}checked{% endif %}>
-          <span class="block text-center px-3.5 py-2.5 rounded-full border border-white/10 bg-white/[0.06] text-white/80 text-xs font-medium transition-colors peer-checked:bg-lime peer-checked:border-lime peer-checked:text-lime-ink peer-checked:font-semibold">Monthly</span>
+          <span class="block text-center px-3.5 py-2.5 rounded-full border border-line bg-sunken text-ink text-xs font-medium transition-colors peer-checked:bg-accent peer-checked:border-accent peer-checked:text-on-accent peer-checked:font-semibold">Monthly</span>
         </label>
       </div>
-      <p id="calc-preview" class="hidden text-xs text-white/60"></p>
+      <p id="calc-preview" class="hidden text-xs text-muted"></p>
     </section>
 
     <!-- Amount, hidden when a target is used -->
-    <section id="amount-box" class="glass rounded-3xl p-5 flex flex-col gap-4">
+    <section id="amount-box" class="card p-5 flex flex-col gap-4">
       <div>
-        <h2 id="amount-label" class="text-xs font-semibold text-white/80">Amount per day</h2>
-        <div class="flex items-baseline justify-center gap-1 py-6 mt-2 rounded-2xl bg-black/25 border border-white/10">
-          <span class="text-3xl font-medium text-white/50">₦</span>
+        <h2 id="amount-label" class="text-xs font-semibold text-ink">Amount per day</h2>
+        <div class="flex items-baseline justify-center gap-1 py-6 mt-2 rounded-xl bg-sunken border border-line">
+          <span class="text-3xl font-medium text-muted">₦</span>
           <input id="amount" name="amount" type="text" inputmode="decimal" required placeholder="2,000" value="{{ form.amount }}"
-            class="w-40 bg-transparent text-4xl font-semibold tracking-tight text-white text-center placeholder:text-white/25 focus:outline-none">
+            class="w-44 bg-transparent text-3xl font-semibold tracking-tight text-ink text-center placeholder:text-muted focus:outline-none">
         </div>
       </div>
 
       <div class="grid grid-cols-4 gap-2">
-        <button type="button" data-val="500" class="quick-btn py-2.5 rounded-full bg-white/[0.06] text-white/80 border border-white/10 text-xs font-medium hover:bg-white/10 transition-colors text-center">₦500</button>
-        <button type="button" data-val="1000" class="quick-btn py-2.5 rounded-full bg-white/[0.06] text-white/80 border border-white/10 text-xs font-medium hover:bg-white/10 transition-colors text-center">₦1,000</button>
-        <button type="button" data-val="2000" class="quick-btn py-2.5 rounded-full bg-white/[0.06] text-white/80 border border-white/10 text-xs font-medium hover:bg-white/10 transition-colors text-center">₦2,000</button>
-        <button type="button" data-val="5000" class="quick-btn py-2.5 rounded-full bg-white/[0.06] text-white/80 border border-white/10 text-xs font-medium hover:bg-white/10 transition-colors text-center">₦5,000</button>
+        <button type="button" data-val="500" class="quick-btn py-2.5 rounded-full bg-sunken text-ink border border-line text-xs font-medium hover:bg-surface transition-colors text-center">₦500</button>
+        <button type="button" data-val="1000" class="quick-btn py-2.5 rounded-full bg-sunken text-ink border border-line text-xs font-medium hover:bg-surface transition-colors text-center">₦1,000</button>
+        <button type="button" data-val="2000" class="quick-btn py-2.5 rounded-full bg-sunken text-ink border border-line text-xs font-medium hover:bg-surface transition-colors text-center">₦2,000</button>
+        <button type="button" data-val="5000" class="quick-btn py-2.5 rounded-full bg-sunken text-ink border border-line text-xs font-medium hover:bg-surface transition-colors text-center">₦5,000</button>
       </div>
 
-      <p class="text-xs text-white/60">By your end date you would save <span id="proj-total" class="font-semibold text-lime">₦0.00</span></p>
+      <p class="text-xs text-muted">By your end date you would save <span id="proj-total" class="font-semibold text-mint break-all">₦0.00</span></p>
     </section>
 
     <!-- Lock mode -->
-    <section class="glass rounded-3xl p-5 flex flex-col gap-3">
-      <h2 class="text-xs font-semibold text-white/80">Plan type</h2>
+    <section class="card p-5 flex flex-col gap-3">
+      <h2 class="text-xs font-semibold text-ink">Plan type</h2>
       <div class="flex items-center gap-2">
         <label class="cursor-pointer flex-1">
           <input type="radio" name="lock_mode" value="flexible" class="sr-only peer" {% if form.lock_mode == "flexible" %}checked{% endif %}>
-          <span class="block text-center px-3.5 py-2.5 rounded-full border border-white/10 bg-white/[0.06] text-white/80 text-xs font-medium transition-colors peer-checked:bg-lime peer-checked:border-lime peer-checked:text-lime-ink peer-checked:font-semibold">Flexible</span>
+          <span class="block text-center px-3.5 py-2.5 rounded-full border border-line bg-sunken text-ink text-xs font-medium transition-colors peer-checked:bg-accent peer-checked:border-accent peer-checked:text-on-accent peer-checked:font-semibold">Flexible</span>
         </label>
         <label class="cursor-pointer flex-1">
           <input type="radio" name="lock_mode" value="locked" class="sr-only peer" {% if form.lock_mode == "locked" %}checked{% endif %}>
-          <span class="block text-center px-3.5 py-2.5 rounded-full border border-white/10 bg-white/[0.06] text-white/80 text-xs font-medium transition-colors peer-checked:bg-lime peer-checked:border-lime peer-checked:text-lime-ink peer-checked:font-semibold">Locked</span>
+          <span class="block text-center px-3.5 py-2.5 rounded-full border border-line bg-sunken text-ink text-xs font-medium transition-colors peer-checked:bg-accent peer-checked:border-accent peer-checked:text-on-accent peer-checked:font-semibold">Locked</span>
         </label>
       </div>
-      <p class="text-xs text-white/60">Flexible plans can be withdrawn early for a 3% fee. Locked plans pay out only on the end date.</p>
+      <p class="text-xs text-muted">Flexible plans can be withdrawn early for a 3% fee. Locked plans pay out only on the end date.</p>
     </section>
   </div>
 
-  <!-- Sticky action bar -->
-  <div class="sticky bottom-24 z-30 px-5 pt-6 pb-1 bg-gradient-to-t from-forest-900 via-forest-900/70 to-transparent">
-    <button type="submit"
-      class="w-full h-14 rounded-full bg-lime text-lime-ink text-sm font-semibold flex items-center justify-center gap-2 shadow-xl active:scale-[0.99] transition">
+  <!-- Sticky action bar, solid, above the tab bar -->
+  <div class="sticky bottom-20 z-30 bg-page border-t border-line px-5 py-3">
+    <button type="submit" class="btn-primary w-full">
       Create plan
       <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
     </button>
