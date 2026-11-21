@@ -10,7 +10,9 @@ use sqlx::PgPool;
 use uuid::Uuid;
 
 use crate::domains::auth::handlers::AuthUser;
-use crate::domains::ledger::services::{get_user_activity, TransactionView};
+use crate::domains::ledger::services::{
+    get_deposit_chart, get_user_activity, DepositChart, TransactionView,
+};
 use crate::domains::plans::handlers::{plan_view, PlanView};
 use crate::domains::plans::services::list_active_plans;
 use crate::shared::money::format_kobo_as_naira;
@@ -22,6 +24,7 @@ use crate::AppState;
 pub struct DashboardTemplate {
     pub active: &'static str,
     pub total_balance: String,
+    pub chart: DepositChart,
     pub recent_transactions: Vec<TransactionView>,
     pub active_plans: Vec<PlanView>,
 }
@@ -88,6 +91,15 @@ pub async fn dashboard_handler(auth: AuthUser, State(state): State<AppState>) ->
         }
     };
 
+    // a failed read is an error page, never a fake empty chart
+    let chart = match get_deposit_chart(&state.db, auth.user_id).await {
+        Ok(chart) => chart,
+        Err(err) => {
+            eprintln!("Could not read deposit chart: {:?}", err);
+            return StatusCode::INTERNAL_SERVER_ERROR.into_response();
+        }
+    };
+
     // a failed read is an error page, never a fake empty list
     let recent_transactions =
         match get_user_activity(&state.db, auth.user_id, RECENT_ACTIVITY_LIMIT).await {
@@ -114,6 +126,7 @@ pub async fn dashboard_handler(auth: AuthUser, State(state): State<AppState>) ->
     let page = DashboardTemplate {
         active: "home", // the nav bar calls this tab "home"
         total_balance: format_kobo_as_naira(balance_in_kobo),
+        chart,
         recent_transactions,
         active_plans,
     };
