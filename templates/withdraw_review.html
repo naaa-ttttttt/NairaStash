@@ -7,19 +7,22 @@
 {% block nav %}{% endblock %}
 
 {% block content %}
-<header class="sticky top-0 z-30 flex items-center justify-between gap-2 px-5 h-16 bg-forest-900/50 backdrop-blur-xl">
+<header class="app-header justify-between gap-2">
   <button type="button" onclick="history.back()" aria-label="Go back"
-    class="size-11 -ml-2 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 active:scale-95 transition-all">
+    class="size-11 -ml-2 rounded-full flex items-center justify-center text-muted hover:text-ink hover:bg-sunken active:scale-95 transition-all">
     <span class="material-symbols-outlined text-[22px]">arrow_back</span>
   </button>
   <div class="flex flex-col items-center min-w-0">
-    <span class="text-[10px] font-semibold uppercase tracking-widest text-lime">Withdraw</span>
-    <h1 class="text-base font-semibold tracking-tight text-white truncate">Review</h1>
+    <span class="text-[11px] font-semibold uppercase tracking-widest text-mint">Withdraw</span>
+    <h1 class="text-base font-semibold tracking-tight text-ink truncate">Review</h1>
   </div>
-  <a href="/" aria-label="Close"
-    class="size-11 -mr-2 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 active:scale-95 transition-all">
-    <span class="material-symbols-outlined text-[22px]">close</span>
-  </a>
+  <div class="flex items-center gap-1">
+    {% include "theme_toggle.html" %}
+    <a href="/" aria-label="Close"
+      class="size-11 -mr-2 rounded-full flex items-center justify-center text-muted hover:text-ink hover:bg-sunken active:scale-95 transition-all">
+      <span class="material-symbols-outlined text-[22px]">close</span>
+    </a>
+  </div>
 </header>
 
 <main class="flex-1 flex flex-col gap-4 px-5 pt-2">
@@ -27,107 +30,106 @@
   <!-- fragment: withdraw-review-form -->
   <div id="review" class="flex flex-col gap-4">
 
-    <div class="glass rounded-2xl p-3">
+    <div class="card p-3">
       <div class="flex items-center">
         <div class="flex flex-col items-center gap-1">
-          <div class="size-7 rounded-full bg-lime text-lime-ink flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">check</span></div>
-          <span class="text-[10px] font-semibold uppercase tracking-wider text-lime">Plan</span>
+          <div class="size-7 rounded-full bg-mint text-page flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">check</span></div>
+          <span class="text-[11px] font-semibold uppercase tracking-wider text-mint">Plan</span>
         </div>
-        <div class="flex-1 h-0.5 mx-1.5 -mt-4 rounded-full bg-lime"></div>
+        <div class="flex-1 h-0.5 mx-1.5 -mt-4 rounded-full bg-mint"></div>
         <div class="flex flex-col items-center gap-1">
-          <div class="size-7 rounded-full bg-lime text-lime-ink flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">check</span></div>
-          <span class="text-[10px] font-semibold uppercase tracking-wider text-lime">Amount</span>
+          <div class="size-7 rounded-full bg-mint text-page flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">check</span></div>
+          <span class="text-[11px] font-semibold uppercase tracking-wider text-mint">Amount</span>
         </div>
-        <div class="flex-1 h-0.5 mx-1.5 -mt-4 rounded-full bg-lime"></div>
+        <div class="flex-1 h-0.5 mx-1.5 -mt-4 rounded-full bg-mint"></div>
         <div class="flex flex-col items-center gap-1">
-          <div class="size-7 rounded-full bg-lime text-lime-ink flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">check</span></div>
-          <span class="text-[10px] font-semibold uppercase tracking-wider text-lime">Account</span>
+          <div class="size-7 rounded-full bg-mint text-page flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">check</span></div>
+          <span class="text-[11px] font-semibold uppercase tracking-wider text-mint">Account</span>
         </div>
-        <div class="flex-1 h-0.5 mx-1.5 -mt-4 rounded-full bg-lime"></div>
+        <div class="flex-1 h-0.5 mx-1.5 -mt-4 rounded-full bg-mint"></div>
         <div class="flex flex-col items-center gap-1">
-          <div class="size-7 rounded-full bg-azure text-white ring-2 ring-white/30 flex items-center justify-center text-xs font-semibold">4</div>
-          <span class="text-[10px] font-semibold uppercase tracking-wider text-white">Review</span>
+          <div class="size-7 rounded-full bg-accent text-on-accent ring-2 ring-mint/40 flex items-center justify-center text-xs font-semibold">4</div>
+          <span class="text-[11px] font-semibold uppercase tracking-wider text-ink">Review</span>
         </div>
       </div>
     </div>
 
-    <div id="approval-note" class="hidden rounded-3xl bg-warn/10 border border-warn/20 p-4 items-start gap-3">
-      <div class="size-8 rounded-xl bg-warn/20 text-warn flex items-center justify-center shrink-0">
+    <div id="approval-note" class="hidden rounded-2xl bg-gold/10 border border-gold/30 p-4 items-start gap-3">
+      <div class="size-8 rounded-xl bg-gold/15 text-gold flex items-center justify-center shrink-0">
         <span class="material-symbols-outlined text-[18px]">admin_panel_settings</span>
       </div>
       <div>
-        <span class="text-[10px] font-semibold uppercase tracking-wider text-warn block">Needs admin approval</span>
-        <p class="text-xs text-white/70 mt-0.5">Group withdrawals are not sent straight away. A group admin reviews this request against the <a href="/rules" class="text-lime font-semibold">group rules</a> first.</p>
+        <span class="text-[11px] font-semibold uppercase tracking-wider text-gold block">Needs admin approval</span>
+        <p class="text-xs text-muted mt-0.5">Group withdrawals are not sent straight away. A group admin reviews this request against the <a href="/rules" class="text-mint font-semibold">group rules</a> first.</p>
       </div>
     </div>
 
-    <section class="glass rounded-3xl p-5 text-center">
-      <span id="r-label" class="text-[10px] font-semibold uppercase tracking-wider text-white/50">You are withdrawing</span>
-      <p id="r-amount" class="mt-1 text-4xl font-semibold tracking-tight text-white"></p>
-      <p id="r-fee-line" class="mt-1 text-xs text-white/50">NGN • Zero fees</p>
+    <section class="card p-5 text-center">
+      <span id="r-label" class="text-[11px] font-semibold uppercase tracking-wider text-muted">You are withdrawing</span>
+      <p id="r-amount" class="mt-1 text-4xl font-semibold tracking-tight text-ink break-all"></p>
+      <p id="r-fee-line" class="mt-1 text-xs text-muted">NGN • Zero fees</p>
     </section>
 
-    <section class="glass rounded-3xl divide-y divide-white/10 overflow-hidden">
+    <section class="card divide-y divide-line overflow-hidden">
       <div class="flex items-center justify-between gap-3 px-4 py-3.5">
         <div class="min-w-0">
-          <p class="text-[10px] uppercase tracking-wider text-white/50">From plan</p>
-          <p id="r-plan" class="text-sm font-semibold text-white truncate"></p>
+          <p class="text-[11px] uppercase tracking-wider text-muted">From plan</p>
+          <p id="r-plan" class="text-sm font-semibold text-ink truncate"></p>
         </div>
-        <a id="e-plan" href="/withdraw" class="text-xs font-semibold text-lime shrink-0">Edit</a>
-      </div>
-      <div class="flex items-center justify-between gap-3 px-4 py-3.5">
-        <div class="min-w-0">
-          <p class="text-[10px] uppercase tracking-wider text-white/50">Amount</p>
-          <p id="r-amount-2" class="text-sm font-semibold text-white"></p>
-        </div>
-        <a id="e-amount" href="/withdraw/amount" class="text-xs font-semibold text-lime shrink-0">Edit</a>
+        <a id="e-plan" href="/withdraw" class="text-xs font-semibold text-mint shrink-0">Edit</a>
       </div>
       <div class="flex items-center justify-between gap-3 px-4 py-3.5">
         <div class="min-w-0">
-          <p class="text-[10px] uppercase tracking-wider text-white/50">To account</p>
-          <p id="r-dest" class="text-sm font-semibold text-white truncate"></p>
-          <p id="r-dest-sub" class="text-xs text-white/60"></p>
+          <p class="text-[11px] uppercase tracking-wider text-muted">Amount</p>
+          <p id="r-amount-2" class="text-sm font-semibold text-ink break-all"></p>
         </div>
-        <a id="e-dest" href="/withdraw/destination" class="text-xs font-semibold text-lime shrink-0">Edit</a>
+        <a id="e-amount" href="/withdraw/amount" class="text-xs font-semibold text-mint shrink-0">Edit</a>
       </div>
       <div class="flex items-center justify-between gap-3 px-4 py-3.5">
-        <p class="text-xs text-white/60">Processing fee</p>
-        <p class="text-sm font-semibold text-lime">₦0.00</p>
+        <div class="min-w-0">
+          <p class="text-[11px] uppercase tracking-wider text-muted">To account</p>
+          <p id="r-dest" class="text-sm font-semibold text-ink truncate"></p>
+          <p id="r-dest-sub" class="text-xs text-muted"></p>
+        </div>
+        <a id="e-dest" href="/withdraw/destination" class="text-xs font-semibold text-mint shrink-0">Edit</a>
       </div>
-      <div class="flex items-center justify-between gap-3 px-4 py-3.5 bg-white/5">
-        <p id="r-total-label" class="text-xs font-semibold text-white">You receive</p>
-        <p id="r-total" class="text-sm font-semibold text-white"></p>
+      <div class="flex items-center justify-between gap-3 px-4 py-3.5">
+        <p class="text-xs text-muted">Processing fee</p>
+        <p class="text-sm font-semibold text-mint">₦0.00</p>
+      </div>
+      <div class="flex items-center justify-between gap-3 px-4 py-3.5 bg-sunken">
+        <p id="r-total-label" class="text-xs font-semibold text-ink">You receive</p>
+        <p id="r-total" class="text-sm font-semibold text-ink break-all"></p>
       </div>
     </section>
 
     <div class="flex items-start gap-2 px-1">
-      <span class="material-symbols-outlined text-white/50 text-[16px] mt-0.5">lock</span>
-      <p id="r-foot" class="text-xs text-white/50">Protected by 256-bit encryption. Withdrawals cannot be undone once sent.</p>
+      <span class="material-symbols-outlined text-muted text-[16px] mt-0.5">lock</span>
+      <p id="r-foot" class="text-xs text-muted">Protected by 256-bit encryption. Withdrawals cannot be undone once sent.</p>
     </div>
   </div>
   <!-- /fragment: withdraw-review-form -->
 
   <!-- fragment: withdraw-review-success -->
   <section id="success" class="hidden flex-1 flex-col items-center justify-center text-center gap-4 py-16">
-    <div id="s-icon-box" class="size-20 rounded-full bg-lime text-lime-ink flex items-center justify-center">
+    <div id="s-icon-box" class="size-20 rounded-full bg-mint text-page flex items-center justify-center">
       <span id="s-icon" class="material-symbols-outlined fill-1 text-[44px]">check_circle</span>
     </div>
     <div>
-      <h2 id="s-title" class="text-2xl font-semibold tracking-tight text-white">Withdrawal submitted</h2>
-      <p id="s-text" class="text-sm text-white/60 mt-1 max-w-xs"></p>
-      <p id="s-ref" class="text-xs text-white/40 mt-2">Reference: #WTH-9022</p>
+      <h2 id="s-title" class="text-2xl font-semibold tracking-tight text-ink">Withdrawal submitted</h2>
+      <p id="s-text" class="text-sm text-muted mt-1 max-w-xs break-words"></p>
+      <p id="s-ref" class="text-xs text-muted mt-2">Reference: #WTH-9022</p>
     </div>
-    <a id="s-back" href="/" class="mt-2 h-12 px-8 rounded-full bg-lime text-lime-ink text-sm font-semibold flex items-center justify-center active:scale-[0.98] transition">Back to home</a>
+    <a id="s-back" href="/" class="btn-primary mt-2 px-8">Back to home</a>
   </section>
   <!-- /fragment: withdraw-review-success -->
 
 </main>
 
 <!-- fragment: withdraw-review-dock -->
-<div id="dock" class="fixed bottom-0 left-0 right-0 z-40 max-w-md mx-auto px-5 pb-5">
-  <div class="glass-dark rounded-3xl p-3">
-    <button id="confirm" type="button"
-      class="w-full h-12 rounded-full bg-lime text-lime-ink text-sm font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition">
+<div id="dock" class="fixed bottom-0 inset-x-0 z-40 bg-page border-t border-line">
+  <div class="max-w-md mx-auto px-5 py-3">
+    <button id="confirm" type="button" class="btn-primary w-full h-12 text-sm">
       <span id="c-icon" class="material-symbols-outlined text-[20px]">lock</span>
       <span id="c-label">Confirm withdrawal</span>
     </button>
@@ -190,7 +192,7 @@
     s.classList.remove('hidden');
     s.classList.add('flex');
     if (isGroup) {
-      el('s-icon-box').className = 'size-20 rounded-full bg-warn text-lime-ink flex items-center justify-center';
+      el('s-icon-box').className = 'size-20 rounded-full bg-gold text-page flex items-center justify-center';
       el('s-icon').textContent = 'hourglass_top';
       el('s-title').textContent = 'Request sent for approval';
       el('s-text').textContent = 'A group admin will review your request for ' + money + '. Once approved, it goes to ' + dests[destId].short + '.';
