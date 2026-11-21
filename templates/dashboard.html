@@ -5,42 +5,125 @@
 {% block content %}
 <header class="app-header justify-between">
   <div class="flex items-center gap-3">
-    <div class="card size-10 flex items-center justify-center text-ink">
-      <span class="material-symbols-outlined text-[20px]">account_balance</span>
+    <div class="size-10 rounded-xl bg-accent text-on-accent flex items-center justify-center">
+      <span class="material-symbols-outlined fill-1 text-[22px]">savings</span>
     </div>
-    <h1 class="text-sm font-semibold text-ink">NairaStash</h1>
+    <h1 class="text-base font-semibold text-ink">NairaStash</h1>
   </div>
-  <a href="/notifications" aria-label="Notifications"
-    class="card relative size-10 flex items-center justify-center text-ink hover:bg-sunken transition-colors">
-    <span class="material-symbols-outlined text-[20px]">notifications</span>
-  </a>
+  <div class="flex items-center gap-2">
+    {% include "theme_toggle.html" %}
+    <a href="/notifications" aria-label="Notifications"
+      class="card relative size-10 rounded-full flex items-center justify-center text-ink hover:bg-sunken transition-colors">
+      <span class="material-symbols-outlined text-[20px]">notifications</span>
+    </a>
+  </div>
 </header>
 
-<main class="flex-1 flex flex-col gap-7 px-5 pt-4">
+<main class="flex-1 flex flex-col gap-6 px-5 pt-2">
 
   <!-- fragment: dashboard-balance -->
-  <section class="flex flex-col gap-5">
-    <div>
-      <p class="text-xs text-muted">Wallet balance</p>
-      <div class="mt-1 flex flex-wrap items-baseline gap-x-2">
-        <span class="text-[34px] leading-tight font-semibold tracking-tight text-ink">{{ total_balance }}</span>
-        <span class="text-xs text-muted">NGN</span>
+  <section class="flex flex-col gap-4">
+    <div class="hero-card p-5 flex flex-col gap-5">
+      <div class="flex items-center justify-between">
+        <span class="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-[11px] font-medium text-white/80">
+          <span class="size-1.5 rounded-full bg-gold"></span>Wallet balance
+        </span>
+        <button id="balance-eye" type="button" aria-label="Hide balance"
+          class="size-9 rounded-full bg-white/10 flex items-center justify-center text-white/80 hover:bg-white/15 transition-colors">
+          <span id="balance-eye-icon" class="material-symbols-outlined text-[20px]">visibility</span>
+        </button>
+      </div>
+      <div class="flex flex-wrap items-baseline gap-x-2">
+        <span id="balance-text" data-value="{{ total_balance }}" class="text-[34px] leading-tight font-semibold tracking-tight text-white break-all">{{ total_balance }}</span>
+        <span class="text-xs font-semibold text-gold">NGN</span>
       </div>
     </div>
 
-    <div class="grid grid-cols-3 gap-2">
-      <a href="/deposit" class="btn-primary h-14 flex-col gap-0.5 px-2 text-xs">
-        <span class="material-symbols-outlined text-[20px]">add</span>Deposit
+    <div class="card p-4 grid grid-cols-4 gap-2 text-center">
+      <a href="/deposit" class="flex flex-col items-center gap-1.5">
+        <span class="size-12 rounded-full bg-accent text-on-accent flex items-center justify-center">
+          <span class="material-symbols-outlined text-[22px]">add</span>
+        </span>
+        <span class="text-[11px] font-medium text-ink">Deposit</span>
       </a>
-      <a href="/withdraw" class="btn-quiet h-14 flex-col gap-0.5 px-2 text-xs">
-        <span class="material-symbols-outlined text-[20px]">arrow_outward</span>Withdraw
+      <a href="/withdraw" class="flex flex-col items-center gap-1.5">
+        <span class="size-12 rounded-full bg-sunken border border-line text-ink flex items-center justify-center">
+          <span class="material-symbols-outlined text-[22px]">arrow_outward</span>
+        </span>
+        <span class="text-[11px] font-medium text-ink">Withdraw</span>
       </a>
-      <a href="/plans/new" class="btn-quiet h-14 flex-col gap-0.5 px-2 text-xs">
-        <span class="material-symbols-outlined text-[20px]">playlist_add</span>New plan
+      <a href="/plans/new" class="flex flex-col items-center gap-1.5">
+        <span class="size-12 rounded-full bg-sunken border border-line text-ink flex items-center justify-center">
+          <span class="material-symbols-outlined text-[22px]">playlist_add</span>
+        </span>
+        <span class="text-[11px] font-medium text-ink">New plan</span>
+      </a>
+      <a href="/groups" class="flex flex-col items-center gap-1.5">
+        <span class="size-12 rounded-full bg-sunken border border-line text-ink flex items-center justify-center">
+          <span class="material-symbols-outlined text-[22px]">diversity_3</span>
+        </span>
+        <span class="text-[11px] font-medium text-ink">Groups</span>
       </a>
     </div>
   </section>
   <!-- /fragment: dashboard-balance -->
+
+  <!-- fragment: dashboard-chart -->
+  <section class="card p-4 flex flex-col gap-4">
+    <div class="flex items-start justify-between gap-3">
+      <div class="min-w-0">
+        <h2 class="text-base font-semibold text-ink">Deposits this week</h2>
+        <p class="text-lg font-semibold text-ink break-all mt-1">₦{{ chart.week_total }}</p>
+      </div>
+      {% if let Some(change) = chart.change_label %}
+      <span class="shrink-0 inline-flex items-center gap-1 rounded-full border border-line px-2.5 py-1 text-[11px] font-semibold {% if chart.change_is_up %}text-mint{% else %}text-muted{% endif %}">
+        <span class="material-symbols-outlined text-[14px]">{% if chart.change_is_up %}trending_up{% else %}trending_down{% endif %}</span>{{ change }}
+      </span>
+      {% endif %}
+    </div>
+
+    {% if chart.has_deposits %}
+    <div class="flex flex-col gap-2">
+      <div class="relative h-36">
+        <div class="flex items-end gap-2 h-full">
+          {% for bar in chart.bars %}
+          <button type="button" data-bar
+            data-label="{% if bar.is_today %}Today{% else %}{{ bar.label }}{% endif %}"
+            data-amount="{{ bar.amount }}"
+            data-count="{{ bar.count }}"
+            aria-label="{{ bar.label }}: ₦{{ bar.amount }}, {{ bar.count }} deposits"
+            class="flex-1 h-full flex items-end">
+            <div class="w-full rounded-lg {% if bar.is_today %}bg-mint{% else %}bg-sunken border border-line{% endif %}" style="height: {{ bar.height_percent }}%"></div>
+          </button>
+          {% endfor %}
+        </div>
+        <div class="absolute inset-x-0 border-t border-dashed border-gold pointer-events-none" style="bottom: {{ chart.average_percent }}%"></div>
+      </div>
+
+      <div class="grid grid-cols-7 gap-2 text-center">
+        {% for bar in chart.bars %}
+        <span class="text-[11px] {% if bar.is_today %}font-semibold text-ink{% else %}text-muted{% endif %}">{{ bar.label }}</span>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between gap-3 border-t border-line pt-3">
+      <p id="chart-detail" class="text-xs text-ink min-w-0 break-all">
+        {% for bar in chart.bars %}{% if bar.is_today %}Today · ₦{{ bar.amount }} · {{ bar.count }} {% if bar.count == 1 %}deposit{% else %}deposits{% endif %}{% endif %}{% endfor %}
+      </p>
+      <p class="shrink-0 inline-flex items-center gap-1.5 text-[11px] text-muted">
+        <span class="w-4 border-t border-dashed border-gold"></span>Avg ₦{{ chart.average }}
+      </p>
+    </div>
+    {% else %}
+    <div class="flex flex-col items-center text-center gap-2 py-4">
+      <span class="material-symbols-outlined text-muted text-[28px]">bar_chart</span>
+      <p class="text-sm font-semibold text-ink">No deposits this week</p>
+      <p class="text-xs text-muted">Add money to your wallet and your week shows up here.</p>
+    </div>
+    {% endif %}
+  </section>
+  <!-- /fragment: dashboard-chart -->
 
   <!-- fragment: dashboard-plans -->
   <section class="flex flex-col gap-3">
@@ -54,7 +137,7 @@
       <span class="material-symbols-outlined text-mint text-[28px]">savings</span>
       <p class="text-sm font-semibold text-ink">No plans yet</p>
       <p class="text-xs text-muted">Create a plan to start saving every day.</p>
-      <a href="/plans/new" class="btn-primary mt-2 h-9 px-4 text-xs">
+      <a href="/plans/new" class="btn-primary mt-2 h-10 px-5 text-xs">
         Create your first plan
       </a>
     </div>
@@ -67,8 +150,8 @@
             <p class="text-sm font-semibold text-ink truncate">{{ plan.name }}</p>
             <p class="text-xs text-muted">₦{{ plan.amount }} · {{ plan.frequency_label }}</p>
           </div>
-          <div class="text-right shrink-0">
-            <p class="text-sm font-semibold text-ink">₦{{ plan.balance }}</p>
+          <div class="text-right shrink-0 min-w-0">
+            <p class="text-sm font-semibold text-ink break-all">₦{{ plan.balance }}</p>
             <p class="text-[11px] text-muted">saved</p>
           </div>
         </div>
@@ -91,7 +174,7 @@
   <section class="flex flex-col gap-3">
     <div class="flex items-center justify-between">
       <h2 class="text-base font-semibold text-ink">Recent activity</h2>
-      <a href="/activity" class="text-xs font-semibold text-mint">View all activity</a>
+      <a href="/activity" class="text-xs font-semibold text-mint">View all</a>
     </div>
 
     {% if recent_transactions.is_empty() %}
@@ -105,7 +188,7 @@
       {% for transaction in recent_transactions %}
       <a href="/activity/{{ transaction.entry_id }}"
         class="flex items-center gap-3 px-4 py-3.5 hover:bg-sunken transition-colors">
-        <div class="size-10 shrink-0 rounded-xl flex items-center justify-center {% if transaction.is_credit %}bg-mint/15 text-mint{% else %}bg-line text-muted{% endif %}">
+        <div class="size-10 shrink-0 rounded-full flex items-center justify-center {% if transaction.is_credit %}bg-mint/15 text-mint{% else %}bg-sunken border border-line text-muted{% endif %}">
           <span class="material-symbols-outlined text-[18px]">{% if transaction.is_credit %}south_west{% else %}north_east{% endif %}</span>
         </div>
         <div class="flex-1 min-w-0">
@@ -124,4 +207,38 @@
   <!-- /fragment: dashboard-inflows -->
 
 </main>
+
+<script>
+  (function () {
+    var eye = document.getElementById('balance-eye');
+    var text = document.getElementById('balance-text');
+    var icon = document.getElementById('balance-eye-icon');
+    if (!eye || !text) { return; }
+
+    var hidden = false;
+
+    // swaps the balance between the real number and dots
+    eye.addEventListener('click', function () {
+      hidden = !hidden;
+      text.textContent = hidden ? '••••••' : text.dataset.value;
+      icon.textContent = hidden ? 'visibility_off' : 'visibility';
+      eye.setAttribute('aria-label', hidden ? 'Show balance' : 'Hide balance');
+    });
+  })();
+
+  (function () {
+    var bars = document.querySelectorAll('[data-bar]');
+    var detail = document.getElementById('chart-detail');
+    if (!detail) { return; }
+
+    // tapping a bar writes that day's total and deposit count under the chart
+    bars.forEach(function (bar) {
+      bar.addEventListener('click', function () {
+        var count = Number(bar.dataset.count);
+        var word = count === 1 ? 'deposit' : 'deposits';
+        detail.textContent = bar.dataset.label + ' · ₦' + bar.dataset.amount + ' · ' + count + ' ' + word;
+      });
+    });
+  })();
+</script>
 {% endblock %}
