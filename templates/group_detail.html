@@ -3,130 +3,131 @@
 {% block title %}Founders Tech Stash · NairaStash{% endblock %}
 
 {% block content %}
-<header class="sticky top-0 z-30 flex items-center justify-between gap-3 px-5 h-16 bg-forest-900/50 backdrop-blur-xl">
+<header class="app-header justify-between gap-3">
   <div class="flex items-center gap-3 min-w-0">
     <a href="/groups" aria-label="Back to groups"
-       class="size-10 shrink-0 rounded-full glass flex items-center justify-center text-white/80 hover:text-white transition-colors">
+       class="card size-10 shrink-0 rounded-full flex items-center justify-center text-ink hover:bg-sunken transition-colors">
       <span class="material-symbols-outlined text-[20px]">arrow_back</span>
     </a>
     <div class="leading-tight min-w-0">
-      <h1 class="text-sm font-semibold text-white truncate">NairaStash</h1>
-      <p class="text-[11px] font-semibold uppercase tracking-widest text-lime truncate">Community groups</p>
+      <h1 class="text-sm font-semibold text-ink truncate">NairaStash</h1>
+      <p class="text-[11px] font-semibold uppercase tracking-widest text-mint truncate">Community groups</p>
     </div>
   </div>
-  <a href="/notifications" aria-label="Notifications"
-    class="relative size-10 shrink-0 rounded-full glass text-white flex items-center justify-center hover:bg-white/10 transition-colors">
-    <span class="material-symbols-outlined text-[20px]">notifications</span>
-    <span class="absolute top-2.5 right-2.5 size-2 rounded-full bg-lime ring-2 ring-forest-800"></span>
-  </a>
+  <div class="flex items-center gap-2 shrink-0">
+    {% include "theme_toggle.html" %}
+    <a href="/notifications" aria-label="Notifications"
+      class="card size-10 rounded-full flex items-center justify-center text-ink hover:bg-sunken transition-colors">
+      <span class="material-symbols-outlined text-[20px]">notifications</span>
+    </a>
+  </div>
 </header>
 
-<main class="flex-1 flex flex-col gap-4 px-5 pt-4 pb-8">
+<main class="flex-1 flex flex-col gap-4 px-5 pt-2">
 
   <!-- Group code + settings -->
   <div class="flex items-center justify-between">
     <button type="button"
-      class="inline-flex items-center gap-1.5 rounded-full glass px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-lime">
+      class="card inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-mint">
       # FOUNDERS-X89
       <span class="material-symbols-outlined text-[14px]">share</span>
     </button>
     <a href="/rules" aria-label="Group rules"
-      class="size-9 rounded-full glass flex items-center justify-center text-white/80 hover:text-white transition-colors">
+      class="card size-9 rounded-full flex items-center justify-center text-ink hover:bg-sunken transition-colors">
       <span class="material-symbols-outlined text-[18px]">rule</span>
     </a>
   </div>
 
   <!-- fragment: group-hero -->
-  <section class="glass rounded-3xl p-5 flex flex-col gap-4">
+  <section class="card p-5 flex flex-col gap-4">
     <div class="flex items-start justify-between gap-3">
       <div class="min-w-0">
         <div class="flex flex-wrap items-center gap-2 mb-2">
-          <span class="rounded-full bg-azure px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white">Esusu chit</span>
-          <span class="rounded-full bg-lime/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-lime">Active · Cycle 5/8</span>
+          <span class="rounded-full border border-line bg-sunken px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted">Esusu chit</span>
+          <span class="rounded-full bg-mint/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-mint">Active · Cycle 5/8</span>
         </div>
-        <h2 class="text-2xl font-semibold tracking-tight text-white">Founders Tech Stash</h2>
+        <h2 class="text-2xl font-semibold tracking-tight text-ink">Founders Tech Stash</h2>
       </div>
-      <div class="size-11 shrink-0 rounded-2xl bg-azure text-white flex items-center justify-center">
+      <div class="size-11 shrink-0 rounded-xl bg-sunken border border-line text-mint flex items-center justify-center">
         <span class="material-symbols-outlined text-[24px]">token</span>
       </div>
     </div>
 
-    <p class="text-sm leading-relaxed text-white/70">
+    <p class="text-sm leading-relaxed text-muted">
       Collaborative revolving fund for seed tech gear, dedicated cloud credits, and quarterly liquidity disbursements.
     </p>
 
-    <div class="rounded-2xl bg-white/5 p-4 flex flex-col gap-2">
-      <div class="flex items-end justify-between">
-        <div>
-          <p class="text-[11px] uppercase tracking-wider text-white/60">Total pool stash</p>
-          <p class="mt-0.5 text-2xl font-semibold tracking-tight text-white">₦1,240,000.00</p>
+    <div class="card-inset p-4 flex flex-col gap-2">
+      <div class="flex items-end justify-between gap-3">
+        <div class="min-w-0">
+          <p class="text-[11px] uppercase tracking-wider text-muted">Total pool stash</p>
+          <p class="mt-0.5 text-2xl font-semibold tracking-tight text-ink break-all">₦1,240,000.00</p>
         </div>
-        <div class="text-right">
-          <p class="text-sm font-semibold text-lime">77%</p>
-          <p class="text-[11px] text-white/60">of ₦1.6M goal</p>
+        <div class="text-right shrink-0">
+          <p class="text-sm font-semibold text-mint">77%</p>
+          <p class="text-[11px] text-muted">of ₦1.6M goal</p>
         </div>
       </div>
-      <div class="h-2 rounded-full bg-white/10 overflow-hidden">
-        <div class="h-full rounded-full bg-lime" style="width: 77.5%;"></div>
+      <div class="h-2 rounded-full bg-line overflow-hidden">
+        <div class="h-full rounded-full bg-mint" style="width: 77.5%;"></div>
       </div>
       <div class="flex items-center justify-between pt-1 text-[11px]">
-        <span class="text-white/60">₦2,500 / member / day</span>
-        <span class="inline-flex items-center gap-1.5 text-lime">
-          <span class="size-1.5 rounded-full bg-lime animate-pulse"></span>100% group velocity
+        <span class="text-muted">₦2,500 / member / day</span>
+        <span class="inline-flex items-center gap-1.5 text-mint">
+          <span class="size-1.5 rounded-full bg-mint"></span>100% group velocity
         </span>
       </div>
     </div>
 
-    <div class="rounded-2xl bg-white/5 p-3 flex items-center gap-3">
-      <div class="size-9 shrink-0 rounded-full bg-warn/15 text-warn flex items-center justify-center">
+    <div class="card-inset p-3 flex items-center gap-3">
+      <div class="size-9 shrink-0 rounded-full bg-gold/15 text-gold flex items-center justify-center">
         <span class="material-symbols-outlined text-[18px]">cached</span>
       </div>
       <div class="min-w-0">
-        <p class="text-[11px] font-semibold uppercase tracking-wider text-warn">Next payout: Maya K. (Dec 01)</p>
-        <p class="text-xs text-white truncate">Your turn: <strong class="text-lime">Round 6 (Dec 12)</strong> for ₦420,000.00</p>
+        <p class="text-[11px] font-semibold uppercase tracking-wider text-gold">Next payout: Maya K. (Dec 01)</p>
+        <p class="text-xs text-ink truncate">Your turn: <strong class="text-mint">Round 6 (Dec 12)</strong> for ₦420,000.00</p>
       </div>
     </div>
 
     <div class="flex items-center justify-between">
       <div class="flex items-center -space-x-2">
-        <span class="size-8 rounded-full bg-lime text-lime-ink text-[11px] font-bold flex items-center justify-center ring-2 ring-forest-800">CO</span>
-        <span class="size-8 rounded-full bg-azure text-white text-[11px] font-bold flex items-center justify-center ring-2 ring-forest-800">MK</span>
-        <span class="size-8 rounded-full bg-warn text-lime-ink text-[11px] font-bold flex items-center justify-center ring-2 ring-forest-800">LS</span>
-        <span class="size-8 rounded-full bg-white/20 text-white text-[11px] font-bold flex items-center justify-center ring-2 ring-forest-800">ER</span>
-        <span class="size-8 rounded-full bg-forest-700 text-white text-[10px] font-semibold flex items-center justify-center ring-2 ring-forest-800">+4</span>
+        <span class="size-8 rounded-full bg-accent text-on-accent text-[11px] font-bold flex items-center justify-center ring-2 ring-surface">CO</span>
+        <span class="size-8 rounded-full bg-sunken text-ink text-[11px] font-bold flex items-center justify-center ring-2 ring-surface">MK</span>
+        <span class="size-8 rounded-full bg-sunken text-ink text-[11px] font-bold flex items-center justify-center ring-2 ring-surface">LS</span>
+        <span class="size-8 rounded-full bg-sunken text-ink text-[11px] font-bold flex items-center justify-center ring-2 ring-surface">ER</span>
+        <span class="size-8 rounded-full bg-line text-muted text-[10px] font-semibold flex items-center justify-center ring-2 ring-surface">+4</span>
       </div>
-      <span class="text-[11px] font-semibold uppercase tracking-wider text-white/60">8 members</span>
+      <span class="text-[11px] font-semibold uppercase tracking-wider text-muted">8 members</span>
     </div>
   </section>
   <!-- /fragment: group-hero -->
 
   <!-- fragment: group-quick-deposit -->
   <div class="flex items-center gap-2">
-    <a href="/deposit"
-      class="flex-1 h-12 rounded-full bg-lime text-lime-ink text-sm font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition">
+    <a href="/deposit" class="btn-primary flex-1 text-sm">
       <span class="material-symbols-outlined text-[20px]">electric_bolt</span>
       Instant deposit (₦2,500.00)
     </a>
     <button type="button" aria-label="Group chat"
-      class="size-12 shrink-0 rounded-full glass text-white flex items-center justify-center hover:bg-white/10 transition-colors">
+      class="card size-12 shrink-0 rounded-full flex items-center justify-center text-ink hover:bg-sunken transition-colors">
       <span class="material-symbols-outlined text-[20px]">chat</span>
     </button>
   </div>
   <!-- /fragment: group-quick-deposit -->
 
   <!-- Tabs -->
-  <div class="flex items-center gap-1 rounded-full glass p-1" role="tablist">
+  <div class="flex items-center gap-1 rounded-full bg-sunken border border-line p-1" role="tablist">
     <button type="button" data-tab="savings" role="tab"
-      class="group-tab flex-1 rounded-full py-2 text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors bg-white/15 text-white">
-      <span class="material-symbols-outlined text-[16px] text-lime">savings</span>Personal
+      class="group-tab flex-1 rounded-full py-2 text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors bg-accent text-on-accent">
+      <span class="material-symbols-outlined text-[16px]">savings</span>Personal
     </button>
     <button type="button" data-tab="loans" role="tab"
-      class="group-tab flex-1 rounded-full py-2 text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors text-white/60">
-      <span class="material-symbols-outlined text-[16px] text-warn">handshake</span>Credit
+      class="group-tab flex-1 rounded-full py-2 text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors text-muted">
+      <span class="material-symbols-outlined text-[16px]">handshake</span>Credit
     </button>
     <button type="button" data-tab="roster" role="tab"
-      class="group-tab flex-1 rounded-full py-2 text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors text-white/60">
-      <span class="material-symbols-outlined text-[16px] text-azure">groups</span>Roster (8)
+      class="group-tab flex-1 rounded-full py-2 text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors text-muted">
+      <span class="material-symbols-outlined text-[16px]">groups</span>Roster (8)
     </button>
   </div>
 
@@ -134,49 +135,46 @@
   <!-- TAB 1: Personal savings -->
   <section id="panel-savings" class="group-panel flex flex-col gap-3">
     <div class="flex items-center justify-between">
-      <h3 class="text-base font-semibold text-white">Your savings standing</h3>
-      <span class="inline-flex items-center gap-1.5 rounded-full bg-lime/15 px-2.5 py-1 text-[10px] font-semibold uppercase text-lime">
-        <span class="size-1.5 rounded-full bg-lime"></span>Auto-debit on
+      <h3 class="text-base font-semibold text-ink">Your savings standing</h3>
+      <span class="inline-flex items-center gap-1.5 rounded-full bg-mint/15 px-2.5 py-1 text-[10px] font-semibold uppercase text-mint">
+        <span class="size-1.5 rounded-full bg-mint"></span>Auto-debit on
       </span>
     </div>
 
-    <div class="glass rounded-3xl p-5 flex flex-col gap-4">
+    <div class="card p-5 flex flex-col gap-4">
       <div class="flex items-start justify-between gap-3">
-        <div>
-          <p class="text-[11px] uppercase tracking-wider text-white/60">Your total equity in stash</p>
-          <p class="mt-1 text-3xl font-semibold tracking-tight text-white">₦155,000.00</p>
-          <p class="mt-0.5 text-xs text-white/60">62 continuous daily cycles completed</p>
+        <div class="min-w-0">
+          <p class="text-[11px] uppercase tracking-wider text-muted">Your total equity in stash</p>
+          <p class="mt-1 text-3xl font-semibold tracking-tight text-ink break-all">₦155,000.00</p>
+          <p class="mt-0.5 text-xs text-muted">62 continuous daily cycles completed</p>
         </div>
-        <div class="shrink-0 rounded-2xl bg-white/10 px-3 py-1.5 text-right">
-          <p class="text-[11px] font-semibold uppercase text-lime">5 days ahead</p>
-          <p class="text-[10px] text-white/60">Buffer to Nov 18</p>
+        <div class="card-inset shrink-0 px-3 py-1.5 text-right">
+          <p class="text-[11px] font-semibold uppercase text-mint">5 days ahead</p>
+          <p class="text-[10px] text-muted">Buffer to Nov 18</p>
         </div>
       </div>
 
-      <div class="rounded-2xl bg-white/5 p-3 flex flex-col gap-2">
+      <div class="card-inset p-3 flex flex-col gap-2">
         <div class="flex items-center justify-between text-[11px]">
-          <span class="uppercase text-white/60">Contribution cadence</span>
-          <span class="font-semibold text-lime">62/62 on time (100%)</span>
+          <span class="uppercase text-muted">Contribution cadence</span>
+          <span class="font-semibold text-mint">62/62 on time (100%)</span>
         </div>
         <div id="cadence-strip" class="grid grid-cols-7 gap-1.5 pt-1"></div>
       </div>
 
       <div class="grid grid-cols-2 gap-2">
-        <a href="/deposit"
-          class="h-11 rounded-full bg-lime text-lime-ink text-sm font-semibold flex items-center justify-center gap-1.5 active:scale-[0.98] transition">
+        <a href="/deposit" class="btn-primary h-11 text-sm">
           <span class="material-symbols-outlined text-[18px]">add</span>Add boost
         </a>
-        <button type="button"
-          class="h-11 rounded-full glass text-sm font-medium text-white flex items-center justify-center gap-1.5 hover:bg-white/10 transition-colors">
-          <span class="material-symbols-outlined text-[18px] text-white/60">tune</span>Cadence (₦2,500/d)
+        <button type="button" class="btn-quiet h-11 text-sm">
+          <span class="material-symbols-outlined text-[18px] text-muted">tune</span>Cadence (₦2,500/d)
         </button>
       </div>
 
-      <a href="/withdraw/amount?plan=founders"
-        class="h-11 rounded-full glass text-sm font-semibold text-white flex items-center justify-center gap-1.5 hover:bg-white/10 active:scale-[0.98] transition-all">
-        <span class="material-symbols-outlined text-[18px] text-lime">arrow_outward</span>Request withdrawal
+      <a href="/withdraw/amount?plan=founders" class="btn-quiet h-11 text-sm">
+        <span class="material-symbols-outlined text-[18px] text-mint">arrow_outward</span>Request withdrawal
       </a>
-      <p class="-mt-2 text-center text-[11px] text-white/50">Needs approval from a group admin. See the <a href="/rules" class="text-lime font-semibold">group rules</a>.</p>
+      <p class="-mt-2 text-center text-[11px] text-muted">Needs approval from a group admin. See the <a href="/rules" class="text-mint font-semibold">group rules</a>.</p>
     </div>
   </section>
   <!-- /fragment: group-tab-savings -->
@@ -185,53 +183,51 @@
   <!-- TAB 2: Peer credit vault -->
   <section id="panel-loans" class="group-panel hidden flex flex-col gap-3">
     <div class="flex items-center justify-between">
-      <h3 class="text-base font-semibold text-white">Community credit vault</h3>
-      <span class="rounded-full bg-warn/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-warn">1.5% pool fee</span>
+      <h3 class="text-base font-semibold text-ink">Community credit vault</h3>
+      <span class="rounded-full border border-line bg-sunken px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted">1.5% pool fee</span>
     </div>
 
-    <div class="glass rounded-3xl p-5 flex flex-col gap-4">
+    <div class="card p-5 flex flex-col gap-4">
       <div class="flex items-center justify-between gap-3">
-        <div>
-          <p class="text-[11px] uppercase tracking-wider text-white/60">Available group credit</p>
-          <p class="mt-1 text-3xl font-semibold tracking-tight text-warn">₦380,000.00</p>
-          <p class="mt-0.5 text-xs text-white/60">No interest · Backed by pool reserves</p>
+        <div class="min-w-0">
+          <p class="text-[11px] uppercase tracking-wider text-muted">Available group credit</p>
+          <p class="mt-1 text-3xl font-semibold tracking-tight text-mint break-all">₦380,000.00</p>
+          <p class="mt-0.5 text-xs text-muted">No interest · Backed by pool reserves</p>
         </div>
-        <div class="size-11 shrink-0 rounded-2xl bg-warn/15 text-warn flex items-center justify-center">
+        <div class="size-11 shrink-0 rounded-xl bg-sunken border border-line text-mint flex items-center justify-center">
           <span class="material-symbols-outlined text-[24px]">account_balance_wallet</span>
         </div>
       </div>
 
-      <a href="/loans/detail" class="rounded-2xl bg-white/5 p-3 flex flex-col gap-2 hover:bg-white/10 transition-colors">
-        <div class="flex items-center justify-between">
-          <span class="flex items-center gap-1.5 text-[11px] font-semibold uppercase text-white">
-            <span class="size-2 rounded-full bg-warn"></span>Active micro-loan
+      <a href="/loans/detail" class="card-inset p-3 flex flex-col gap-2 hover:bg-surface transition-colors">
+        <div class="flex items-center justify-between gap-2">
+          <span class="flex items-center gap-1.5 text-[11px] font-semibold uppercase text-ink">
+            <span class="size-2 rounded-full bg-mint"></span>Active micro-loan
           </span>
-          <span class="text-sm font-semibold text-white">₦20,000.00 left</span>
+          <span class="text-sm font-semibold text-ink">₦20,000.00 left</span>
         </div>
-        <div class="flex items-baseline justify-between pt-1 text-xs text-white/70">
+        <div class="flex items-baseline justify-between gap-2 pt-1 text-xs text-muted">
           <span>Server Cluster Scale</span>
-          <span class="font-medium text-lime">₦40,000 / ₦60,000 paid (66%)</span>
+          <span class="font-medium text-mint">₦40,000 / ₦60,000 paid (66%)</span>
         </div>
-        <div class="h-1.5 rounded-full bg-white/10 overflow-hidden my-1">
-          <div class="h-full rounded-full bg-lime" style="width: 66.6%;"></div>
+        <div class="h-1.5 rounded-full bg-line overflow-hidden my-1">
+          <div class="h-full rounded-full bg-mint" style="width: 66.6%;"></div>
         </div>
-        <div class="flex items-center justify-between text-[11px] text-white/60">
+        <div class="flex items-center justify-between text-[11px] text-muted">
           <span>Auto-paid: ₦1,000/day</span>
-          <span class="flex items-center gap-0.5 text-azure font-semibold">View details<span class="material-symbols-outlined text-[14px]">chevron_right</span></span>
+          <span class="flex items-center gap-0.5 text-mint font-semibold">View details<span class="material-symbols-outlined text-[14px]">chevron_right</span></span>
         </div>
       </a>
 
       <div class="grid grid-cols-2 gap-2">
-        <a href="/loans/detail"
-          class="h-11 rounded-full glass text-sm font-medium text-white flex items-center justify-center gap-1.5 hover:bg-white/10 transition-colors">
-          <span class="material-symbols-outlined text-[18px] text-lime">payments</span>Repay early
+        <a href="/loans/detail" class="btn-quiet h-11 text-sm">
+          <span class="material-symbols-outlined text-[18px] text-mint">payments</span>Repay early
         </a>
-        <a href="/loans/new"
-          class="h-11 rounded-full bg-warn text-lime-ink text-sm font-semibold flex items-center justify-center gap-1.5 active:scale-[0.98] transition">
+        <a href="/loans/new" class="btn-primary h-11 text-sm">
           <span class="material-symbols-outlined text-[18px]">add_circle</span>Request loan
         </a>
       </div>
-      <p class="-mt-2 text-center text-[11px] text-white/50">Every loan is approved by a group admin before it is paid out.</p>
+      <p class="-mt-2 text-center text-[11px] text-muted">Every loan is approved by a group admin before it is paid out.</p>
     </div>
   </section>
   <!-- /fragment: group-tab-loans -->
@@ -241,147 +237,147 @@
   <section id="panel-roster" class="group-panel hidden flex flex-col gap-3">
     <div class="flex items-center justify-between">
       <div>
-        <h3 class="text-base font-semibold text-white">Circle roster &amp; standing</h3>
-        <p class="text-[11px] text-white/50">🔒 Balances &amp; credentials remain private</p>
+        <h3 class="text-base font-semibold text-ink">Circle roster &amp; standing</h3>
+        <p class="text-[11px] text-muted">🔒 Balances &amp; credentials remain private</p>
       </div>
-      <span class="text-[11px] uppercase text-white/60">8 members</span>
+      <span class="text-[11px] uppercase text-muted">8 members</span>
     </div>
 
     <div class="flex flex-col gap-2">
       <!-- 1: You -->
-      <div class="glass rounded-2xl p-3 flex items-center justify-between gap-3">
+      <div class="card p-3 flex items-center justify-between gap-3">
         <div class="flex items-center gap-3 min-w-0">
           <div class="relative shrink-0">
-            <span class="size-10 rounded-full bg-lime text-lime-ink text-sm font-bold flex items-center justify-center">CO</span>
-            <span class="absolute -bottom-1 -right-1 size-4 rounded-full bg-azure text-white flex items-center justify-center text-[9px] font-bold">★</span>
+            <span class="size-10 rounded-full bg-accent text-on-accent text-sm font-bold flex items-center justify-center">CO</span>
+            <span class="absolute -bottom-1 -right-1 size-4 rounded-full bg-mint text-page flex items-center justify-center text-[9px] font-bold">★</span>
           </div>
           <div class="min-w-0">
             <div class="flex items-center gap-1.5">
-              <span class="text-sm font-semibold text-white truncate">Chinedu Okafor (You)</span>
-              <span class="rounded bg-white/10 px-1.5 py-0.5 text-[9px] uppercase text-white/60">Admin</span>
+              <span class="text-sm font-semibold text-ink truncate">Chinedu Okafor (You)</span>
+              <span class="shrink-0 rounded-full border border-line bg-sunken px-2 py-0.5 text-[9px] uppercase text-muted">Admin</span>
             </div>
-            <p class="text-[11px] text-lime">Turn #6 · Dec 12 payout (₦420k)</p>
+            <p class="text-[11px] text-mint">Turn #6 · Dec 12 payout (₦420k)</p>
           </div>
         </div>
-        <span class="shrink-0 rounded-full bg-lime/15 px-2.5 py-1 text-[10px] font-semibold uppercase text-lime">+5d ahead</span>
+        <span class="shrink-0 rounded-full bg-mint/15 px-2.5 py-1 text-[10px] font-semibold uppercase text-mint">+5d ahead</span>
       </div>
 
       <!-- 2: Maya K -->
-      <div class="glass rounded-2xl p-3 flex items-center justify-between gap-3">
+      <div class="card p-3 flex items-center justify-between gap-3">
         <div class="flex items-center gap-3 min-w-0">
-          <span class="size-10 shrink-0 rounded-full bg-azure text-white text-sm font-bold flex items-center justify-center">MK</span>
+          <span class="size-10 shrink-0 rounded-full bg-sunken border border-line text-ink text-sm font-bold flex items-center justify-center">MK</span>
           <div class="min-w-0">
             <div class="flex items-center gap-1.5">
-              <span class="text-sm font-medium text-white truncate">Maya K.</span>
-              <span class="rounded bg-warn/15 px-1.5 py-0.5 text-[9px] uppercase text-warn">Next pot</span>
+              <span class="text-sm font-medium text-ink truncate">Maya K.</span>
+              <span class="shrink-0 rounded-full bg-gold/15 px-2 py-0.5 text-[9px] uppercase text-gold">Next pot</span>
             </div>
-            <p class="text-[11px] text-warn">Turn #5 · Dec 01 (upcoming)</p>
+            <p class="text-[11px] text-gold">Turn #5 · Dec 01 (upcoming)</p>
           </div>
         </div>
-        <span class="shrink-0 rounded-full bg-lime/15 px-2.5 py-1 text-[10px] font-semibold uppercase text-lime">Up to date</span>
+        <span class="shrink-0 rounded-full bg-mint/15 px-2.5 py-1 text-[10px] font-semibold uppercase text-mint">Up to date</span>
       </div>
 
       <!-- 3: Liam S -->
-      <div class="glass rounded-2xl p-3 flex items-center justify-between gap-3">
+      <div class="card p-3 flex items-center justify-between gap-3">
         <div class="flex items-center gap-3 min-w-0">
-          <span class="size-10 shrink-0 rounded-full bg-warn text-lime-ink text-sm font-bold flex items-center justify-center">LS</span>
+          <span class="size-10 shrink-0 rounded-full bg-sunken border border-line text-ink text-sm font-bold flex items-center justify-center">LS</span>
           <div class="min-w-0">
-            <p class="text-sm font-medium text-white truncate">Liam S.</p>
-            <p class="text-[11px] text-white/60">Turn #7 · Dec 24</p>
+            <p class="text-sm font-medium text-ink truncate">Liam S.</p>
+            <p class="text-[11px] text-muted">Turn #7 · Dec 24</p>
           </div>
         </div>
-        <span class="shrink-0 rounded-full bg-lime/15 px-2.5 py-1 text-[10px] font-semibold uppercase text-lime">+2d ahead</span>
+        <span class="shrink-0 rounded-full bg-mint/15 px-2.5 py-1 text-[10px] font-semibold uppercase text-mint">+2d ahead</span>
       </div>
 
       <!-- 4: Kofi Mensah (pending, nudge) -->
-      <div class="glass rounded-2xl p-3 flex items-center justify-between gap-3">
+      <div class="card p-3 flex items-center justify-between gap-3">
         <div class="flex items-center gap-3 min-w-0">
-          <span class="size-10 shrink-0 rounded-full bg-white/20 text-white text-sm font-bold flex items-center justify-center">KM</span>
+          <span class="size-10 shrink-0 rounded-full bg-sunken border border-line text-ink text-sm font-bold flex items-center justify-center">KM</span>
           <div class="min-w-0">
-            <p class="text-sm font-medium text-white truncate">Kofi Mensah</p>
-            <p class="text-[11px] text-warn">Pending today (₦2,500.00)</p>
+            <p class="text-sm font-medium text-ink truncate">Kofi Mensah</p>
+            <p class="text-[11px] text-gold">Pending today (₦2,500.00)</p>
           </div>
         </div>
         <button type="button" data-nudge
-          class="shrink-0 inline-flex items-center gap-1 rounded-full bg-white/10 px-3 py-1.5 text-[10px] font-semibold uppercase text-warn hover:bg-white/20 transition-colors">
+          class="shrink-0 inline-flex items-center gap-1 rounded-full border border-line bg-sunken px-3 py-1.5 text-[10px] font-semibold uppercase text-gold hover:bg-surface transition-colors">
           <span class="material-symbols-outlined text-[14px]">notifications_active</span>Nudge
         </button>
       </div>
 
       <!-- 5: Elena Rostova -->
-      <div class="glass rounded-2xl p-3 flex items-center justify-between gap-3">
+      <div class="card p-3 flex items-center justify-between gap-3">
         <div class="flex items-center gap-3 min-w-0">
-          <span class="size-10 shrink-0 rounded-full bg-forest-700 text-white text-sm font-bold flex items-center justify-center">ER</span>
+          <span class="size-10 shrink-0 rounded-full bg-sunken border border-line text-ink text-sm font-bold flex items-center justify-center">ER</span>
           <div class="min-w-0">
-            <p class="text-sm font-medium text-white truncate">Elena Rostova</p>
-            <p class="text-[11px] text-white/60">Turn #8 · Jan 04</p>
+            <p class="text-sm font-medium text-ink truncate">Elena Rostova</p>
+            <p class="text-[11px] text-muted">Turn #8 · Jan 04</p>
           </div>
         </div>
-        <span class="shrink-0 rounded-full bg-lime/15 px-2.5 py-1 text-[10px] font-semibold uppercase text-lime">Up to date</span>
+        <span class="shrink-0 rounded-full bg-mint/15 px-2.5 py-1 text-[10px] font-semibold uppercase text-mint">Up to date</span>
       </div>
 
       <!-- 6: David Chen -->
-      <div class="glass rounded-2xl p-3 flex items-center justify-between gap-3">
+      <div class="card p-3 flex items-center justify-between gap-3">
         <div class="flex items-center gap-3 min-w-0">
-          <span class="size-10 shrink-0 rounded-full bg-lime text-lime-ink text-sm font-bold flex items-center justify-center">DC</span>
+          <span class="size-10 shrink-0 rounded-full bg-sunken border border-line text-ink text-sm font-bold flex items-center justify-center">DC</span>
           <div class="min-w-0">
             <div class="flex items-center gap-1.5">
-              <span class="text-sm font-medium text-white truncate">David Chen</span>
-              <span class="rounded bg-white/10 px-1.5 py-0.5 text-[9px] uppercase text-white/60">Admin</span>
+              <span class="text-sm font-medium text-ink truncate">David Chen</span>
+              <span class="shrink-0 rounded-full border border-line bg-sunken px-2 py-0.5 text-[9px] uppercase text-muted">Admin</span>
             </div>
-            <p class="text-[11px] text-white/60">Turn #1 · Disbursed Oct 18</p>
+            <p class="text-[11px] text-muted">Turn #1 · Disbursed Oct 18</p>
           </div>
         </div>
-        <span class="shrink-0 rounded-full bg-lime/15 px-2.5 py-1 text-[10px] font-semibold uppercase text-lime">Up to date</span>
+        <span class="shrink-0 rounded-full bg-mint/15 px-2.5 py-1 text-[10px] font-semibold uppercase text-mint">Up to date</span>
       </div>
 
       <!-- 7: Sarah T. -->
-      <div class="glass rounded-2xl p-3 flex items-center justify-between gap-3">
+      <div class="card p-3 flex items-center justify-between gap-3">
         <div class="flex items-center gap-3 min-w-0">
-          <span class="size-10 shrink-0 rounded-full bg-azure text-white text-sm font-bold flex items-center justify-center">ST</span>
+          <span class="size-10 shrink-0 rounded-full bg-sunken border border-line text-ink text-sm font-bold flex items-center justify-center">ST</span>
           <div class="min-w-0">
-            <p class="text-sm font-medium text-white truncate">Sarah T.</p>
-            <p class="text-[11px] text-white/60">Turn #2 · Disbursed Oct 29</p>
+            <p class="text-sm font-medium text-ink truncate">Sarah T.</p>
+            <p class="text-[11px] text-muted">Turn #2 · Disbursed Oct 29</p>
           </div>
         </div>
-        <span class="shrink-0 rounded-full bg-lime/15 px-2.5 py-1 text-[10px] font-semibold uppercase text-lime">+3d ahead</span>
+        <span class="shrink-0 rounded-full bg-mint/15 px-2.5 py-1 text-[10px] font-semibold uppercase text-mint">+3d ahead</span>
       </div>
 
       <!-- 8: Amara Patel -->
-      <div class="glass rounded-2xl p-3 flex items-center justify-between gap-3">
+      <div class="card p-3 flex items-center justify-between gap-3">
         <div class="flex items-center gap-3 min-w-0">
-          <span class="size-10 shrink-0 rounded-full bg-warn text-lime-ink text-sm font-bold flex items-center justify-center">AP</span>
+          <span class="size-10 shrink-0 rounded-full bg-sunken border border-line text-ink text-sm font-bold flex items-center justify-center">AP</span>
           <div class="min-w-0">
-            <p class="text-sm font-medium text-white truncate">Amara Patel</p>
-            <p class="text-[11px] text-white/60">Turn #3 · Disbursed Nov 10</p>
+            <p class="text-sm font-medium text-ink truncate">Amara Patel</p>
+            <p class="text-[11px] text-muted">Turn #3 · Disbursed Nov 10</p>
           </div>
         </div>
-        <span class="shrink-0 rounded-full bg-lime/15 px-2.5 py-1 text-[10px] font-semibold uppercase text-lime">Up to date</span>
+        <span class="shrink-0 rounded-full bg-mint/15 px-2.5 py-1 text-[10px] font-semibold uppercase text-mint">Up to date</span>
       </div>
     </div>
   </section>
   <!-- /fragment: group-tab-roster -->
 
   <!-- fragment: group-governance -->
-  <section class="glass rounded-2xl p-4 flex flex-col gap-3">
+  <section class="card p-4 flex flex-col gap-3">
     <div class="flex items-center justify-between">
-      <span class="flex items-center gap-2 text-[11px] font-semibold uppercase text-white/70">
-        <span class="material-symbols-outlined text-[18px] text-white/50">verified_user</span>Circle governance
+      <span class="flex items-center gap-2 text-[11px] font-semibold uppercase text-muted">
+        <span class="material-symbols-outlined text-[18px]">verified_user</span>Circle governance
       </span>
-      <span class="text-[10px] font-semibold text-lime">Verified escrow</span>
+      <span class="text-[10px] font-semibold text-mint">Verified escrow</span>
     </div>
-    <p class="text-xs text-white/60">
+    <p class="text-xs text-muted">
       Automatic daily collection at 04:00 WAT. Withdrawals and loans are approved by group admins, following the group rules.
     </p>
     <div class="grid grid-cols-2 gap-2">
-      <a href="/rules" class="rounded-2xl bg-white/5 hover:bg-white/10 p-3 flex items-center gap-2 transition-colors">
-        <span class="material-symbols-outlined text-[20px] text-lime">rule</span>
-        <span class="text-xs font-semibold text-white">Group rules</span>
+      <a href="/rules" class="card-inset hover:bg-surface p-3 flex items-center gap-2 transition-colors">
+        <span class="material-symbols-outlined text-[20px] text-mint">rule</span>
+        <span class="text-xs font-semibold text-ink">Group rules</span>
       </a>
-      <a href="/approvals" class="relative rounded-2xl bg-white/5 hover:bg-white/10 p-3 flex items-center gap-2 transition-colors">
-        <span class="material-symbols-outlined text-[20px] text-warn">fact_check</span>
-        <span class="text-xs font-semibold text-white">Approvals</span>
-        <span class="ml-auto rounded-full bg-warn text-lime-ink px-1.5 text-[10px] font-bold">3</span>
+      <a href="/approvals" class="card-inset hover:bg-surface p-3 flex items-center gap-2 transition-colors">
+        <span class="material-symbols-outlined text-[20px] text-gold">fact_check</span>
+        <span class="text-xs font-semibold text-ink">Approvals</span>
+        <span class="ml-auto rounded-full bg-gold text-page px-1.5 text-[10px] font-bold">3</span>
       </a>
     </div>
   </section>
@@ -392,8 +388,8 @@
   /* Tabs */
   var tabs = document.querySelectorAll('.group-tab');
   var panels = document.querySelectorAll('.group-panel');
-  var ON = ['bg-white/15', 'text-white'];
-  var OFF = ['text-white/60'];
+  var ON = ['bg-accent', 'text-on-accent'];
+  var OFF = ['text-muted'];
 
   tabs.forEach(function (tab) {
     tab.addEventListener('click', function () {
@@ -417,9 +413,9 @@
     strip.innerHTML = days.map(function (d, i) {
       var last = i === days.length - 1;
       var box = last
-        ? '<div class="size-7 rounded-lg bg-azure text-white flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">bolt</span></div>'
-        : '<div class="size-7 rounded-lg bg-lime/20 text-lime flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">check</span></div>';
-      return '<div class="flex flex-col items-center gap-1"><span class="text-[9px] text-white/50">' + d + '</span>' + box + '</div>';
+        ? '<div class="size-7 rounded-lg bg-gold/15 text-gold flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">bolt</span></div>'
+        : '<div class="size-7 rounded-lg bg-mint/15 text-mint flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">check</span></div>';
+      return '<div class="flex flex-col items-center gap-1"><span class="text-[9px] text-muted">' + d + '</span>' + box + '</div>';
     }).join('');
   }
 
@@ -428,12 +424,12 @@
     var original = btn.innerHTML;
     btn.addEventListener('click', function () {
       btn.innerHTML = '<span class="material-symbols-outlined text-[14px]">done</span>Nudged!';
-      btn.classList.remove('text-warn');
-      btn.classList.add('text-lime', 'pointer-events-none');
+      btn.classList.remove('text-gold');
+      btn.classList.add('text-mint', 'pointer-events-none');
       setTimeout(function () {
         btn.innerHTML = original;
-        btn.classList.remove('text-lime', 'pointer-events-none');
-        btn.classList.add('text-warn');
+        btn.classList.remove('text-mint', 'pointer-events-none');
+        btn.classList.add('text-gold');
       }, 2400);
     });
   });
