@@ -2,7 +2,6 @@ use chrono::{DateTime, NaiveDate, Utc};
 use sqlx::{FromRow, PgPool, Postgres, Transaction};
 use uuid::Uuid;
 
-
 // every function here takes &mut tx, so the service decides where the tx begins and ends, money is in kobo, and this file has no rules, only sql
 // the one exception is sum_plan_money_taken_out, it only reads, so it takes the pool
 
