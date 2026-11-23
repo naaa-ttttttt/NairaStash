@@ -9,3 +9,18 @@ use uuid::Uuid;
 const BANK_ACCOUNT_COLUMNS: &str = "bank_account_id, user_id, bank_name, bank_code, \
     account_number, account_name, recipient_code, status::text AS status, \
     created_at, removed_at";
+
+// a saved bank as the db holds it
+#[derive(Debug, FromRow)]
+pub struct BankAccount {
+    pub bank_account_id: Uuid,
+    pub user_id: Uuid,
+    pub bank_name: String,
+    pub bank_code: String,
+    pub account_number: String,
+    pub account_name: String,
+    pub recipient_code: String,
+    pub status: String,
+    pub created_at: DateTime<Utc>,
+    pub removed_at: Option<DateTime<Utc>>,
+}
