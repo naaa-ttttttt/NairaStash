@@ -5,8 +5,7 @@ use uuid::Uuid;
 // every function here takes &mut tx, so the service decides where the tx begins and ends, money is in kobo, and this file has no rules, only sql
 // the one exception is sum_plan_money_taken_out, it only reads, so it takes the pool
 
-// the plan row as the money code needs it, read while locked
-// status and lock_mode come as text so we do not copy enums we have not seen yet
+//we match each row to the column names from the db, for fetching of plan details and locking it so we can add money to the plan.
 #[derive(Debug, FromRow)]
 pub struct LockedPlan {
     pub plan_id: Uuid,
@@ -20,6 +19,7 @@ pub struct LockedPlan {
     pub created_at: DateTime<Utc>,
 }
 
+// implementation function for the locked plan
 // reads one plan of this user and locks the row until the tx ends
 // two add-money requests on the same plan now wait for each other
 // gives back None when the plan does not exist or belongs to someone else
