@@ -11,7 +11,7 @@ use super::repo::{
 };
 
 const PASSWORD_MIN_LENGTH: usize = 8;
-const PASSWORD_MAX_LENGTH: usize = 128;
+pub const PASSWORD_MAX_LENGTH: usize = 128;
 const NAME_MAX_LENGTH: usize = 100;
 
 // how long a login lasts before the user has to log in again
@@ -233,7 +233,7 @@ fn hash_token(token: &str) -> String {
 }
 
 // compares the typed password to the stored argon2 hash
-fn password_matches(password: &str, stored_hash: &str) -> bool {
+pub fn password_matches(password: &str, stored_hash: &str) -> bool {
     match PasswordHash::new(stored_hash) {
         Ok(parsed) => Argon2::default()
             .verify_password(password.as_bytes(), &parsed)
