@@ -253,3 +253,24 @@ pub async fn create_transfer_recipient(
 
     Ok(parsed.data.recipient_code) // no semicolon
 }
+
+// the paystack test bank, it exists only for testing, a live key never gets it
+pub const TEST_BANK_CODE: &str = "001";
+
+// in test mode paystack allows only 3 real account lookups a day, bank code 001 has no limit
+// so with an sk_test_ key we add the test bank to the list if paystack did not already send it
+pub fn add_test_bank_if_missing(banks: &mut Vec<PaystackBank>, config: &PaystackConfig) {
+    if !config.secret_key.starts_with("sk_test_") {
+        return;
+    }
+
+    if banks.iter().any(|bank| bank.code == TEST_BANK_CODE) {
+        return;
+    }
+
+    banks.push(PaystackBank {
+        name: "Paystack Test Bank (test mode only)".to_string(),
+        code: TEST_BANK_CODE.to_string(),
+        active: None,
+    });
+}
