@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Withdraw to bank · NairaStash{% endblock %}
+
+{% block content %}
+<header class="app-header justify-between">
+  <div class="flex items-center gap-3">
+    <a href="javascript:history.back()" aria-label="Back"
+      class="card size-10 rounded-full flex items-center justify-center text-ink hover:bg-sunken transition-colors">
+      <span class="material-symbols-outlined text-[20px]">arrow_back</span>
+    </a>
+    <div class="leading-tight">
+      <h1 class="text-base font-semibold text-ink">Withdraw to bank</h1>
+      <p class="text-[11px] text-muted">Send money from your wallet</p>
+    </div>
+  </div>
+  {% include "theme_toggle.html" %}
+</header>
+
+<div class="flex flex-col gap-4 px-5 pt-4 pb-6">
+
+  {% if let Some(text) = message %}
+  <p class="rounded-xl border px-4 py-3 text-sm {% if message_is_error %}border-danger/40 bg-danger/10 text-danger{% else %}border-mint/40 bg-mint/10 text-mint{% endif %}" role="alert">{{ text }}</p>
+  {% endif %}
+
+  {% if !has_pin %}
+  <section class="card p-5 flex flex-col gap-3">
+    <h2 class="text-sm font-semibold text-ink">Set a PIN first</h2>
+    <p class="text-xs text-muted">A 4-digit PIN is asked before every payout.</p>
+    <a href="/pin" class="btn-primary w-full">Set my PIN</a>
+  </section>
+  {% else if banks.is_empty() %}
+  <section class="card p-5 flex flex-col gap-3">
+    <h2 class="text-sm font-semibold text-ink">Add a bank account first</h2>
+    <p class="text-xs text-muted">Payouts are sent to a bank account you have saved.</p>
+    <a href="/banks/new" class="btn-primary w-full">Add a bank account</a>
+  </section>
+  {% else %}
+  <form method="post" action="/payouts/review" class="flex flex-col gap-4">
+    <section class="card p-5 flex flex-col gap-3">
+      <label for="bank" class="text-xs font-semibold text-ink">Send to</label>
+      <select id="bank" name="bank_account_id" required
+        class="w-full h-12 px-4 rounded-xl bg-sunken border border-line text-sm text-ink focus:outline-none focus:border-mint transition-colors">
+        {% for bank in banks %}
+        <option value="{{ bank.bank_account_id }}" {% if bank.bank_account_id == selected_bank_id %}selected{% endif %}>{{ bank.bank_name }} · {{ bank.masked_number }} · {{ bank.account_name }}</option>
+        {% endfor %}
+      </select>
+    </section>
+
+    <section class="card p-5 flex flex-col gap-3">
+      <label for="amount" class="text-xs font-semibold text-ink">Amount</label>
+      <div class="flex items-baseline justify-center gap-1 py-6 rounded-xl bg-sunken border border-line">
+        <span class="text-3xl font-medium text-muted">₦</span>
+        <input id="amount" name="amount" type="text" inputmode="decimal" required placeholder="5,000" value="{{ amount }}"
+          class="w-44 bg-transparent text-3xl font-semibold tracking-tight text-ink text-center placeholder:text-muted focus:outline-none">
+      </div>
+      <p class="text-xs text-muted">At least ₦{{ min_amount }}, at most ₦{{ daily_limit }} per day. A small fee applies and is shown before you confirm.</p>
+    </section>
+
+    <button type="submit" class="btn-primary w-full">
+      Continue
+      <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+    </button>
+  </form>
+  {% endif %}
+
+  {% if !recent.is_empty() %}
+  <h2 class="text-xs font-semibold text-ink mt-2">Recent payouts</h2>
+  {% for p in recent %}
+  <section class="card p-4 flex items-center justify-between gap-3">
+    <div class="min-w-0">
+      <p class="text-sm font-semibold text-ink truncate">{{ p.bank_name }} · {{ p.masked_number }}</p>
+      <p class="text-xs text-muted">{{ p.date }} · fee ₦{{ p.fee }}</p>
+    </div>
+    <div class="text-right shrink-0">
+      <p class="text-sm font-semibold text-ink">₦{{ p.amount }}</p>
+      <p class="text-xs {% if p.status_key == "success" %}text-mint{% else if p.status_key == "failed" %}text-danger{% else %}text-muted{% endif %}">{{ p.status_label }}</p>
+    </div>
+  </section>
+  {% endfor %}
+  {% endif %}
+</div>
+{% endblock %}
