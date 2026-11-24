@@ -1,8 +1,11 @@
+use std::sync::{Mutex, OnceLock};
+use std::time::{Duration, Instant};
+
 use reqwest::Client;
 use sqlx::PgPool;
 use uuid::Uuid;
 
-use super::pay_stack::{self, PaystackError};
+use super::pay_stack::{self, PaystackBank, PaystackError};
 use super::repo::{self, BankAccount, NewBankAccount};
 use crate::domains::deposits::pay_stack::PaystackConfig;
 
@@ -14,6 +17,13 @@ pub const MAX_SAVED_BANKS: i64 = 5;
 
 // a nigerian bank account number is always exactly this many digits
 const ACCOUNT_NUMBER_LENGTH: usize = 10;
+
+// how long the bank list is kept in memory before we ask paystack again, 6 hours
+const BANK_LIST_CACHE_SECONDS: u64 = 6 * 60 * 60;
+
+// the bank list and the moment we got it, shared by every request
+// the lock is only held for a quick read or write, never while waiting on paystack
+static BANK_CACHE: OnceLock<Mutex<Option<(Instant, Vec<PaystackBank>)>>> = OnceLock::new();
 
 // everything that can go wrong when saving, resolving or removing a bank
 #[derive(Debug)]
@@ -67,6 +77,45 @@ fn paystack_failed(err: PaystackError) -> BankAccountError {
     BankAccountError::PaystackUnavailable // no semicolon
 }
 
+// gives back the cached bank list when it is still fresh, none when it is missing or too old
+fn read_bank_cache() -> Option<Vec<PaystackBank>> {
+    let cache = BANK_CACHE.get_or_init(|| Mutex::new(None));
+    let guard = cache.lock().ok()?;
+    let (fetched_at, banks) = guard.as_ref()?;
+
+    if fetched_at.elapsed() < Duration::from_secs(BANK_LIST_CACHE_SECONDS) {
+        Some(banks.clone())
+    } else {
+        None
+    } // no semicolon
+}
+
+// keeps a fresh copy of the bank list with the time we got it
+fn store_bank_cache(banks: &[PaystackBank]) {
+    let cache = BANK_CACHE.get_or_init(|| Mutex::new(None));
+
+    if let Ok(mut guard) = cache.lock() {
+        *guard = Some((Instant::now(), banks.to_vec()));
+    }
+}
+
+// the bank list from memory when fresh, otherwise from paystack (and then kept in memory)
+// a failed fetch is never stored, so the next request tries again
+async fn list_banks_cached(
+    client: &Client,
+    paystack: &PaystackConfig,
+) -> Result<Vec<PaystackBank>, PaystackError> {
+    if let Some(banks) = read_bank_cache() {
+        return Ok(banks);
+    }
+
+    let mut banks = pay_stack::list_banks(client, paystack).await?;
+    pay_stack::add_test_bank_if_missing(&mut banks, paystack);
+    store_bank_cache(&banks);
+
+    Ok(banks) // no semicolon
+}
+
 // trims the typed account number and checks it is exactly 10 digits
 fn clean_account_number(raw: &str) -> Result<String, BankAccountError> {
     let trimmed = raw.trim();
@@ -92,7 +141,7 @@ pub async fn list_available_banks(
     client: &Client,
     paystack: &PaystackConfig,
 ) -> Result<Vec<BankOption>, BankAccountError> {
-    let banks = pay_stack::list_banks(client, paystack)
+    let banks = list_banks_cached(client, paystack)
         .await
         .map_err(paystack_failed)?;
 
@@ -110,7 +159,7 @@ pub async fn list_available_banks(
 }
 
 // step 1 of adding a bank: checks the input and asks paystack whose account it is
-// writes nothing, it only gives the confirm screen what it needs
+// writes nothing, it only gives the confirm screen (and the live name lookup) what they need
 pub async fn resolve_bank_account(
     client: &Client,
     paystack: &PaystackConfig,
@@ -122,7 +171,7 @@ pub async fn resolve_bank_account(
 
     // the bank name comes from paystack's list, never from the browser
     // a bank code that is not in the list is a fake or a switched off bank
-    let banks = pay_stack::list_banks(client, paystack)
+    let banks = list_banks_cached(client, paystack)
         .await
         .map_err(paystack_failed)?;
     let bank = banks
