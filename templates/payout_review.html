@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Confirm payout · NairaStash{% endblock %}
+
+{% block content %}
+<header class="app-header justify-between">
+  <div class="flex items-center gap-3">
+    <a href="/payouts" aria-label="Back"
+      class="card size-10 rounded-full flex items-center justify-center text-ink hover:bg-sunken transition-colors">
+      <span class="material-symbols-outlined text-[20px]">arrow_back</span>
+    </a>
+    <div class="leading-tight">
+      <h1 class="text-base font-semibold text-ink">Confirm payout</h1>
+      <p class="text-[11px] text-muted">Check the details, then enter your PIN</p>
+    </div>
+  </div>
+  {% include "theme_toggle.html" %}
+</header>
+
+<form method="post" action="/payouts" class="flex-1 flex flex-col">
+  <div class="flex flex-col gap-4 px-5 pt-4 pb-6">
+
+    {% if let Some(text) = error %}
+    <p class="rounded-xl border border-danger/40 bg-danger/10 text-danger text-sm px-4 py-3" role="alert">{{ text }}</p>
+    {% endif %}
+
+    <section class="card p-5 flex flex-col gap-2">
+      <p class="text-xs text-muted">Sending to</p>
+      <p class="text-base font-semibold text-ink break-words">{{ account_name }}</p>
+      <p class="text-xs text-muted">{{ bank_name }} · {{ account_number }}</p>
+    </section>
+
+    <section class="card p-5 flex flex-col gap-3">
+      <div class="flex items-center justify-between text-sm">
+        <span class="text-muted">The bank receives</span>
+        <span class="font-semibold text-ink">₦{{ amount }}</span>
+      </div>
+      <div class="flex items-center justify-between text-sm">
+        <span class="text-muted">Fee</span>
+        <span class="font-semibold text-ink">₦{{ fee }}</span>
+      </div>
+      <div class="flex items-center justify-between text-sm border-t border-line pt-3">
+        <span class="text-muted">Taken from your wallet</span>
+        <span class="font-semibold text-ink">₦{{ total }}</span>
+      </div>
+    </section>
+
+    <!-- the server works out the fee again, only the bank and the amount are sent back -->
+    <input type="hidden" name="bank_account_id" value="{{ bank_account_id }}">
+    <input type="hidden" name="amount" value="{{ amount_text }}">
+
+    <section class="card p-5 flex flex-col gap-3">
+      <label for="pin" class="text-xs font-semibold text-ink">Your PIN</label>
+      <input id="pin" name="pin" type="password" inputmode="numeric"
+        required minlength="4" maxlength="4" pattern="[0-9]{4}" autocomplete="off"
+        class="w-full h-12 px-4 rounded-xl bg-sunken border border-line text-sm text-ink tracking-widest focus:outline-none focus:border-mint transition-colors">
+    </section>
+  </div>
+
+  <div class="sticky bottom-20 z-30 bg-page border-t border-line px-5 py-3">
+    <button type="submit" class="btn-primary w-full">Send ₦{{ amount }}</button>
+  </div>
+</form>
+{% endblock %}
