@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Bank accounts · NairaStash{% endblock %}
+
+{% block content %}
+<header class="app-header justify-between">
+  <div class="flex items-center gap-3">
+    <a href="/" aria-label="Back"
+      class="card size-10 rounded-full flex items-center justify-center text-ink hover:bg-sunken transition-colors">
+      <span class="material-symbols-outlined text-[20px]">arrow_back</span>
+    </a>
+    <div class="leading-tight">
+      <h1 class="text-base font-semibold text-ink">Bank accounts</h1>
+      <p class="text-[11px] text-muted">Where your withdrawals are sent</p>
+    </div>
+  </div>
+  {% include "theme_toggle.html" %}
+</header>
+
+<main class="flex-1 flex flex-col gap-4 px-5 pt-4 pb-6">
+
+  <!-- banner from a failed save or remove, the code comes from the url -->
+  {% if let Some(message) = error %}
+  <p class="rounded-xl border border-danger/40 bg-danger/10 text-danger text-sm px-4 py-3" role="alert">{{ message }}</p>
+  {% endif %}
+
+  {% if banks.is_empty() %}
+  <!-- nothing saved yet -->
+  <section class="card px-5 py-8 text-center">
+    <h2 class="text-sm font-semibold text-ink">No bank account saved</h2>
+    <p class="text-xs text-muted mt-1">Add the account you want your withdrawals sent to.</p>
+  </section>
+  {% else %}
+  <!-- one list, one row per saved bank, the account name comes first -->
+  <section class="card divide-y divide-line overflow-hidden">
+    {% for bank in banks %}
+    <div class="flex items-center justify-between gap-3 px-5 py-4">
+      <div class="min-w-0">
+        <p class="text-sm font-semibold text-ink truncate">{{ bank.account_name }}</p>
+        <p class="text-xs text-muted truncate mt-0.5">{{ bank.bank_name }} · {{ bank.masked_number }}</p>
+      </div>
+      <form method="post" action="/banks/{{ bank.bank_account_id }}/remove"
+        onsubmit="return confirm('Remove this bank account?');">
+        <button type="submit" class="text-xs text-muted hover:text-danger transition-colors shrink-0">Remove</button>
+      </form>
+    </div>
+    {% endfor %}
+  </section>
+  {% endif %}
+
+  <!-- add button, or the limit message -->
+  {% if can_add_more %}
+  <a href="/banks/new" class="btn-primary w-full">Add bank account</a>
+  {% else %}
+  <p class="text-xs text-muted text-center">You have saved the maximum of {{ max_banks }} bank accounts. Remove one to add another.</p>
+  {% endif %}
+
+</main>
+{% endblock %}
