@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+
+{% block title %}Add bank account · NairaStash{% endblock %}
+
+{% block content %}
+<header class="app-header justify-between">
+  <div class="flex items-center gap-3">
+    <a href="/banks" aria-label="Back"
+      class="card size-10 rounded-full flex items-center justify-center text-ink hover:bg-sunken transition-colors">
+      <span class="material-symbols-outlined text-[20px]">arrow_back</span>
+    </a>
+    <div class="leading-tight">
+      <h1 class="text-base font-semibold text-ink">Add bank account</h1>
+      <p class="text-[11px] text-muted">We check the account name first</p>
+    </div>
+  </div>
+  {% include "theme_toggle.html" %}
+</header>
+
+<main class="flex-1 flex flex-col gap-4 px-5 pt-4 pb-6">
+
+  {% if let Some(message) = error %}
+  <p class="rounded-xl border border-danger/40 bg-danger/10 text-danger text-sm px-4 py-3" role="alert">{{ message }}</p>
+  {% endif %}
+
+  {% if let Some(account) = confirm %}
+  <!-- the confirm screen, only used when the page has no script, the name below is the one the bank gave us -->
+  <section class="card p-5 flex flex-col gap-4">
+    <h2 class="text-sm font-semibold text-ink">Is this your account?</h2>
+    <div class="card-inset divide-y divide-line overflow-hidden">
+      <div class="px-4 py-3">
+        <p class="text-[11px] uppercase tracking-wider text-muted">Account name</p>
+        <p class="text-sm font-semibold text-ink break-words">{{ account.account_name }}</p>
+      </div>
+      <div class="px-4 py-3">
+        <p class="text-[11px] uppercase tracking-wider text-muted">Account number</p>
+        <p class="text-sm font-semibold text-ink">{{ account.account_number }}</p>
+      </div>
+      <div class="px-4 py-3">
+        <p class="text-[11px] uppercase tracking-wider text-muted">Bank</p>
+        <p class="text-sm font-semibold text-ink">{{ account.bank_name }}</p>
+      </div>
+    </div>
+    <p class="text-xs text-muted">Money you withdraw will be sent to this account. Check the name carefully, transfers cannot be undone.</p>
+
+    <!-- only the bank code and the number are sent, the server looks the name up again -->
+    <form method="post" action="/banks" class="flex flex-col gap-2">
+      <input type="hidden" name="bank_code" value="{{ account.bank_code }}">
+      <input type="hidden" name="account_number" value="{{ account.account_number }}">
+      <button type="submit" class="btn-primary w-full h-12 text-sm">
+        <span class="material-symbols-outlined text-[18px]">check</span>
+        Yes, save this account
+      </button>
+      <a href="/banks/new" class="btn-quiet w-full h-11 text-sm">No, go back</a>
+    </form>
+  </section>
+
+  {% else %}
+  <!-- search the bank, type the number, see the name -->
+  <form id="bank-form" method="post" action="/banks/resolve" class="flex flex-col gap-4">
+
+    <section id="bank-box" class="card p-5 flex flex-col gap-3">
+      <label for="bank-search" class="text-xs font-semibold text-ink">Bank</label>
+
+      <!-- the code the server receives, filled when a bank is tapped -->
+      <input type="hidden" id="bank-code" name="bank_code" value="{{ form.bank_code }}">
+
+      <div class="relative">
+        <span class="material-symbols-outlined text-[20px] text-muted absolute left-4 top-1/2 -translate-y-1/2">search</span>
+        <input id="bank-search" type="text" autocomplete="off" placeholder="Search your bank"
+          class="w-full h-12 pl-11 pr-4 rounded-xl bg-sunken border border-line text-sm text-ink placeholder:text-muted focus:outline-none focus:border-mint transition-colors">
+      </div>
+
+      <!-- every bank is here but hidden, the script shows only the matches -->
+      <ul id="bank-list" class="hidden max-h-64 overflow-y-auto rounded-xl border border-line divide-y divide-line">
+        {% for bank in banks %}
+        <li class="bank-item hidden px-4 py-3 text-sm text-ink cursor-pointer hover:bg-sunken"
+            data-code="{{ bank.bank_code }}" data-name="{{ bank.bank_name }}">{{ bank.bank_name }}</li>
+        {% endfor %}
+      </ul>
+      <p id="bank-empty" class="hidden text-xs text-muted">No bank matches that name.</p>
+    </section>
+
+    <section class="card p-5 flex flex-col gap-3">
+      <label for="account-number" class="text-xs font-semibold text-ink">Account number</label>
+      <input id="account-number" name="account_number" type="text" required
+        inputmode="numeric" pattern="[0-9]{10}" maxlength="10" autocomplete="off"
+        value="{{ form.account_number }}" placeholder="10 digits"
+        class="w-full h-12 px-4 rounded-xl bg-sunken border border-line text-sm text-ink placeholder:text-muted focus:outline-none focus:border-mint transition-colors">
+
+      <!-- the account name shows here once the lookup answers -->
+      <p id="name-line" class="hidden text-sm font-semibold" role="status"></p>
+    </section>
+
+    <button id="submit-btn" type="submit" class="btn-primary w-full disabled:opacity-40">
+      <span id="submit-label">Continue</span>
+      <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+    </button>
+  </form>
+
+  <script>
+    (function () {
+      var search = document.getElementById('bank-search');
+      var code = document.getElementById('bank-code');
+      var list = document.getElementById('bank-list');
+      var empty = document.getElementById('bank-empty');
+      var box = document.getElementById('bank-box');
+      var form = document.getElementById('bank-form');
+      var number = document.getElementById('account-number');
+      var nameLine = document.getElementById('name-line');
+      var submit = document.getElementById('submit-btn');
+      var label = document.getElementById('submit-label');
+      var items = Array.prototype.slice.call(list.querySelectorAll('.bank-item'));
+
+      // counts the lookups, an answer from an older lookup is ignored
+      var lookupId = 0;
+
+      // the banks shown first, matched by a piece of the name, in this order
+      var popularKeys = ['opay', 'palmpay', 'kuda', 'moniepoint', 'guaranty trust', 'access bank',
+        'zenith', 'united bank for africa', 'first bank of nigeria', 'wema', 'fidelity', 'sterling', 'union bank'];
+      var popular = [];
+      popularKeys.forEach(function (key) {
+        for (var i = 0; i < items.length; i++) {
+          if (items[i].dataset.name.toLowerCase().indexOf(key) !== -1 && popular.indexOf(items[i]) === -1) {
+            popular.push(items[i]);
+            break;
+          }
+        }
+      });
+
+      // shows only the first `limit` of the matches
+      function show(matches, limit, query) {
+        items.forEach(function (li) { li.classList.add('hidden'); });
+        matches.slice(0, limit).forEach(function (li) { li.classList.remove('hidden'); });
+        list.classList.toggle('hidden', matches.length === 0);
+        empty.classList.toggle('hidden', !(matches.length === 0 && query !== ''));
+      }
+
+      function refresh() {
+        var query = search.value.trim().toLowerCase();
+        if (query === '') {
+          show(popular.length ? popular : items, 8, query);
+          return;
+        }
+        var matches = items.filter(function (li) {
+          return li.dataset.name.toLowerCase().indexOf(query) !== -1;
+        });
+        show(matches, 30, query);
+      }
+
+      // the line under the number: text and a colour, textContent so a name can never become html
+      function showLine(text, colourClass) {
+        nameLine.textContent = text;
+        nameLine.className = 'text-sm font-semibold ' + colourClass;
+      }
+
+      // back to the plain state: no name, the old confirm-page route, button on
+      function resetLookup() {
+        lookupId++; // an answer still on its way is now stale
+        nameLine.classList.add('hidden');
+        form.action = '/banks/resolve';
+        label.textContent = 'Continue';
+        submit.disabled = false;
+      }
+
+      // asks the server whose account this is, once a bank is picked and 10 digits are typed
+      function lookup() {
+        resetLookup();
+        if (number.value.length !== 10 || !code.value) { return; }
+
+        var myId = lookupId;
+        submit.disabled = true;
+        showLine('Looking up account…', 'text-muted');
+
+        fetch('/banks/lookup', {
+          method: 'POST',
+          body: new URLSearchParams({ bank_code: code.value, account_number: number.value })
+        })
+          .then(function (response) { return response.json(); })
+          .then(function (data) {
+            if (myId !== lookupId) { return; }
+            if (data.ok) {
+              showLine(data.account_name, 'text-mint');
+              form.action = '/banks'; // the name is shown, so save straight away
+              label.textContent = 'Save this account';
+              submit.disabled = false;
+            } else {
+              showLine(data.message || 'We could not check that account.', 'text-danger');
+            }
+          })
+          .catch(function () {
+            if (myId !== lookupId) { return; }
+            showLine('We could not check that account. Please try again.', 'text-danger');
+          });
+      }
+
+      // after an error the bank the user picked comes back filled in
+      if (code.value) {
+        items.forEach(function (li) {
+          if (li.dataset.code === code.value) { search.value = li.dataset.name; }
+        });
+      }
+
+      search.addEventListener('focus', refresh);
+      search.addEventListener('input', function () {
+        code.value = ''; // typing again means the old pick no longer counts
+        resetLookup();
+        refresh();
+      });
+
+      list.addEventListener('click', function (event) {
+        var li = event.target.closest('.bank-item');
+        if (!li) { return; }
+        code.value = li.dataset.code;
+        search.value = li.dataset.name;
+        list.classList.add('hidden');
+        empty.classList.add('hidden');
+        if (number.value.length === 10) { lookup(); } else { number.focus(); }
+      });
+
+      number.addEventListener('input', function () {
+        number.value = number.value.replace(/\D/g, ''); // digits only
+        lookup();
+      });
+
+      // a tap outside the box closes the list
+      document.addEventListener('click', function (event) {
+        if (!box.contains(event.target)) { list.classList.add('hidden'); }
+      });
+
+      // no bank picked yet: open the list instead of sending the form
+      form.addEventListener('submit', function (event) {
+        if (!code.value) {
+          event.preventDefault();
+          search.focus();
+          refresh();
+        }
+      });
+    })();
+  </script>
+  {% endif %}
+
+</main>
+{% endblock %}
